@@ -75,9 +75,9 @@
 
             <div class="profile-card" style="margin-bottom:20px;">
                 <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
-                <div style="display:flex; gap:10px;">
-                    <input type="text" id="base-callsign-input" style="flex:1; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
-                    <button onclick="saveBaseCallsign()">ИЗМЕНИТЬ</button>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <input type="text" id="base-callsign-input" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
+                    <button onclick="saveBaseCallsign()" style="width:100%;">СОХРАНИТЬ ПОЗЫВНОЙ</button>
                 </div>
             </div>
 
