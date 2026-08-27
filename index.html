@@ -21,8 +21,8 @@
         }
         @font-face { font-family: 'VT323'; src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJXUdVTE.woff2') format('woff2'); }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { background-color: #000; color: var(--term-green); font-family: 'VT323', monospace; font-size: 1.2rem; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        #device-casing { width: 100%; height: 100%; max-width: 500px; background: var(--metal-bg); border: 8px solid var(--metal-border); border-style: ridge; padding: 10px; display: flex; flex-direction: column; position: relative; }
+        body { background-color: #000; color: var(--term-green); font-family: 'VT323', monospace; font-size: 1.2rem; height: 100vh; height: 100dvh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #device-casing { width: 100%; height: 100%; max-width: 500px; background: var(--metal-bg); border: 8px solid var(--metal-border); border-style: ridge; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 15px)); display: flex; flex-direction: column; position: relative; }
         #screen { background-color: var(--term-dark); flex-grow: 1; position: relative; border: 4px solid #111; border-radius: 10px; overflow-y: auto; overflow-x: hidden; padding: 10px; box-shadow: inset 0 0 20px rgba(0,255,0,0.2); text-shadow: 0 0 5px var(--term-green); }
         #screen::after { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; pointer-events: none; }
         #hud { border-bottom: 2px dashed var(--term-green); padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
@@ -579,7 +579,7 @@
     function startDeadScan() {
         if (!deadScanner) deadScanner = new Html5Qrcode("qr-reader-dead");
         document.getElementById('qr-reader-dead').style.display = 'block'; document.getElementById('btn-dead-scan').style.display = 'none';
-        Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { deadScanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { deadScanner.stop(); handleDeadScan(t); }, (e) => {}); } }).catch(e => alert("Ошибка камеры."));
+        deadScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { deadScanner.stop(); handleDeadScan(t); }, (e) => {}).catch(e => alert("Ошибка камеры."));
     }
     function handleDeadScan(qrCode) {
         document.getElementById('dead-manual-code').value = ''; let code = qrCode.trim().toLowerCase();
@@ -664,14 +664,10 @@
         alert(`Для подтверждения ремонта отсканируйте QR-код вашей Базы.`);
         switchView('scan');
         if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        Html5Qrcode.getCameras().then(devices => { 
-            if (devices && devices.length) { 
-                scanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
-                    scanner.stop(); 
-                    handleScan(t); 
-                }, (e) => {}); 
-            } 
-        }).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
+            scanner.stop(); 
+            handleScan(t); 
+        }, (e) => {}).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
     }
 
     function renderProfile() {
@@ -1531,7 +1527,7 @@
 
     document.getElementById('start-scan-btn').addEventListener('click', () => {
         if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { scanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { scanner.stop(); handleScan(t); }, (e) => {}); } }).catch(e => alert("Ошибка камеры."));
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { scanner.stop(); handleScan(t); }, (e) => {}).catch(e => alert("Ошибка камеры."));
     });
 
     init();
