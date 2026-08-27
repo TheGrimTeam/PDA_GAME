@@ -68,6 +68,26 @@
 
 <div id="device-casing">
     <div id="screen">
+        <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
+        <div id="view-base" class="view">
+            <h2 style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px;">ГРИМ-СЕТЬ: БАЗА</h2>
+            <p style="text-align:center; font-size:0.95rem; color:#aaa; margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
+
+            <div class="profile-card" style="margin-bottom:20px;">
+                <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
+                <div style="display:flex; gap:10px;">
+                    <input type="text" id="base-callsign-input" style="flex:1; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
+                    <button onclick="saveBaseCallsign()">ИЗМЕНИТЬ</button>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
+                <div style="margin-bottom:5px;">Кредиты: <span id="base-score" style="color:var(--quest-color);">0</span> 💎</div>
+                <div>Статус / Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
+            </div>
+
+            <button onclick="startGameFromBase()" class="btn-hero" style="width:100%; font-size:1.3rem; padding:12px; border-color:var(--term-green); color:var(--term-green); background:rgba(57,255,20,0.1); margin-bottom:10px;">ВОЙТИ В ЗОНУ (СТАРТ)</button>
+        </div>
         <div id="hud">
             <div class="hud-row" style="margin-bottom: 5px;">
                 <div>HP:<span id="hp-val">100</span>%</div>
@@ -99,6 +119,7 @@
             <!-- Кнопки подтверждения -->
             <button id="btn-confirm-heal" onclick="confirmHeal()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)</button>
             <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
+            <button onclick="switchView('profile')" style="width:100%; border-color:var(--term-green); color:var(--term-green); margin-bottom: 15px;">ПОСМОТРЕТЬ ПРОФИЛЬ</button>
 
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <p style="text-align:center; color:#ccc; font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
@@ -190,6 +211,8 @@
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
             <button onclick="adminLogin()" style="width:100%; margin-top:10px; border-color:var(--trade-color); color:var(--trade-color);">ВХОД ДЛЯ АДМИНИСТРАТОРА</button>
+            <button id="btn-profile-to-dead" onclick="checkDeathState()" style="width:100%; margin-top:10px; border-color:var(--bandit-color); color:var(--bandit-color); display:none;">ВЕРНУТЬСЯ НА ЭКРАН СМЕРТИ</button>
+            <button id="btn-profile-to-base" onclick="returnToBase()" style="width:100%; margin-top:10px; border-color:var(--trade-color); color:var(--trade-color);">ВЫЙТИ НА БАЗУ (ПАУЗА)</button>
             <button onclick="factoryReset()" class="btn-danger" style="width:100%; margin-top:10px;">ПОЛНЫЙ СБРОС ПДА (ВАЙП)</button>
         </div>
 
@@ -368,7 +391,7 @@
     // === ОБРАБОТКА ОФЛАЙН ВРЕМЕНИ ЧЕРЕЗ СЕРДЦЕБИЕНИЕ (HEARTBEAT) ===
     let now = Date.now();
     let lastHeartbeat = parseInt(localStorage.getItem('pda_heartbeat'));
-    if (lastHeartbeat) {
+    if (lastHeartbeat && !player.inBase) {
         let diffMinutes = Math.floor((now - lastHeartbeat) / 60000);
         if (diffMinutes > 0 && player.hp > 0) {
             // Износ оружия за офлайн минуты (средний износ ~2% за минуту)
@@ -417,6 +440,7 @@
 
     // Каждые 5 секунд обновляем метку присутствия
     setInterval(() => {
+            if (player.inBase || player.hp <= 0) return; // На базе время остановлено
         localStorage.setItem('pda_heartbeat', Date.now().toString());
     }, 5000);
 
@@ -430,7 +454,27 @@
     let scanner = null, deadScanner = null, currentTradeNpc = null, currentTradeStock = [], lootQrObj = null, radioTimer = null;
     const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
 
-    function init() { let hasPresetZona = false; try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {} if (!player.quests.choices || player.quests.choices.length < 5) generateQuestChoices(); checkDeathState(); startEventLoop(); updateRadioUI(); if (player.radioOn) startRadio(); updateAdminVisibility(); }
+    function init() {
+        if (player.inBase === undefined) player.inBase = true;
+        let hasPresetZona = false;
+        try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {}
+        if (!player.quests.choices || player.quests.choices.length < 5) generateQuestChoices();
+
+        if (player.hp <= 0) {
+            checkDeathState();
+        } else if (player.inBase) {
+            switchView('base');
+        } else {
+            switchView('scan');
+        }
+
+        startEventLoop();
+        updateRadioUI();
+        if (player.radioOn && !player.inBase) startRadio();
+        updateAdminVisibility();
+    }
+
+    function _old_init() { let hasPresetZona = false; try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {} if (!player.quests.choices || player.quests.choices.length < 5) generateQuestChoices(); checkDeathState(); startEventLoop(); updateRadioUI(); if (player.radioOn) startRadio(); updateAdminVisibility(); }
     function saveState() { 
         localStorage.setItem('wasteland_player', JSON.stringify(player)); 
         updateHUD(); 
@@ -583,6 +627,7 @@
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
         document.getElementById('btn-confirm-heal').style.display = "none";
+        player.inBase = false;
         checkDeathState();
         alert("Вы были вылечены! Здоровье восстановлено до 20%.");
     }
@@ -781,6 +826,10 @@
                 }).join('');
             }
         }
+        let toDeadBtn = document.getElementById('btn-profile-to-dead');
+        let toBaseBtn = document.getElementById('btn-profile-to-base');
+        if (toDeadBtn) toDeadBtn.style.display = (player.hp <= 0) ? 'block' : 'none';
+        if (toBaseBtn) toBaseBtn.style.display = (player.hp <= 0) ? 'none' : 'block';
     }
 
     function sellEquipment() {
@@ -798,11 +847,18 @@
     }
 
     function switchView(viewName) {
-        if (player.hp <= 0) return; 
+        if (player.hp <= 0 && viewName !== 'base' && viewName !== 'profile') return; 
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.querySelectorAll('#nav-buttons button').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(`view-${viewName}`).classList.add('active');
-        if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
+
+        if (viewName === 'base' || viewName === 'dead' || player.hp <= 0) {
+            document.getElementById('nav-buttons').style.display = 'none';
+        } else {
+            document.getElementById('nav-buttons').style.display = 'flex';
+            if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
+        }
+
         if (viewName !== 'scan' && scanner) {
             try {
                 scanner.stop().catch(e => {});
@@ -811,7 +867,10 @@
         if(viewName === 'inventory') renderInventory();
         if(viewName === 'quests') renderQuests();
         if(viewName === 'profile') renderProfile();
-        document.getElementById('manual-code').placeholder = (viewName === 'scan') ? "Код (junk_1, anom_1, npc_base)" : "Код";
+        if(viewName === 'base') renderBaseView();
+
+        let manualEl = document.getElementById('manual-code');
+        if (manualEl) manualEl.placeholder = (viewName === 'scan') ? "Код (junk_1, anom_1, npc_base)" : "Код";
     }
 
     function updateHUD() {
@@ -1569,6 +1628,44 @@
         if (!scanner) scanner = new Html5Qrcode("qr-reader");
         scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { scanner.stop(); handleScan(t); }, (e) => {}).catch(e => alert("Ошибка камеры."));
     });
+
+
+    // === МЕНЮ БАЗЫ (ЛОББИ / ПАУЗА) ===
+    function renderBaseView() {
+        player.inBase = true;
+        saveState();
+        let callsignInput = document.getElementById('base-callsign-input');
+        if (callsignInput) callsignInput.value = player.callsign || "";
+        let scoreEl = document.getElementById('base-score');
+        if (scoreEl) scoreEl.innerText = player.score || 0;
+        let k = getKarmaStatus();
+        let karmaEl = document.getElementById('base-karma');
+        if (karmaEl) {
+            karmaEl.innerText = k.name;
+            karmaEl.className = k.class;
+        }
+    }
+
+    function saveBaseCallsign() {
+        let val = document.getElementById('base-callsign-input').value.trim();
+        if (val) {
+            player.callsign = val;
+            saveState();
+            alert("Позывной сохранен: " + val);
+        }
+    }
+
+    function startGameFromBase() {
+        player.inBase = false;
+        saveState();
+        switchView('scan');
+    }
+
+    function returnToBase() {
+        player.inBase = true;
+        saveState();
+        switchView('base');
+    }
 
     init();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
