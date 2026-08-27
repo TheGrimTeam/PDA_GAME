@@ -434,14 +434,21 @@
     function saveState() { 
         localStorage.setItem('wasteland_player', JSON.stringify(player)); 
         updateHUD(); 
-        if (document.getElementById('view-inventory').classList.contains('active')) {
-            renderInventory();
-        }
-        if (document.getElementById('view-quests').classList.contains('active')) {
-            renderQuests();
-        }
-        if (document.getElementById('view-profile').classList.contains('active')) {
-            renderProfile();
+        try {
+            let invView = document.getElementById('view-inventory');
+            if (invView && invView.classList.contains('active')) {
+                renderInventory();
+            }
+            let questView = document.getElementById('view-quests');
+            if (questView && questView.classList.contains('active')) {
+                renderQuests();
+            }
+            let profView = document.getElementById('view-profile');
+            if (profView && profView.classList.contains('active')) {
+                renderProfile();
+            }
+        } catch (e) {
+            console.error("saveState ui update error:", e);
         }
     }
 
@@ -795,7 +802,11 @@
         document.querySelectorAll('#nav-buttons button').forEach(b => b.classList.remove('active-nav'));
         document.getElementById(`view-${viewName}`).classList.add('active');
         if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
-        if(viewName !== 'scan' && scanner) scanner.stop();
+        if (viewName !== 'scan' && scanner) {
+            try {
+                scanner.stop().catch(e => {});
+            } catch(e) {}
+        }
         if(viewName === 'inventory') renderInventory();
         if(viewName === 'quests') renderQuests();
         if(viewName === 'profile') renderProfile();
