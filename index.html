@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wasteland PDA</title>
+    <link rel="manifest" href="manifest.json">
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root { 
+            --term-green: #39ff14; 
+            --term-dark: #051505; 
+            --metal-bg: #2a2a2a; 
+            --metal-border: #555; 
+            --quest-color: #ffb700; 
+            --trade-color: #00e5ff; 
+            --bandit-color: #ff3333; 
+            --rad-color: #ffcc00; 
+            --hero-color: #ffd700;
+        }
+        @font-face { font-family: 'VT323'; src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJXUdVTE.woff2') format('woff2'); }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { background-color: #000; color: var(--term-green); font-family: 'VT323', monospace; font-size: 1.2rem; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #device-casing { width: 100%; height: 100%; max-width: 500px; background: var(--metal-bg); border: 8px solid var(--metal-border); border-style: ridge; padding: 10px; display: flex; flex-direction: column; position: relative; }
+        #screen { background-color: var(--term-dark); flex-grow: 1; position: relative; border: 4px solid #111; border-radius: 10px; overflow-y: auto; overflow-x: hidden; padding: 10px; box-shadow: inset 0 0 20px rgba(0,255,0,0.2); text-shadow: 0 0 5px var(--term-green); }
+        #screen::after { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; pointer-events: none; }
+        #hud { border-bottom: 2px dashed var(--term-green); padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
+        .hud-row { display: flex; justify-content: space-between; margin-bottom: 2px; align-items: center; font-size: 1.05rem;}
+        .danger { color: var(--bandit-color); text-shadow: 0 0 5px var(--bandit-color); }
+        .rad-warning { color: var(--rad-color); text-shadow: 0 0 5px var(--rad-color); }
+        .quest-text { color: var(--quest-color); text-shadow: 0 0 5px var(--quest-color); }
+        .trade-text { color: var(--trade-color); text-shadow: 0 0 5px var(--trade-color); }
+        #event-banner { background: var(--term-green); color: var(--term-dark); text-align: center; padding: 5px; margin-bottom: 10px; display: none; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
+        .view { display: none; z-index: 10; position: relative; } .view.active { display: block; }
+        .item, .quest-card, .profile-card { border: 1px solid var(--term-green); padding: 8px; margin-bottom: 8px; background: rgba(57, 255, 20, 0.05); }
+        .item { display: flex; justify-content: space-between; align-items: center; }
+        button { background: var(--term-dark); color: var(--term-green); border: 2px solid var(--term-green); font-family: 'VT323', monospace; padding: 8px 12px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; }
+        button:active { background: var(--term-green); color: var(--term-dark); }
+        button:disabled { background: var(--term-dark); color: #555; border-color: #555; cursor: not-allowed; }
+        .btn-danger { border-color: var(--bandit-color); color: var(--bandit-color); } .btn-danger:active { background: var(--bandit-color); color: #000; }
+        .btn-safe { border-color: var(--trade-color); color: var(--trade-color); } .btn-safe:active { background: var(--trade-color); color: var(--term-dark); }
+        .btn-hero { border-color: var(--hero-color); color: var(--hero-color); } .btn-hero:active { background: var(--hero-color); color: var(--term-dark); }
+        #nav-buttons { display: flex; gap: 2px; margin-top: 10px; } #nav-buttons button { flex: 1; font-size: 0.92rem; border-color: var(--metal-border); color: #ccc; padding: 10px 4px; text-align: center; white-space: nowrap; } #nav-buttons button.active-nav { border-color: var(--term-green); color: var(--term-green); }
+        #qr-reader, #qr-reader-dead { width: 100%; margin-bottom: 10px; border: 2px solid var(--term-green); }
+        .debug-input { display: flex; gap: 5px; margin-top: 10px; } .debug-input input { background: #000; color: var(--term-green); border: 1px solid var(--term-green); flex-grow: 1; padding: 5px; font-family: 'VT323'; }
+        h3 { text-align: center; margin-bottom: 10px; border-bottom: 1px solid;} h4 { margin-bottom: 5px; }
+        #radio-panel { border: 1px dashed var(--trade-color); padding: 8px; margin-top: 15px; background: rgba(0, 229, 255, 0.05); position: relative; }
+        #radio-header { display: flex; justify-content: space-between; align-items: center; color: var(--trade-color); border-bottom: 1px solid var(--trade-color); padding-bottom: 4px; margin-bottom: 6px; }
+        #radio-text { font-size: 1rem; color: #aaa; min-height: 3.5rem; }
+        .typewriter { overflow: hidden; border-right: .15em solid var(--trade-color); white-space: pre-wrap; animation: typing 2s steps(40, end), blink-caret .75s step-end infinite; }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--trade-color); } }
+
+        .hero-glow {
+            color: var(--hero-color) !important;
+            text-shadow: 0 0 10px var(--hero-color), 0 0 20px var(--hero-color) !important;
+            animation: pulse-gold 2s infinite;
+        }
+        @keyframes pulse-gold {
+            0% { opacity: 0.8; }
+            50% { opacity: 1; }
+            100% { opacity: 0.8; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="device-casing">
+    <div id="screen">
+        <div id="hud">
+            <div class="hud-row" style="margin-bottom: 5px;">
+                <div>HP:<span id="hp-val">100</span>%</div>
+                <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
+                <div>ЕДА:<span id="hunger-val">100</span>%</div>
+                <div>ВЕС:<span id="inv-val">0</span>/<span id="inv-max">15</span></div>
+            </div>
+            <div class="hud-row">
+                <div style="color:var(--trade-color)">КРЕДИТЫ: <span id="score-val">0</span> 💎</div>
+                <button onclick="declareDeath()" style="padding: 2px 10px; font-size: 1rem;" class="btn-danger">💀 УБИТ</button>
+            </div>
+        </div>
+        <div id="event-banner"></div>
+
+        <!-- ЭКРАН СМЕРТИ -->
+        <div id="view-dead" class="view">
+            <h2 class="danger" style="text-align:center; font-size:2.5rem; margin-top:20px; animation: blink 1.5s infinite;">ВЫ МЕРТВЫ</h2>
+            <p style="text-align:center; margin-bottom: 20px;">ПДА заблокирован. Выберите способ взаимодействия для тех, кто рядом:</p>
+
+            <div style="display:flex; gap: 10px; margin-bottom: 15px;">
+                <button onclick="showHealQR()" style="flex:1;" class="btn-hero">🟢 ЛЕЧЕНИЕ</button>
+                <button onclick="showRobQR()" style="flex:1;" class="btn-danger">🔴 ОГРАБИТЬ</button>
+            </div>
+
+            <!-- Место для генерации QR кода -->
+            <div id="corpse-qr-container" style="background:#fff; padding:15px; margin: 0 auto 15px auto; width: 230px; display:none;"></div>
+            <div id="corpse-qr-desc" style="text-align:center; font-size:0.95rem; color:#fff; margin-bottom:15px; display:none;"></div>
+
+            <!-- Кнопки подтверждения -->
+            <button id="btn-confirm-heal" onclick="confirmHeal()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)</button>
+            <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
+
+            <hr style="border-top:1px dashed #555; margin: 20px 0;">
+            <p style="text-align:center; color:#ccc; font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
+            <div id="qr-reader-dead" style="display:none;"></div>
+            <button id="btn-dead-scan" onclick="startDeadScan()" style="width:100%; border-color:#ffcc00; color:#ffcc00;">ВКЛЮЧИТЬ СКАНЕР БАЗЫ</button>
+            <div class="debug-input" id="admin-manual-dead-box" style="display:none; margin-top:15px;">
+                <input type="text" id="dead-manual-code" placeholder="npc_base / npc_bandit_base">
+                <button onclick="handleDeadScan(document.getElementById('dead-manual-code').value)">ВВОД</button>
+            </div>
+        </div>
+
+        <!-- 1. СКАНЕР -->
+        <div id="view-scan" class="view active">
+            <h3>ПОИСК ЛУТА И NPC</h3>
+            <div id="qr-reader"></div>
+            <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
+            <div class="debug-input" id="admin-manual-scan-box" style="display:none;">
+                <input type="text" id="manual-code" placeholder="Код (junk_1, anom_1, npc_base)">
+                <button onclick="handleScan(document.getElementById('manual-code').value)">ВВОД</button>
+            </div>
+            <div id="radio-panel">
+                <div id="radio-header">
+                    <span style="font-weight:bold;">📻 РАДИОЧАСТОТА FM-42</span>
+                    <button id="btn-radio-toggle" onclick="toggleRadio()" style="padding: 2px 6px; font-size: 0.9rem; border-color: var(--trade-color); color: var(--trade-color);">ВЫКЛ</button>
+                </div>
+                <div id="radio-text">Нажмите [ВКЛ], чтобы слушать перехват местных радиопередач...</div>
+            </div>
+            <div id="scan-result" style="margin-top:10px; text-align:center;"></div>
+        </div>
+
+        <!-- 2. ИНВЕНТАРЬ И КРАФТ -->
+        <div id="view-inventory" class="view">
+            <h3>РЮКЗАК</h3>
+            <div id="inventory-list"></div>
+            <div id="safe-box-container" style="display:none; border: 2px solid var(--trade-color); padding: 10px; margin-top: 15px;">
+                <h4 style="color:var(--trade-color); text-align:center;">ЗАЩИЩЕННЫЙ ПОДСУМОК (<span id="safe-val">0</span>/5)</h4>
+                <p style="font-size: 0.9rem; color:#aaa; text-align:center; margin-bottom:10px;">Лут здесь не сгорает при смерти</p>
+                <div id="safebox-list"></div>
+            </div>
+            <div id="safebox-quest-box" style="border: 1px dashed var(--trade-color); padding: 10px; margin-top: 20px;">
+                <h4 style="color:var(--trade-color); text-align:center;">КРАФТ: ЗАЩИЩЕННЫЙ ПОДСУМОК</h4>
+                <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-safe-items"></span></p>
+                <button id="btn-upgrade-safe" onclick="applySafeBox()" class="btn-safe" style="width:100%; display:none;">СОЗДАТЬ ПОДСУМОК</button>
+            </div>
+            <div id="upgrade-box" style="border: 1px dashed var(--term-green); padding: 10px; margin-top: 20px;">
+                <h4 style="color:var(--term-green); text-align:center;">МОДУЛЬ РАСШИРЕНИЯ (+5 МЕСТ)</h4>
+                <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-items"></span></p>
+                <button id="btn-upgrade" onclick="applyUpgrade()" style="width:100%; display:none;">УСТАНОВИТЬ МОДУЛЬ</button>
+            </div>
+        </div>
+
+        <!-- 3. КВЕСТЫ -->
+        <div id="view-quests" class="view">
+            <h3 class="quest-text">СЕТЬ КОНТРАКТОВ</h3>
+            <div id="quests-container"></div>
+        </div>
+
+                        <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
+        <div id="view-profile" class="view">
+            <h3>ЛИЧНОЕ ДЕЛО</h3>
+            <div class="profile-card">
+                <p style="font-size: 1.5rem; margin-bottom:10px;">Позывной: <b id="prof-callsign" style="color:#fff; cursor:pointer; border-bottom:1px dashed #fff;" onclick="changeCallsign()"></b> ✏️</p>
+                <p style="font-size: 1.3rem;">Статус: <b id="prof-karma"></b></p>
+                <p style="font-size: 1.1rem; color:#aaa; margin-top: 5px;">Очки Кармы: <b id="prof-karma-score">0</b></p>
+            </div>
+
+            <!-- ЯЧЕЙКА СНАРЯЖЕНИЯ В ПРОФИЛЕ -->
+            <div class="profile-card" id="profile-equipment-card">
+                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">СПЕЦ. СНАРЯЖЕНИЕ (МАКС 1)</h4>
+                <div id="profile-equipment-content" style="font-size: 1rem; line-height: 1.3;"></div>
+            </div>
+
+            <!-- АРСЕНАЛ И ИЗНОС ОРУЖИЯ -->
+            <div class="profile-card">
+                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">АРСЕНАЛ И ИЗНОС ОРУЖИЯ</h4>
+                <p style="font-size: 0.9rem; color: #aaa; margin-bottom: 8px; text-align: center;">Отметьте имеющееся оружие. Износ снижает прочность. Чините хламом или на Базе!</p>
+                <div id="profile-weapons-list"></div>
+            </div>
+
+            <div class="profile-card">
+                <p>Кредиты: <b style="color:var(--trade-color)"><span id="prof-score"></span> 💎</b></p>
+                <p>Собрано жетонов: <b id="prof-tokens">0</b></p>
+            </div>
+            <div class="profile-card" style="max-height: 160px; overflow-y: auto;">
+                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">ЖУРНАЛ АКТИВНОСТИ</h4>
+                <div id="prof-history-list" style="font-size: 1rem; line-height: 1.2;"></div>
+            </div>
+            <p style="color:#aaa; font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
+            <hr style="border-top:1px dashed #555; margin: 20px 0;">
+            <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
+            <button onclick="adminLogin()" style="width:100%; margin-top:10px; border-color:var(--trade-color); color:var(--trade-color);">ВХОД ДЛЯ АДМИНИСТРАТОРА</button>
+            <button onclick="factoryReset()" class="btn-danger" style="width:100%; margin-top:10px;">ПОЛНЫЙ СБРОС ПДА (ВАЙП)</button>
+        </div>
+
+        <!-- 5. ТОРГОВЛЯ С NPC И БАЗОЙ -->
+        <div id="view-trade" class="view">
+            <h3 id="trade-npc-name" class="trade-text">ТОРГОВЕЦ</h3>
+            <div id="medic-heal-box" style="display:none; text-align:center; border:1px dashed #ff3333; padding:10px; margin-bottom:15px;">
+                <p style="margin-bottom:5px;">Медицинские услуги</p>
+                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ (50 💎)</button>
+            </div>
+            <div id="base-sell-all-box" style="display:none; text-align:center; border:1px dashed #ffcc00; padding:10px; margin-bottom:15px;">
+                <p style="margin-bottom:5px; color:#ffcc00;" id="base-sell-desc">Сдать весь лут Корпорации</p>
+                <button onclick="sellAllToBase()" style="border-color:#ffcc00; color:#ffcc00; width:100%;">ПРОДАТЬ ВЕСЬ РЮКЗАК</button>
+            </div>
+            <h4 id="title-trade-buy" style="border-bottom:1px dashed var(--trade-color);">В ПРОДАЖЕ</h4>
+            <div id="trade-buy-list" style="margin-bottom:15px;"></div>
+            <h4 id="title-trade-sell" style="border-bottom:1px dashed var(--trade-color);">СКУПАЕТ У ВАС</h4>
+            <div id="trade-sell-list"></div>
+            <button onclick="switchView('scan')" style="width:100%; margin-top:20px;">ЗАКОНЧИТЬ ТОРГОВЛЮ</button>
+        </div>
+    </div>
+
+    <div id="nav-buttons">
+        <button onclick="switchView('scan')" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
+        <button onclick="switchView('inventory')" id="btn-nav-inventory">ИНВЕНТ</button>
+        <button onclick="switchView('quests')" id="btn-nav-quests">КВЕСТЫ</button>
+        <button onclick="switchView('profile')" id="btn-nav-profile">ПРОФИЛЬ</button>
+    </div>
+</div>
+
+<script>
+    // === АУДИО ДВИЖОК ===
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    let audioCtx = new AudioContext();
+
+    document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+    document.body.addEventListener('touchstart', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+
+    function playSound(type) {
+        if (!audioCtx || audioCtx.state === 'suspended') return;
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+
+        if (type === 'sell') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+            gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now); osc.stop(now + 0.2);
+            setTimeout(() => {
+                const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
+                osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                osc2.type = 'square'; osc2.frequency.setValueAtTime(1200, audioCtx.currentTime); osc2.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.1);
+                gain2.gain.setValueAtTime(0.1, audioCtx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
+                osc2.start(audioCtx.currentTime); osc2.stop(audioCtx.currentTime + 0.2);
+            }, 100);
+        } else if (type === 'hazard') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(50, now + 0.6);
+            gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+            osc.start(now); osc.stop(now + 0.6);
+        } else if (type === 'scan') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now);
+            gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc.start(now); osc.stop(now + 0.15);
+        } else if (type === 'error') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now);
+            gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'karma') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(30, now + 1.5);
+            gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+            osc.start(now); osc.stop(now + 1.5);
+        } else if (type === 'death') {
+            osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(10, now + 2);
+            gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 2);
+            osc.start(now); osc.stop(now + 2);
+        } else if (type === 'use') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+            gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+            osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'radio') {
+            osc.type = 'square'; osc.frequency.setValueAtTime(1200, now); osc.frequency.setValueAtTime(1800, now + 0.1); 
+            gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+            osc.start(now); osc.stop(now + 0.2);
+            const bufferSize = audioCtx.sampleRate * 1.5; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
+            const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+            const bandpass = audioCtx.createBiquadFilter(); bandpass.type = 'bandpass'; bandpass.frequency.value = 1500; bandpass.Q.value = 1.2;
+            const noiseGain = audioCtx.createGain();
+            noise.connect(bandpass); bandpass.connect(noiseGain); noiseGain.connect(audioCtx.destination);
+            noiseGain.gain.setValueAtTime(0, now); noiseGain.gain.setValueAtTime(0.15, now + 0.15); noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
+            noise.start(now);
+        }
+    }
+
+    // === ГЕНЕРАТОР БАЗЫ ПРЕДМЕТОВ ===
+    const ITEMS_DB = {};
+    const nFood = ["Тушенка", "Вода", "Кола", "Сухпаек", "Мясо", "Макароны", "Пиво", "Ром", "Яблоко", "Кукуруза", "Свинина", "Чипсы", "Газировка", "Виски", "Суп", "Рыба", "Консервы", "Чай", "Кофе", "Ягоды", "Гриб", "Корм", "Кекс", "Леденец", "Сгущенка", "Сухари"];
+    const nGear = ["Рюкзак", "Противогаз", "Фонарь", "Рация", "Спальник", "Палатка", "Фильтр", "Дозиметр", "ПНВ", "Компас", "Карта", "Огниво", "Фляга", "Бинокль", "Зажигалка", "Лопата", "Топор", "Очки", "Плащ", "Берцы", "Разгрузка", "Кобура", "Броня", "Щитки", "Перчатки", "Респиратор"];
+    const nMed = ["Стимулятор", "Антирадин", "Бинт", "Аптечка", "Мед-Х", "Рад-Х", "Обезбол", "Жгут", "Кровь", "Шприц", "Антибиотик", "Йод", "Спирт", "Таблетки", "Пластырь", "Мазь", "Снотворное", "Адреналин", "Гемостатик", "Скальпель", "Пинцет", "Витамины", "Антидот", "Морфий"];
+    const nWpn = ["Труба", "Пистолет", "Лазер", "Дробовик", "Ружье", "Нож", "Мачете", "Бита", "Монтировка", "Кастет", "Плазмоган", "Винтовка", "Автомат", "ПП", "Револьвер", "Граната", "Мина", "Молотов", "Тесак", "Топорик", "Гвоздомет", "Арбалет", "Лук", "Копье"];
+    const nJunk = ["Изолента", "Провода", "Металлолом", "Шестерня", "Бечевка", "Болт", "Гвозди", "Клей", "Пластик", "Стекло", "Схема", "Батарейка", "Лампа", "Трубка", "Пружина", "Ткань", "Кожа", "Резина", "Магнит", "Вентилятор", "Бутылка", "Банка", "Карандаш", "Пепельница"];
+
+    function pDB(pref, cat, list, minV, maxV, minS, maxS, minH=0, maxH=0, minF=0, maxF=0) {
+        for(let i=0; i<24; i++) {
+            let it = { name: list[i], val: Math.floor(Math.random()*(maxV-minV+1))+minV, size: Math.floor(Math.random()*(maxS-minS+1))+minS, cat: cat };
+            if(cat==='med') it.heal = Math.floor(Math.random()*(maxH-minH+1))+minH;
+            if(cat==='food') it.feed = Math.floor(Math.random()*(maxF-minF+1))+minF;
+            ITEMS_DB[`${pref}_${i+1}`] = it;
+        }
+    }
+
+    pDB('food', 'food', nFood, 5, 25, 1, 2, 0, 0, 15, 35); pDB('gear', 'gear', nGear, 20, 100, 2, 4);
+    pDB('med', 'med', nMed, 30, 150, 1, 2, 20, 80); pDB('wpn', 'weapon', nWpn, 50, 250, 2, 5); pDB('junk', 'junk', nJunk, 2, 15, 1, 2);
+
+    ITEMS_DB['med_2'].radCure = 50; ITEMS_DB['med_2'].heal = 0;
+    ITEMS_DB['med_6'].radCure = 25; ITEMS_DB['med_6'].heal = 0;
+    ITEMS_DB['food_9'].radCure = 10; ITEMS_DB['food_10'].radCure = 15; ITEMS_DB['food_17'].radCure = 15;
+
+    ITEMS_DB['token_bandit'] = { name: "Жетон убитого", val: 300, size: 1, cat: 'token' };
+    ITEMS_DB['art_1'] = { name: "Артефакт 'Капля'", val: 500, size: 1, cat: 'artifact' };
+    ITEMS_DB['art_2'] = { name: "Артефакт 'Слизь'", val: 800, size: 1, cat: 'artifact' };
+    ITEMS_DB['art_3'] = { name: "Артефакт 'Пустышка'", val: 1200, size: 2, cat: 'artifact' };
+
+    // СПЕЦИАЛЬНОЕ СНАРЯЖЕНИЕ
+    ITEMS_DB['eq_rad'] = { name: "Свинцовый плащ", val: 300, size: 0, cat: 'eq', desc: "Защита от радиации: снижает облучение в 2 раза." };
+    ITEMS_DB['eq_hunger'] = { name: "Био-синтезатор питания", val: 300, size: 0, cat: 'eq', desc: "Защита от голода: снижает расход сытости в 3 раза." };
+    ITEMS_DB['eq_storm'] = { name: "Плащ «Шторм»", val: 400, size: 0, cat: 'eq', desc: "Защита от стихий: иммунитет к бурям и спорам." };
+    ITEMS_DB['eq_anom'] = { name: "Детектор «Велес»", val: 500, size: 0, cat: 'eq', desc: "Аномалии: повышает шанс успешного взятия аномалии." };
+    ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 💎." };
+    ITEMS_DB['eq_pass_base'] = { name: "Поддельный ID базы", val: 600, size: 0, cat: 'eq', desc: "Позволяет бандитам заходить на Базу Выживших." };
+    ITEMS_DB['eq_pass_camp'] = { name: "Вексель Бандитов", val: 600, size: 0, cat: 'eq', desc: "Позволяет выжившим заходить в Лагерь Бандитов." };
+
+    const NPC_DB = {
+        "npc_eng": { name: "Инженер Михалыч", buys: ["junk", "gear"], sells: ["junk", "gear"] },
+        "npc_med": { name: "Доктор Кроу", buys: ["med"], sells: ["med"], canHeal: true, healCost: 50 },
+        "npc_trad": { name: "Торговец Сидорович", buys: ["weapon", "gear", "artifact"], sells: ["weapon", "gear"] },
+        "npc_bar": { name: "Бармен Джо", buys: ["food"], sells: ["food"] },
+        "npc_base": { name: "ТЕРМИНАЛ БАЗЫ", isBase: true, reqKarma: "survivor", mult: 1.0 },
+        "npc_bandit_base": { name: "ЛАГЕРЬ БАНДИТОВ", isBase: true, reqKarma: "bandit", mult: 0.7 }
+    };
+
+    function genQ(min, max) {
+        let jk = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat === 'junk' || ITEMS_DB[k].cat === 'gear');
+        let q = []; let c = Math.floor(Math.random() * (max - min + 1)) + min; 
+        for(let i=0; i<c; i++) q.push(jk[Math.floor(Math.random() * jk.length)]);
+        return q;
+    }
+
+    // === СОСТОЯНИЕ ИГРОКА ===
+    let savedPlayer = JSON.parse(localStorage.getItem('wasteland_player'));
+    let defaultCallsign = "GRIM-" + Math.floor(Math.random() * 9000 + 1000);
+
+    let player = savedPlayer || {
+        callsign: defaultCallsign, karma_score: 0, tokens_collected: 0,
+        hp: 100, rads: 0, hunger: 100, maxSize: 15, score: 0, 
+        inventory: [], safeBox: [], safeBoxUnlocked: false,
+        scannedCodes: {}, quests: { active: [], choices: [] }, upgradeQuest: genQ(2, 3), safeBoxQuest: genQ(3, 5), radioOn: false,
+        equipment: null, completedQuestsCount: 0
+    };
+
+    if (!player.callsign) player.callsign = defaultCallsign;
+    if (player.karma_score === undefined) {
+        player.karma_score = player.karma === "bandit" ? -3 : 0;
+    }
+    if (player.rads === undefined) player.rads = 0;
+    if (player.tokens_collected === undefined) player.tokens_collected = 0;
+    if (player.hunger === undefined) player.hunger = 100;
+    if (player.radioOn === undefined) player.radioOn = false;
+    if (!player.quests) player.quests = { active: null, choices: [] };
+    if (!player.safeBox) player.safeBox = [];
+    if (player.safeBoxUnlocked === undefined) player.safeBoxUnlocked = false;
+    if (Array.isArray(player.scannedCodes)) player.scannedCodes = {}; 
+    if (!Array.isArray(player.upgradeQuest)) player.upgradeQuest = genQ(2, 3);
+    if (!Array.isArray(player.safeBoxQuest)) player.safeBoxQuest = genQ(3, 5);
+    if (player.equipment === undefined) player.equipment = null;
+
+    // === ОБРАБОТКА ОФЛАЙН ВРЕМЕНИ ЧЕРЕЗ СЕРДЦЕБИЕНИЕ (HEARTBEAT) ===
+    let now = Date.now();
+    let lastHeartbeat = parseInt(localStorage.getItem('pda_heartbeat'));
+    if (lastHeartbeat) {
+        let diffMinutes = Math.floor((now - lastHeartbeat) / 60000);
+        if (diffMinutes > 0 && player.hp > 0) {
+            // Износ оружия за офлайн минуты (средний износ ~2% за минуту)
+            if (player.weapons) {
+                for (let wName in player.weapons) {
+                    let w = player.weapons[wName];
+                    if (w.active && w.durability > 0) {
+                        let totalWear = diffMinutes * 2;
+                        w.durability = Math.max(0, w.durability - totalWear);
+                    }
+                }
+            }
+
+            // Голод за оффлайн минуты
+            let hungerLossPerMin = (player.equipment === 'eq_hunger') ? 1 : 3;
+            let totalHungerLoss = diffMinutes * hungerLossPerMin;
+            player.hunger = Math.max(0, player.hunger - totalHungerLoss);
+
+            // Радиация за оффлайн минуты
+            let totalRadGain = 0;
+            if (player.karma_score < 3) {
+                let radGainPerMin = (player.equipment === 'eq_rad') ? 1 : 2;
+                totalRadGain = diffMinutes * radGainPerMin;
+                player.rads = Math.min(100, player.rads + totalRadGain);
+            }
+
+            // Урон от голода или радиации в офлайне
+            if (player.hunger === 0) {
+                let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
+                player.hp = Math.max(0, player.hp - (diffMinutes * hungerDmg));
+            }
+            if (player.rads >= 100) {
+                player.hp = 0;
+            }
+
+            saveState();
+
+            if (diffMinutes >= 1) {
+                setTimeout(() => {
+                    alert(`⏱ ОФЛАЙН-РЕЖИМ ПДА:\nПока телефон был заблокирован (~${diffMinutes} мин.), Пустошь не спала.\n• Голод: -${totalHungerLoss}\n• Радиация: +${(player.karma_score < 3) ? totalRadGain : 0}\n• Оружие износилось.`);
+                }, 1200);
+            }
+        }
+    }
+    localStorage.setItem('pda_heartbeat', now.toString());
+
+    // Каждые 5 секунд обновляем метку присутствия
+    setInterval(() => {
+        localStorage.setItem('pda_heartbeat', Date.now().toString());
+    }, 5000);
+
+        // Вспомогательная функция для получения названия ранга по карме
+    function getKarmaStatus() {
+        if (player.karma_score >= 3) return { name: "ГЕРОЙ", class: "hero-glow" };
+        if (player.karma_score <= -3) return { name: "БАНДИТ", class: "danger" };
+        return { name: "ВЫЖИВШИЙ", class: "" };
+    }
+
+    let scanner = null, deadScanner = null, currentTradeNpc = null, currentTradeStock = [], lootQrObj = null, radioTimer = null;
+    const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
+
+    function init() { let hasPresetZona = false; try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {} if (!player.quests.choices || player.quests.choices.length < 5) generateQuestChoices(); checkDeathState(); startEventLoop(); updateRadioUI(); if (player.radioOn) startRadio(); updateAdminVisibility(); }
+    function saveState() { localStorage.setItem('wasteland_player', JSON.stringify(player)); updateHUD(); }
+
+    function changeCallsign() {
+        let newName = prompt("Введите ваш новый позывной:", player.callsign);
+        if (newName && newName.trim() !== "") { player.callsign = newName.trim(); saveState(); renderProfile(); }
+    }
+
+    // === РАДИО ===
+    function toggleRadio() { player.radioOn = !player.radioOn; saveState(); updateRadioUI(); if (player.radioOn) startRadio(); else stopRadio(); }
+    function updateRadioUI() {
+        const btn = document.getElementById('btn-radio-toggle'); const txt = document.getElementById('radio-text');
+        if (player.radioOn) { 
+            btn.innerText = "ВКЛ"; btn.style.backgroundColor = "var(--trade-color)"; btn.style.color = "var(--term-dark)"; 
+            player.radioMessages = player.radioMessages || [];
+            if (player.radioMessages.length === 0) {
+                txt.innerHTML = "<span style='color:var(--term-green)'>[Поиск сигнала в эфире...]</span>"; 
+            } else {
+                txt.innerHTML = player.radioMessages.map(msg => `<div style="margin-bottom:8px; border-bottom:1px dashed #333; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: var(--trade-color); line-height: 1.3;">${msg}</div>`).join('');
+            }
+        } 
+        else { 
+            btn.innerText = "ВЫКЛ"; btn.style.backgroundColor = "transparent"; btn.style.color = "var(--trade-color)"; 
+            txt.innerHTML = "<span style='color:#555'>[Радиомодуль отключен. Тишина]</span>"; 
+        }
+    }
+    function startRadio() {
+        if (radioTimer) clearTimeout(radioTimer);
+        radioTimer = setTimeout(() => {
+            if (!player.radioOn || player.hp <= 0) return;
+            playSound('radio');
+            let msg = RADIO_MSGS[Math.floor(Math.random() * RADIO_MSGS.length)];
+            let timeStr = new Date().toLocaleTimeString().slice(0, 5); // ЧЧ:ММ
+            let formatted = `[${timeStr}] ${msg}`;
+
+            player.radioMessages = player.radioMessages || [];
+            player.radioMessages.push(formatted);
+            if (player.radioMessages.length > 3) {
+                player.radioMessages.shift(); // Оставляем только 3 последних
+            }
+            saveState();
+            updateRadioUI();
+            startRadio();
+        }, Math.floor(Math.random() * 40000) + 20000); // Интервал приема 20-60 сек
+    }
+    function stopRadio() { if (radioTimer) clearTimeout(radioTimer); }
+
+    // === СМЕРТЬ ===
+    function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState(); checkDeathState(); } }
+    function checkDeathState() {
+        updateHUD();
+        if (player.hp <= 0) {
+            playSound('death'); stopRadio();
+            let k = getKarmaStatus();
+            let hintText = 'Базу Корпорации';
+            if (k.name === 'БАНДИТ' && player.equipment !== 'eq_pass_base') hintText = 'Лагерь Бандитов';
+            document.getElementById('dead-respawn-hint').innerText = hintText;
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.getElementById('view-dead').classList.add('active');
+            document.getElementById('nav-buttons').style.display = 'none';
+            if(scanner) scanner.stop();
+        } else {
+            document.getElementById('nav-buttons').style.display = 'flex'; 
+            if(document.getElementById('view-dead').classList.contains('active')) switchView('scan');
+            if (player.radioOn) startRadio();
+        }
+    }
+
+    // --- Лечение и Мародерство по QR ---
+    function generateQR(containerId, textVal) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = "";
+        try {
+            if (typeof QRCode !== 'undefined') {
+                // Создаем QR-код локально (уровень коррекции L для меньшей плотности блоков - легче сканировать)
+                new QRCode(container, {
+                    text: unescape(encodeURIComponent(textVal)),
+                    width: 200,
+                    height: 200,
+                    colorDark : "#000000",
+                    colorLight : "#ffffff",
+                    correctLevel : QRCode.CorrectLevel.L
+                });
+            } else {
+                console.warn("QRCode library is not loaded. Using API fallback.");
+                useAPIFallback(container, textVal);
+            }
+        } catch (e) {
+            console.error("QRCode rendering error, using fallback API:", e);
+            useAPIFallback(container, textVal);
+        }
+    }
+
+    function useAPIFallback(container, textVal) {
+        container.innerHTML = "";
+        const img = document.createElement('img');
+        img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(textVal);
+        img.width = 200;
+        img.height = 200;
+        img.style.display = "block";
+        img.style.margin = "0 auto";
+        container.appendChild(img);
+    }
+
+    function showHealQR() {
+        document.getElementById('corpse-qr-container').style.display = "block";
+        let cId = "help_" + Date.now();
+        generateQR('corpse-qr-container', "heal:" + cId + ":" + player.callsign);
+
+        document.getElementById('corpse-qr-desc').style.display = "block";
+        document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы, а вы встанете с 20% здоровья.</span>";
+        document.getElementById('btn-confirm-heal').style.display = "block";
+        document.getElementById('btn-confirm-rob').style.display = "none";
+    }
+
+    function showRobQR() {
+        if (player.inventory.length === 0) return alert("Ваш рюкзак пуст. Нечего мародерствовать.");
+        document.getElementById('corpse-qr-container').style.display = "block";
+        let cId = "rob_" + Date.now();
+        generateQR('corpse-qr-container', "rob:" + cId + ":" + player.callsign + ":" + player.inventory.join(","));
+
+        document.getElementById('corpse-qr-desc').style.display = "block";
+        document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--bandit-color)'>Покажите этот код мародеру. Он заберет ваши вещи и жетон, получит -1 кармы.</span>";
+        document.getElementById('btn-confirm-rob').style.display = "block";
+        document.getElementById('btn-confirm-heal').style.display = "none";
+    }
+
+    function confirmHeal() {
+        player.hp = 20; // Оживает с 20% хп
+        saveState();
+        document.getElementById('corpse-qr-container').style.display = "none";
+        document.getElementById('corpse-qr-desc').style.display = "none";
+        document.getElementById('btn-confirm-heal').style.display = "none";
+        checkDeathState();
+        alert("Вы были вылечены! Здоровье восстановлено до 20%.");
+    }
+
+    function confirmRob() {
+        player.inventory = []; // Теряет лут
+        saveState();
+        document.getElementById('corpse-qr-container').style.display = "none";
+        document.getElementById('corpse-qr-desc').style.display = "none";
+        document.getElementById('btn-confirm-rob').style.display = "none";
+        alert("Вас облутали. Рюкзак пуст.");
+    }
+
+    function startDeadScan() {
+        if (!deadScanner) deadScanner = new Html5Qrcode("qr-reader-dead");
+        document.getElementById('qr-reader-dead').style.display = 'block'; document.getElementById('btn-dead-scan').style.display = 'none';
+        Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { deadScanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { deadScanner.stop(); handleDeadScan(t); }, (e) => {}); } }).catch(e => alert("Ошибка камеры."));
+    }
+    function handleDeadScan(qrCode) {
+        document.getElementById('dead-manual-code').value = ''; let code = qrCode.trim().toLowerCase();
+        let k = getKarmaStatus();
+        let allowedBase = false;
+        if (code === "npc_base") {
+            if (k.name !== "БАНДИТ" || player.equipment === "eq_pass_base") allowedBase = true;
+        }
+        if (code === "npc_bandit_base") {
+            if (k.name === "БАНДИТ" || player.equipment === "eq_pass_camp") allowedBase = true;
+        }
+
+        if (allowedBase) {
+            playSound('use'); player.hp = 100; player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
+            document.getElementById('corpse-qr-container').style.display = "none"; 
+            document.getElementById('corpse-qr-desc').style.display = "none";
+            document.getElementById('btn-confirm-heal').style.display = "none";
+            document.getElementById('btn-confirm-rob').style.display = "none";
+            document.getElementById('qr-reader-dead').style.display = 'none'; document.getElementById('btn-dead-scan').style.display = 'block';
+            saveState(); checkDeathState(); alert("ВЫ ВОСКРЕШЕНЫ И ПОЛНОСТЬЮ ИЗЛЕЧЕНЫ!");
+        } else {
+            playSound('error'); 
+            let targetHint = (k.name === 'БАНДИТ') ? 'Лагерь Бандитов' : 'База Корпорации';
+            alert(`ОТКАЗ! Вы ${k.name}, ваша точка возрождения: ${targetHint}`);
+            if(deadScanner) startDeadScan();
+        }
+    }
+
+    // === ПРОФИЛЬ И НАВИГАЦИЯ ===
+    
+    function toggleWeapon(wName) {
+        if (!player.weapons[wName]) return;
+        player.weapons[wName].active = !player.weapons[wName].active;
+        playSound('use');
+        saveState();
+        renderProfile();
+    }
+
+    function repairWeaponWithJunk(wName) {
+        // Проверяем наличие хлама в инвентаре для ремонта (например: нужна изолента junk_1 или металлолом junk_3)
+        let neededJunk = ['junk_1', 'junk_3', 'junk_6']; // изолента, металлолом, болт
+        let foundIdx = player.inventory.findIndex(id => neededJunk.includes(id));
+
+        if (foundIdx === -1) {
+            return alert("Для починки в полевых условиях нужна Изолента, Металлолом или Болт (в рюкзаке нет нужного хлама)!");
+        }
+
+        let junkName = ITEMS_DB[player.inventory[foundIdx]].name;
+        player.inventory.splice(foundIdx, 1);
+        player.weapons[wName].durability = 100;
+        playSound('use');
+        saveState();
+        renderProfile();
+        alert(`Оружие (${wName}) успешно отремонтировано с помощью предмета: ${junkName}!`);
+    }
+
+        function getRepairCost(wName) {
+        let w = player.weapons[wName];
+        if (!w || w.durability >= 100) return 0;
+        let maxCosts = {
+            "Нож": 20,
+            "Пистолет": 50,
+            "Дробовик": 80,
+            "Пистолет-пулемет": 100,
+            "Автомат": 150,
+            "Винтовка": 150,
+            "Пулемет": 150
+        };
+        let maxCost = maxCosts[wName] || 50;
+        let wearPercent = (100 - w.durability) / 100;
+        return Math.max(2, Math.round(maxCost * wearPercent));
+    }
+
+    function repairWeaponAtBase(wName) {
+        let cost = getRepairCost(wName);
+        if (cost === 0) return alert("Оружие полностью исправно!");
+        if (player.score < cost) {
+            return alert(`Недостаточно кредитов! Стоимость ремонта на базе: ${cost} 💎`);
+        }
+
+        pendingRepairWeapon = wName;
+        alert(`Для подтверждения ремонта отсканируйте QR-код вашей Базы.`);
+        switchView('scan');
+        if (!scanner) scanner = new Html5Qrcode("qr-reader");
+        Html5Qrcode.getCameras().then(devices => { 
+            if (devices && devices.length) { 
+                scanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
+                    scanner.stop(); 
+                    handleScan(t); 
+                }, (e) => {}); 
+            } 
+        }).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
+    }
+
+    function renderProfile() {
+        if (!player.weapons) {
+            player.weapons = {
+                "Нож": { active: false, durability: 100, cost: 20 },
+                "Пистолет": { active: false, durability: 100, cost: 50 },
+                "Дробовик": { active: false, durability: 100, cost: 80 },
+                "Пистолет-пулемет": { active: false, durability: 100, cost: 100 },
+                "Автомат": { active: false, durability: 100, cost: 150 },
+                "Пулемет": { active: false, durability: 100, cost: 250 },
+                "Винтовка": { active: false, durability: 100, cost: 200 }
+            };
+            saveState();
+        }
+
+        document.getElementById('prof-callsign').innerText = player.callsign;
+        const karmaEl = document.getElementById('prof-karma');
+        const k = getKarmaStatus();
+        karmaEl.innerText = k.name;
+        karmaEl.className = k.class;
+
+        document.getElementById('prof-karma-score').innerText = (player.karma_score > 0 ? "+" : "") + player.karma_score;
+        document.getElementById('prof-score').innerText = player.score; 
+        document.getElementById('prof-tokens').innerText = player.tokens_collected;
+
+        // Рендерим арсенал и износ оружия
+        const wList = document.getElementById('profile-weapons-list');
+        if (wList && player.weapons) {
+            wList.innerHTML = "";
+            for (let wName in player.weapons) {
+                let w = player.weapons[wName];
+                let statusColor = w.durability > 50 ? 'var(--term-green)' : (w.durability > 0 ? 'var(--rad-color)' : 'var(--bandit-color)');
+                let statusText = w.durability > 50 ? 'Исправно' : (w.durability > 0 ? 'Изношено' : 'НЕИСПРАВНО (НУЖЕН РЕМОНТ)');
+
+                let actionBtns = "";
+                if (w.active) {
+                    if (w.durability < 100) {
+                        actionBtns = `
+                            <div style="display: flex; gap: 5px; margin-top: 5px;">
+                                <button onclick="repairWeaponWithJunk('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--trade-color); color: var(--trade-color);">ПОЧИНИТЬ ХЛАМОМ</button>
+                                <button onclick="repairWeaponAtBase('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--quest-color); color: var(--quest-color);">РЕМОНТ НА БАЗЕ (${getRepairCost(wName)}💎)</button>
+                            </div>
+                        `;
+                    }
+                }
+
+                wList.innerHTML += `
+                    <div style="border: 1px dashed ${w.active ? 'var(--term-green)' : '#444'}; padding: 6px; margin-bottom: 6px; background: rgba(0,0,0,0.3);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" ${w.active ? 'checked' : ''} onchange="toggleWeapon('${wName}')" style="width: 18px; height: 18px; accent-color: var(--term-green);">
+                                <b style="color: ${w.active ? '#fff' : '#888'}; font-size: 1.1rem;">${wName}</b>
+                            </label>
+                            <span style="color: ${statusColor}; font-size: 0.95rem; font-weight: bold;">${w.durability}%</span>
+                        </div>
+                        ${w.active ? `<div style="font-size: 0.85rem; color: ${statusColor}; margin-top: 2px;">Статус: ${statusText}</div>` : ''}
+                        ${actionBtns}
+                    </div>
+                `;
+            }
+        }
+
+        // Рендерим ячейку снаряжения
+        const eqContent = document.getElementById('profile-equipment-content');
+        if (player.equipment && ITEMS_DB[player.equipment]) {
+            let item = ITEMS_DB[player.equipment];
+            let sellPrice = Math.floor(item.val / 2);
+            eqContent.innerHTML = `
+                <div style="font-weight: bold; color: var(--trade-color);">${item.name}</div>
+                <div style="font-size: 0.92rem; color: #ccc; margin: 4px 0;">${item.desc}</div>
+                <button class="btn-danger" style="margin-top: 8px; width: 100%; padding: 4px; font-size: 1rem;" onclick="sellEquipment()">ПРОДАТЬ ЗА ${sellPrice} 💎</button>
+            `;
+        } else {
+            eqContent.innerHTML = `<div style="color:#777; text-align:center;">Слот пуст. Купите снаряжение на Базе или в Лагере.</div>`;
+        }
+
+        // Рендерим лог истории
+        const histList = document.getElementById('prof-history-list');
+        if (histList) {
+            if (!player.history || player.history.length === 0) {
+                histList.innerHTML = "<p style='color:#777; text-align:center;'>Активностей не зафиксировано</p>";
+            } else {
+                histList.innerHTML = player.history.map(h => {
+                    let time = new Date(h.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    if (h.type === 'heal') {
+                        return `<div style="color:var(--hero-color); margin-bottom: 2px;">[${time}] 🟢 Вылечил: ${h.name}</div>`;
+                    } else {
+                        return `<div style="color:var(--bandit-color); margin-bottom: 2px;">[${time}] 🔴 Ограбил: ${h.name}</div>`;
+                    }
+                }).join('');
+            }
+        }
+    }
+
+    function sellEquipment() {
+        if (!player.equipment || !ITEMS_DB[player.equipment]) return;
+        let item = ITEMS_DB[player.equipment];
+        let sellPrice = Math.floor(item.val / 2);
+        if (confirm(`Продать ${item.name} за ${sellPrice} 💎?`)) {
+            playSound('sell');
+            player.score += sellPrice;
+            player.equipment = null;
+            saveState();
+            renderProfile();
+            alert(`Успешно продано за ${sellPrice} 💎!`);
+        }
+    }
+
+    function switchView(viewName) {
+        if (player.hp <= 0) return; 
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.querySelectorAll('#nav-buttons button').forEach(b => b.classList.remove('active-nav'));
+        document.getElementById(`view-${viewName}`).classList.add('active');
+        if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
+        if(viewName !== 'scan' && scanner) scanner.stop();
+        if(viewName === 'inventory') renderInventory();
+        if(viewName === 'quests') renderQuests();
+        if(viewName === 'profile') renderProfile();
+        document.getElementById('manual-code').placeholder = (viewName === 'scan') ? "Код (junk_1, anom_1, npc_base)" : "Код";
+    }
+
+    function updateHUD() {
+        let maxHp = 100 - player.rads;
+        if (player.hp > maxHp) player.hp = maxHp;
+
+        let k = getKarmaStatus();
+
+        document.getElementById('hp-val').innerText = player.hp; 
+        document.getElementById('rad-val').innerText = player.rads; 
+        document.getElementById('hunger-val').innerText = player.hunger;
+        document.getElementById('inv-val').innerText = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0); 
+        document.getElementById('inv-max').innerText = player.maxSize; 
+        document.getElementById('score-val').innerText = player.score;
+
+        document.getElementById('hp-val').className = player.hp <= 20 ? 'danger' : ''; 
+        document.getElementById('hunger-val').className = player.hunger <= 20 ? 'danger' : '';
+        document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
+
+        // Визуальный глоу для героя в HUD
+        if(k.name === 'ГЕРОЙ') {
+            document.getElementById('rad-val').style.color = 'var(--hero-color)';
+            document.getElementById('rad-val').innerText = "ИММУН";
+        }
+    }
+
+    // === СКАНЕР И АНОМАЛИИ ===
+    function handleScan(qrCode) {
+        document.getElementById('manual-code').value = ''; let code = qrCode.trim().toLowerCase(); let resDiv = document.getElementById('scan-result');
+        if (player.hp <= 0) return;
+
+        // 1. Помощь умирающему (Спасение)
+        if (code.startsWith("heal:")) {
+            let parts = code.split(":"); let corpseId = parts[1]; let targetName = parts[2];
+
+            // Проверяем есть ли еда или медицина в инвентаре
+            let consumableIdx = player.inventory.findIndex(id => ITEMS_DB[id].cat === 'food' || ITEMS_DB[id].cat === 'med');
+
+            if (consumableIdx === -1) {
+                playSound('error');
+                return resDiv.innerHTML = "<span class='danger'>У вас нет еды или медикаментов для помощи!</span>";
+            }
+
+            let usedItemName = ITEMS_DB[player.inventory[consumableIdx]].name;
+            player.inventory.splice(consumableIdx, 1); // Списываем случайный предмет
+
+            player.karma_score++; // +1 к карме
+            playSound('use');
+
+            player.history = player.history || [];
+            player.history.push({ type: 'heal', name: targetName, date: Date.now() });
+
+            saveState();
+
+            resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот экран спасенному.</span>`;
+            return;
+        }
+
+        // 2. Мародерство (Грабеж)
+        if (code.startsWith("rob:")) {
+            let parts = code.split(":"); 
+            let corpseId = parts[1]; 
+            let victimName = "Неизвестный";
+            let items = [];
+            if (parts.length > 3) {
+                victimName = parts[2];
+                items = parts[3] ? parts[3].split(",") : [];
+            } else {
+                items = parts[2] ? parts[2].split(",") : [];
+            }
+
+            if (player.scannedCodes[corpseId]) { playSound('error'); return resDiv.innerHTML = "<span style='color:yellow'>Вы уже обобрали это тело!</span>"; }
+
+            player.karma_score--; // -1 к карме за мародерство
+            playSound('karma');
+
+            let pickedUp = []; let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+
+            if (currentSize + ITEMS_DB['token_bandit'].size <= player.maxSize) {
+                player.inventory.push('token_bandit'); currentSize += ITEMS_DB['token_bandit'].size; pickedUp.push(ITEMS_DB['token_bandit'].name); player.tokens_collected++;
+            }
+            for(let id of items) { if(ITEMS_DB[id] && currentSize + ITEMS_DB[id].size <= player.maxSize) { player.inventory.push(id); currentSize += ITEMS_DB[id].size; pickedUp.push(ITEMS_DB[id].name); } }
+
+            player.scannedCodes[corpseId] = Date.now(); 
+
+            player.history = player.history || [];
+            player.history.push({ type: 'rob', name: victimName, date: Date.now() });
+
+            saveState();
+
+            resDiv.innerHTML = `<b style="color:var(--bandit-color)">ТРУП ОГРАБЛЕН!</b><br><small>Получено -1 к Карме. Вы забрали: ${pickedUp.length} предметов.</small>`;
+            return;
+        }
+
+        // 3. Аномалии
+        if (code.startsWith("anom_")) {
+            let now = Date.now();
+            if (player.scannedCodes[code]) { 
+                let diffSec = (now - player.scannedCodes[code]) / 1000; 
+                if (diffSec < 7200) { 
+                    playSound('error'); 
+                    let remaining = Math.ceil(7200 - diffSec);
+                    let hours = Math.floor(remaining / 3600);
+                    let minutes = Math.floor((remaining % 3600) / 60);
+                    let seconds = remaining % 60;
+                    let timeStr = "";
+                    if (hours > 0) timeStr = `${hours} ч. ${minutes} мин.`;
+                    else if (minutes > 0) timeStr = `${minutes} мин. ${seconds} сек.`;
+                    else timeStr = `${seconds} сек.`;
+                    return resDiv.innerHTML = `<span style='color:yellow'>Аномалия разряжена. Ждите ${timeStr}</span>`; 
+                } 
+            }
+
+            let successChance = 0.3;
+            if (player.equipment === 'eq_anom') successChance = 0.6; // Детектор Велес повышает шанс с 30% до 60%
+
+            let hasBoltIndex = player.inventory.indexOf("junk_6"); // Болт = junk_6
+            let usedBolt = false;
+
+            if (hasBoltIndex !== -1) { 
+                successChance = (player.equipment === 'eq_anom') ? 0.95 : 0.8; // С болтом шанс 80% или 95%
+                usedBolt = true; 
+                player.inventory.splice(hasBoltIndex, 1); 
+            }
+
+            let roll = Math.random(); player.scannedCodes[code] = now;
+
+            if (roll <= successChance) {
+                let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
+                let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+                if (currentSize + item.size > player.maxSize) {
+                    playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места!</span>`;
+                } else {
+                    player.inventory.push(winArt); playSound('sell');
+                    resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${usedBolt ? "<br><small style='color:#ccc'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                }
+            } else {
+                playSound('hazard'); let penaltyRoll = Math.random();
+                if (penaltyRoll < 0.5 || player.inventory.length === 0) {
+                    // Герои невосприимчивы к урону радиации, но к чистому взрыву аномалии всё же восприимчивы
+                    player.hp = Math.max(0, player.hp - 40);
+                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:#ccc'><i>Даже болт не помог...</i></small>" : ""}`;
+                    checkDeathState();
+                } else {
+                    let dropIdx = Math.floor(Math.random() * player.inventory.length);
+                    let droppedName = ITEMS_DB[player.inventory[dropIdx]].name;
+                    player.inventory.splice(dropIdx, 1);
+                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:#ccc'><i>Даже болт не помог...</i></small>" : ""}`;
+                }
+            }
+            saveState(); return;
+        }
+
+        if (NPC_DB[code]) { playSound('scan'); return openTrade(code); }
+        if (!ITEMS_DB[code]) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>ОШИБКА: Код не распознан</span>"; }
+
+        let now = Date.now();
+        if (player.scannedCodes[code]) { let diffSec = (now - player.scannedCodes[code]) / 1000; if (diffSec < 60) { playSound('error'); return resDiv.innerHTML = `<span style='color:yellow'>Предмет появится через ${Math.ceil(60 - diffSec)} сек.</span>`; } }
+
+        let item = ITEMS_DB[code]; let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+        if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
+
+        playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = now; saveState();
+        resDiv.innerHTML = `ПОДОБРАНО: <b style="color:#fff">${item.name}</b><br><small>(Вес: ${item.size} | Цена: ${item.val})</small>`;
+    }
+
+    // === КВЕСТЫ ===
+        function generateQuestChoices() {
+        let pool = [];
+        // Если выполнено меньше 5 квестов, доступны только случайные контракты снабжения (5 штук)
+        if ((player.completedQuestsCount || 0) < 5) {
+            for (let i = 0; i < 5; i++) {
+                pool.push(createRandomQuest());
+            }
+        } else {
+            // После 5 выполненных открываются Особые Контракты + случайные
+            let presets = [
+                { id: "preset_maroder_" + Date.now(), name: "💀 Мародер", requirements: {"token_bandit": 10}, target: "npc_trad", reward: 4500, desc: "Собрать 10 жетонов мародеров для Сидоровича" },
+                { id: "preset_pacifist_" + Date.now(), name: "🕊 Пацифист", requirements: {"med_1": 5, "med_2": 3, "med_4": 2}, target: "npc_med", reward: 2400, desc: "Поставить медикаменты (5 стимуляторов, 3 антирадина, 2 аптечки) Доктору Кроу" },
+                { id: "preset_zona_" + Date.now(), name: "🌀 Зона", requirements: {"art_1": 1, "art_2": 1, "art_3": 1}, target: "npc_eng", reward: 5000, desc: "Принести артефакты Капля, Слизь и Пустышка Михалычу" }
+            ];
+            pool = [...presets, createRandomQuest(), createRandomQuest()];
+        }
+
+        player.quests.choices = pool.sort(() => 0.5 - Math.random());
+        saveState();
+    }
+
+    function createRandomQuest() {
+        let itemKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat !== 'token' && ITEMS_DB[k].cat !== 'artifact' && ITEMS_DB[k].cat !== 'eq');
+        let reqs = {}; let totalVal = 0; let numItems = Math.floor(Math.random() * 2) + 1; 
+        for(let i=0; i<numItems; i++) { 
+            let code = itemKeys[Math.floor(Math.random() * itemKeys.length)]; 
+            let qty = Math.floor(Math.random() * 2) + 1; 
+            reqs[code] = (reqs[code] || 0) + qty; 
+            totalVal += (ITEMS_DB[code].val * qty); 
+        }
+        let npcKeys = Object.keys(NPC_DB).filter(k => !NPC_DB[k].isBase);
+        let npcId = npcKeys[Math.floor(Math.random() * npcKeys.length)];
+        return { 
+            id: "rand_" + Math.random().toString(36).substr(2, 9), 
+            name: "📦 Заказ снабжения", 
+            requirements: reqs, 
+            target: npcId, 
+            reward: Math.floor(totalVal * (1.5 + Math.random() * 0.5)),
+            desc: `Поставка припасов для ${NPC_DB[npcId].name}`
+        };
+    }
+
+    function renderQuests() {
+        const container = document.getElementById('quests-container'); 
+        container.innerHTML = '';
+
+        // Отрисовка активных квестов
+        if (player.quests.active && player.quests.active.length > 0) {
+            container.innerHTML += `<h3 style="color:var(--trade-color); border-bottom:1px dashed #555; padding-bottom:5px; margin-bottom:12px;">АКТИВНЫЕ КОНТРАКТЫ (${player.quests.active.length}/2)</h3>`;
+            player.quests.active.forEach((q, idx) => {
+                let html = `<div class="quest-card" style="border-color:var(--trade-color); margin-bottom:12px;">
+                    <h4 style="color:var(--trade-color); display:flex; justify-content:space-between; margin-bottom:5px;">
+                        <span>${q.name || "Контракт"}</span>
+                        <small style="font-size:0.8rem; color:#aaa;">Доставить: ${NPC_DB[q.target].name}</small>
+                    </h4>
+                    <p style="font-size:0.9rem; color:#aaa; margin-bottom:8px;">${q.desc || ""}</p>
+                    <div style="font-size:0.95rem; margin-bottom:8px;"><b>Требуется:</b></div>`;
+
+                for (let code in q.requirements) { 
+                    let need = q.requirements[code]; 
+                    let have = player.inventory.filter(id => id === code).length; 
+                    let isMet = have >= need;
+                    html += `<div style="color:${isMet ? 'var(--term-green)' : '#ccc'}; font-size:0.95rem; padding-left:10px;">
+                        ${isMet ? '✓' : '•'} ${ITEMS_DB[code] ? ITEMS_DB[code].name : code}: ${Math.min(have, need)}/${need}
+                    </div>`; 
+                }
+
+                html += `<hr style="border:0; border-top:1px dashed var(--quest-color); margin:8px 0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
+                        <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 💎)</button>
+                    </div>
+                </div>`;
+                container.innerHTML += html;
+            });
+        } else {
+            container.innerHTML += `<div style="color:#666; text-align:center; padding:15px; border:1px dashed #444; margin-bottom:15px;">Нет активных контрактов. Возьмите контракт ниже!</div>`;
+        }
+
+        // Отрисовка доступных квестов на выбор
+        let unlockInfo = '';
+        let completed = player.completedQuestsCount || 0;
+        if (completed < 5) {
+            unlockInfo = `<div style="background: rgba(255,165,0,0.1); border: 1px dashed orange; padding: 8px; margin-bottom: 12px; font-size: 0.9rem; text-align: center; color: orange;">
+                🔓 Особые контракты («Мародер», «Пацифист», «Зона») разблокируются после выполнения <b>5</b> квестов снабжения.<br>Прогресс: <b>${completed}/5</b>
+            </div>`;
+        } else {
+            unlockInfo = `<div style="background: rgba(0,255,0,0.1); border: 1px dashed var(--term-green); padding: 6px; margin-bottom: 12px; font-size: 0.9rem; text-align: center; color: var(--term-green);">
+                ⭐ Особые контракты разблокированы!
+            </div>`;
+        }
+
+        container.innerHTML += `<h3 style="color:var(--quest-color); border-bottom:1px dashed #555; padding-bottom:5px; margin-top:20px; margin-bottom:12px;">ДОСТУПНЫЕ КОНТРАКТЫ</h3>` + unlockInfo;
+
+        if (player.quests.active && player.quests.active.length >= 2) {
+            container.innerHTML += `<div style="color:var(--rad-color); text-align:center; padding:15px; border:1px dashed var(--rad-color); font-weight:bold;">Вы взяли максимум контрактов (2/2). Сдайте или отмените текущий контракт, чтобы взять новый!</div>`;
+            return;
+        }
+
+        if (!player.quests.choices || player.quests.choices.length === 0) {
+            generateQuestChoices();
+        }
+
+        // Сортируем квесты по стоимости награды от меньшей к большей
+        player.quests.choices.sort((a, b) => a.reward - b.reward);
+
+        player.quests.choices.forEach((q, index) => {
+            let html = `<div class="quest-card" style="margin-bottom:12px;">
+                <h4 style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>${q.name || "Контракт"}</span>
+                    <small style="font-size:0.8rem; color:#aaa;">Заказчик: ${NPC_DB[q.target].name}</small>
+                </h4>
+                <p style="font-size:0.9rem; color:#aaa; margin-bottom:8px;">${q.desc || ""}</p>
+                <div style="font-size:0.9rem; margin-bottom:6px;"><b>Необходимо принести:</b></div>`;
+
+            for (let code in q.requirements) { 
+                html += `<div style="padding-left:10px; font-size:0.9rem; color:#ccc;">• ${ITEMS_DB[code] ? ITEMS_DB[code].name : code} (x${q.requirements[code]})</div>`; 
+            }
+
+            container.innerHTML += html + `<hr style="border:0; border-top:1px dashed var(--quest-color); margin:8px 0;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
+                    <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px;" onclick="acceptQuest(${index})">ПРИНЯТЬ</button>
+                </div>
+            </div>`;
+        });
+    }
+
+    function acceptQuest(index) { 
+        if (player.quests.active.length >= 2) {
+            return alert("Вы можете выполнять не более 2 квестов одновременно!");
+        }
+        playSound('use'); 
+        let quest = player.quests.choices.splice(index, 1)[0];
+        player.quests.active.push(quest); 
+        saveState(); 
+        renderQuests(); 
+    }
+
+    function abandonQuest(index) { 
+        if(confirm("Отменить контракт за 10 кредитов?")) { 
+            playSound('error'); 
+            player.score = Math.max(0, player.score - 10); 
+            player.quests.active.splice(index, 1); 
+            if (player.quests.choices.length === 0 && player.quests.active.length === 0) {
+                generateQuestChoices(); 
+            }
+            renderQuests(); 
+            saveState(); 
+        } 
+    }
+
+    // === ТОРГОВЛЯ ===
+    function openTrade(npcCode) {
+        let npc = NPC_DB[npcCode];
+        let k = getKarmaStatus();
+
+        // Разграничение по карме для баз
+        if (npc.isBase) {
+            if (npc.reqKarma === "survivor" && k.name === "БАНДИТ") { 
+                if (player.equipment !== "eq_pass_base") {
+                    playSound('error'); 
+                    alert("ОТКАЗ! Вы Бандит, вход на базу Корпорации запрещен."); 
+                    return switchView('scan'); 
+                }
+            }
+            if (npc.reqKarma === "bandit" && k.name !== "БАНДИТ") { 
+                if (player.equipment !== "eq_pass_camp") {
+                    playSound('error'); 
+                    alert("ОТКАЗ! Вы не Бандит, убирайтесь из Лагеря."); 
+                    return switchView('scan'); 
+                }
+            }
+        }
+
+        currentTradeNpc = npcCode;
+        if (player.quests.active && player.quests.active.length > 0 && !npc.isBase) {
+            let myQuests = player.quests.active.filter(q => q.target === npcCode);
+            for (let q of myQuests) {
+                let allPresent = true;
+                for (let reqCode in q.requirements) {
+                    let need = q.requirements[reqCode];
+                    let have = player.inventory.filter(id => id === reqCode).length;
+                    if (have < need) allPresent = false;
+                }
+                if (allPresent) {
+                    if (confirm(`Сдать контракт "${q.name || "Контракт"}" и получить ${q.reward} 💎?`)) {
+                        playSound('sell');
+                        for (let reqCode in q.requirements) {
+                            let need = q.requirements[reqCode];
+                            for (let i = 0; i < need; i++) {
+                                let idx = player.inventory.indexOf(reqCode);
+                                if (idx !== -1) player.inventory.splice(idx, 1);
+                            }
+                        }
+                        player.score += q.reward;
+                        player.quests.active = player.quests.active.filter(actQ => actQ.id !== q.id);
+
+                        let prevCount = player.completedQuestsCount || 0;
+                        player.completedQuestsCount = prevCount + 1;
+
+                        if (player.quests.choices.length === 0 && player.quests.active.length === 0) {
+                            generateQuestChoices();
+                        }
+                        saveState();
+
+                        if (prevCount < 5 && player.completedQuestsCount >= 5) {
+                            alert(`🎉 ВЫ ВЫПОЛНИЛИ 5 КВЕСТОВ СНАБЖЕНИЯ!\nВам стали доступны Особые Контракты («Мародер», «Пацифист», «Зона»)!`);
+                        } else {
+                            alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} 💎\nВыполнено контрактов снабжения: ${player.completedQuestsCount}/5`);
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        currentTradeStock = []; 
+        if (!npc.isBase) {
+            let allowed = Object.keys(ITEMS_DB).filter(id => npc.sells.includes(ITEMS_DB[id].cat));
+            for(let i=0; i<8; i++) { 
+                if(allowed.length === 0) break; 
+                let randId = allowed[Math.floor(Math.random() * allowed.length)]; 
+                let basePrice = Math.floor(ITEMS_DB[randId].val * (1.5 + Math.random()));
+                // Торговый чип снижает цены покупки на 25% у торговцев
+                if (player.equipment === 'eq_trade') {
+                    basePrice = Math.floor(basePrice * 0.75);
+                }
+                currentTradeStock.push({ id: randId, price: basePrice }); 
+            }
+        }
+        renderTradeView(); switchView('trade');
+    }
+
+    function renderTradeView() {
+        let npc = NPC_DB[currentTradeNpc]; document.getElementById('trade-npc-name').innerText = npc.name; 
+
+        // Настройка лечения и цен для Доктора Кроу
+        let isMed = (currentTradeNpc === 'npc_med');
+        let healCost = 50;
+        if (player.equipment === 'eq_trade') healCost = 35; // Скидка на лечение с чипом
+        document.getElementById('btn-medic-heal-action').innerText = `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} 💎)`;
+        document.getElementById('medic-heal-box').style.display = npc.canHeal ? 'block' : 'none'; 
+
+        document.getElementById('base-sell-all-box').style.display = npc.isBase ? 'block' : 'none';
+
+        let k = getKarmaStatus();
+        if(npc.isBase) document.getElementById('base-sell-desc').innerText = (npc.reqKarma === 'bandit') ? "Сдать лут Барыге (штраф x0.7)" : "Сдать весь лут Корпорации";
+
+        document.getElementById('title-trade-buy').style.display = 'block'; // Всегда показываем "В продаже"
+
+        const buyList = document.getElementById('trade-buy-list'); 
+        buyList.style.display = 'block'; 
+        buyList.innerHTML = "";
+
+        if (npc.isBase) {
+            // Терминалы продают Снаряжение
+            let eqToSell = ['eq_rad', 'eq_hunger', 'eq_storm', 'eq_anom', 'eq_trade'];
+            if (currentTradeNpc === 'npc_base') {
+                eqToSell.push('eq_pass_camp'); // На базе можно купить пропуск в лагерь бандитов
+            } else if (currentTradeNpc === 'npc_bandit_base') {
+                eqToSell.push('eq_pass_base'); // В лагере бандитов можно купить пропуск на базу
+            }
+
+            eqToSell.forEach(eqId => {
+                let item = ITEMS_DB[eqId];
+                let price = item.val;
+                let alreadyOwned = (player.equipment === eqId);
+                let btnHtml = alreadyOwned 
+                    ? `<button class="btn-trade" disabled>КУПЛЕНО</button>`
+                    : `<button class="btn-trade" onclick="buyEquipment('${eqId}')">КУПИТЬ</button>`;
+
+                buyList.innerHTML += `
+                    <div class="item">
+                        <div class="item-info">
+                            <b>${item.name}</b><br>
+                            <small style="color:var(--trade-color)">${item.desc}</small><br>
+                            <small>Цена: ${price} 💎</small>
+                        </div>
+                        ${btnHtml}
+                    </div>
+                `;
+            });
+        } else {
+            // Обычные НПС
+            if (currentTradeStock.length === 0) {
+                buyList.innerHTML = "<p>Нет товаров на продажу</p>";
+            } else {
+                currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} 💎</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
+            }
+        }
+
+        const sellList = document.getElementById('trade-sell-list'); sellList.innerHTML = ""; let hasItems = false;
+        document.getElementById('title-trade-sell').innerText = npc.isBase ? (npc.reqKarma === 'bandit' ? "БАРЫГА СКУПАЕТ (ЦЕНА х0.7)" : "СКУПАЕТ (СТАНДАРТНАЯ ЦЕНА х1)") : "СКУПАЕТ У ВАС (ЦЕНА х1.5)";
+        player.inventory.forEach((id, i) => {
+            if(npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) { 
+                hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult)); 
+                sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} 💎</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`; 
+            }
+        });
+        if(!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
+    }
+
+    function buyEquipment(eqId) {
+        let item = ITEMS_DB[eqId];
+        if (player.score < item.val) return alert("Мало кредитов!");
+        if (player.equipment) {
+            if (!confirm(`Вы уверены? Это заменит экипированное снаряжение: ${ITEMS_DB[player.equipment].name}. Предыдущее снаряжение пропадет (лучше продайте его сначала в Профиле).`)) {
+                return;
+            }
+        }
+        playSound('sell');
+        player.score -= item.val;
+        player.equipment = eqId;
+        saveState();
+        renderTradeView();
+        alert(`Приобретено снаряжение: ${item.name}!`);
+    }
+
+    function buyItem(i) { let s = currentTradeStock[i]; if(player.score < s.price) return alert("Мало кредитов!"); if(player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0) + ITEMS_DB[s.id].size > player.maxSize) return alert("Нет места в рюкзаке!"); playSound('sell'); player.score -= s.price; player.inventory.push(s.id); currentTradeStock.splice(i, 1); saveState(); renderTradeView(); }
+    function sellItem(i, price) { playSound('sell'); player.inventory.splice(i, 1); player.score += price; saveState(); renderTradeView(); }
+
+    function sellAllToBase() {
+        if(player.inventory.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
+        let mult = NPC_DB[currentTradeNpc].mult; let total = player.inventory.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
+        player.score += total; player.inventory = []; alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+    }
+
+    function buyHeal() { 
+        if(player.hp >= 100 && player.rads === 0) return alert("Здоров!"); 
+        let healCost = 50;
+        if (player.equipment === 'eq_trade') healCost = 35; // Скидка с чипом
+        if(player.score < healCost) return alert("Мало кредитов!"); 
+        playSound('use'); 
+        player.score -= healCost; 
+        player.hp = 100; 
+        player.rads = 0; 
+        saveState(); 
+        renderTradeView(); 
+        alert("Вылечен!"); 
+    }
+
+    // === ИНВЕНТАРЬ ===
+    function dropItem(index, isSafe=false) { if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
+
+    function useMedkit(index, id, isSafe=false) { 
+        let it = ITEMS_DB[id]; 
+        if (it.radCure && player.karma_score < 3) {
+            player.rads = Math.max(0, player.rads - it.radCure);
+        }
+        let maxHp = 100 - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0));
+        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
+    }
+
+    function useFood(index, id, isSafe=false) { 
+        let it = ITEMS_DB[id]; 
+        if (it.radCure && player.karma_score < 3) {
+            player.rads = Math.max(0, player.rads - it.radCure);
+        }
+        player.hunger = Math.min(100, player.hunger + (it.feed || 0)); let maxHp = 100 - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
+    }
+
+    function moveToSafe(index) { let id = player.inventory[index]; if (player.safeBox.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > 5) return alert("Нет места!"); playSound('scan'); player.safeBox.push(id); player.inventory.splice(index, 1); saveState(); renderInventory(); }
+    function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
+
+    function renderCraftBox(idReq, idBtn, questArr, callback) {
+        let hasAll = true, txt = [], rc = {}, ic = {}; questArr.forEach(id => rc[id] = (rc[id]||0) + 1); player.inventory.forEach(id => ic[id] = (ic[id]||0) + 1);
+        for (let id in rc) { let need = rc[id], have = ic[id] || 0; txt.push(`<span style="color:${have >= need ? 'var(--term-green)' : '#ccc'}">${ITEMS_DB[id].name} (${Math.min(have, need)}/${need})</span>`); if (have < need) hasAll = false; }
+        document.getElementById(idReq).innerHTML = txt.join(", "); document.getElementById(idBtn).style.display = hasAll ? 'block' : 'none';
+    }
+    function applyUpgrade() { playSound('use'); player.upgradeQuest.forEach(id => player.inventory.splice(player.inventory.indexOf(id), 1)); player.maxSize += 5; player.upgradeQuest = genQ(2, 3); saveState(); renderInventory(); alert("РЮКЗАК РАСШИРЕН!"); }
+    function applySafeBox() { playSound('use'); player.safeBoxQuest.forEach(id => player.inventory.splice(player.inventory.indexOf(id), 1)); player.safeBoxUnlocked = true; saveState(); renderInventory(); alert("ЗАЩИЩЕННЫЙ ПОДСУМОК СОЗДАН!"); }
+
+    function renderInventory() {
+        const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
+        player.inventory.forEach((id, i) => {
+            let it = ITEMS_DB[id], acts = `<button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
+
+            let statsDesc = [];
+            if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
+            if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', false)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
+            if (it.radCure) { 
+                statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
+                if (!it.heal && !it.feed) {
+                    acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
+                }
+            }
+            let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
+
+            if (player.safeBoxUnlocked) acts = `<button onclick="moveToSafe(${i})" class="btn-safe" style="margin-right:5px">В СЕЙФ</button> ` + acts;
+
+            list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
+        });
+        if (player.safeBoxUnlocked) {
+            document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';
+            document.getElementById('safe-val').innerText = player.safeBox.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+            const safeList = document.getElementById('safebox-list'); safeList.innerHTML = player.safeBox.length === 0 ? "<p style='color:#aaa'>Пусто</p>" : "";
+            player.safeBox.forEach((id, i) => {
+                let it = ITEMS_DB[id], acts = `<button onclick="dropItem(${i}, true)">ВЫКИНУТЬ</button>`;
+
+                let statsDesc = [];
+                if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
+                if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', true)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
+                if (it.radCure) { 
+                    statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
+                    if (!it.heal && !it.feed) {
+                        acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
+                    }
+                }
+                let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
+
+                acts = `<button onclick="moveToInv(${i})" style="color:var(--term-green); border-color:var(--term-green); margin-right:5px">В РЮКЗАК</button> ` + acts;
+                safeList.innerHTML += `<div class="item" style="border-color:var(--trade-color)"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
+            });
+        } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox); }
+        renderCraftBox('req-items', 'btn-upgrade', player.upgradeQuest, applyUpgrade);
+    }
+
+    // === ИВЕНТЫ ===
+    function startEventLoop() {
+        setInterval(() => {
+            // Износ активного оружия (1% - 3% за цикл)
+            if (player.weapons) {
+                let changed = false;
+                for (let wName in player.weapons) {
+                    let w = player.weapons[wName];
+                    if (w.active && w.durability > 0) {
+                        let wear = Math.floor(Math.random() * 3) + 1;
+                        w.durability = Math.max(0, w.durability - wear);
+                        changed = true;
+                    }
+                }
+                if (changed && document.getElementById('view-profile').classList.contains('active')) {
+                    renderProfile();
+                }
+            }
+
+            // Защита от голода eq_hunger снижает расход в 3 раза
+            let hungerLoss = 3;
+            if (player.equipment === 'eq_hunger') hungerLoss = 1;
+            player.hunger = Math.max(0, player.hunger - hungerLoss); 
+
+            // Свинцовый плащ eq_rad снижает накапливаемую радиацию в 2 раза
+            if (player.karma_score < 3) {
+                let radGain = 2;
+                if (player.equipment === 'eq_rad') radGain = 1;
+                player.rads = Math.min(100, player.rads + radGain); 
+            } else {
+                player.rads = 0; // На всякий случай обнуляем у Героя
+            }
+
+            let maxHp = 100 - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+
+            if(player.hunger === 0 && player.hp > 0) { 
+                // Защита от голода eq_hunger снижает урон от голода
+                let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
+                player.hp = Math.max(0, player.hp - hungerDmg); 
+                playSound('hazard'); 
+                showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', '#ff3333'); 
+                checkDeathState(); 
+            }
+            if(player.rads >= 100 && player.hp > 0) { player.hp = 0; playSound('hazard'); showBanner('☣ ЛУЧЕВАЯ БОЛЕЗНЬ (СМЕРТЬ)', '#ffcc00'); checkDeathState(); }
+
+            saveState();
+
+            if (Math.random() < 0.1 && player.hp > 0) {
+                let ev = [
+                    { 
+                        m: '☣ РАДИАЦИОННАЯ БУРЯ! (+15 РАД)', 
+                        a: () => { 
+                            if (player.equipment === 'eq_storm') {
+                                showBanner('🛡 ШТОРМОВОЙ КОМПЕНСАТОР ОТРАЗИЛ БУРЮ', 'var(--trade-color)');
+                                return;
+                            }
+                            let radGain = (player.equipment === 'eq_rad') ? 7 : 15;
+                            if(player.karma_score < 3) {
+                                player.rads = Math.min(100, player.rads + radGain); 
+                            } else {
+                                showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
+                            }
+                            checkDeathState(); 
+                        } 
+                    }, 
+                    { 
+                        m: '⚠ ТОКСИЧНЫЕ СПОРЫ! ВЫ ГОЛОДАЕТЕ (-20 ЕДА)', 
+                        a: () => {
+                            if (player.equipment === 'eq_storm') {
+                                showBanner('🛡 ШТОРМОВОЙ КОМПЕНСАТОР ОТРАЗИЛ СПОРЫ', 'var(--trade-color)');
+                                return;
+                            }
+                            player.hunger = Math.max(0, player.hunger - 20);
+                            checkDeathState();
+                        }
+                    },
+                    {
+                        m: '🐺 НАПАДЕНИЕ МУТАНТОВ! Активное оружие повреждено в бою (-15% прочности)',
+                        a: () => {
+                            let damaged = false;
+                            if (player.weapons) {
+                                for (let wName in player.weapons) {
+                                    let w = player.weapons[wName];
+                                    if (w.active && w.durability > 0) {
+                                        w.durability = Math.max(0, w.durability - 15);
+                                        damaged = true;
+                                    }
+                                }
+                            }
+                            if (damaged) {
+                                showBanner('🐺 НАПАДЕНИЕ МУТАНТОВ! Оружие повреждено в бою (-15% прочности)', 'var(--bandit-color)');
+                            } else {
+                                showBanner('🐺 НАПАДЕНИЕ МУТАНТОВ! У вас не было активного оружия для самообороны, вы ранены (-10 HP)', 'var(--bandit-color)');
+                                player.hp = Math.max(0, player.hp - 10);
+                                checkDeathState();
+                            }
+                        }
+                    },
+                    {
+                        m: '🌪 ПЫЛЕВАЯ БУРЯ! Оружие засорено пылью и песком (-10% прочности)',
+                        a: () => {
+                            let damaged = false;
+                            if (player.weapons) {
+                                for (let wName in player.weapons) {
+                                    let w = player.weapons[wName];
+                                    if (w.active && w.durability > 0) {
+                                        w.durability = Math.max(0, w.durability - 10);
+                                        damaged = true;
+                                    }
+                                }
+                            }
+                            if (damaged) {
+                                showBanner('🌪 ПЫЛЕВАЯ БУРЯ! Механизмы засорены (-10% прочности)', 'var(--rad-color)');
+                            } else {
+                                showBanner('🌪 ПЫЛЕВАЯ БУРЯ! Песок забился в снаряжение.', 'var(--rad-color)');
+                            }
+                        }
+                    }
+                ][Math.floor(Math.random() * 4)];
+                ev.a(); saveState(); playSound('hazard');
+                if (player.equipment !== 'eq_storm') {
+                    showBanner(ev.m, '#ffcc00');
+                }
+            }
+        }, 60000);
+    }
+    function showBanner(text, color) { let b = document.getElementById('event-banner'); b.innerText = text; b.style.display = 'block'; b.style.background = color; b.style.color = '#000'; setTimeout(() => b.style.display = 'none', 5000); }
+
+    function adminLogin() {
+        let login = prompt("Введите логин:");
+        if (login && login.trim().toLowerCase() === "админ") {
+            let pass = prompt("Введите пароль:");
+            if (pass === "Прайс админ") {
+                player.isAdmin = true;
+                saveState();
+                updateAdminVisibility();
+                alert("Доступ администратора активирован!");
+                return;
+            }
+        }
+        alert("Неверные данные!");
+    }
+
+    function updateAdminVisibility() {
+        const scanBox = document.getElementById('admin-manual-scan-box');
+        const deadBox = document.getElementById('admin-manual-dead-box');
+        if (scanBox) scanBox.style.display = player.isAdmin ? 'flex' : 'none';
+        if (deadBox) deadBox.style.display = player.isAdmin ? 'flex' : 'none';
+    }
+
+    function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem('wasteland_player'); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
+
+    document.getElementById('start-scan-btn').addEventListener('click', () => {
+        if (!scanner) scanner = new Html5Qrcode("qr-reader");
+        Html5Qrcode.getCameras().then(devices => { if (devices && devices.length) { scanner.start(devices[devices.length - 1].id, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { scanner.stop(); handleScan(t); }, (e) => {}); } }).catch(e => alert("Ошибка камеры."));
+    });
+
+    init();
+    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
