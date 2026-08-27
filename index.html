@@ -577,7 +577,7 @@
     }
 
     function confirmHeal() {
-        if (player.rads > 80) player.rads = 80; // Ограничиваем радиацию до 80%, чтобы дать подняться с 20% HP
+        if (player.rads > 50) player.rads = 50; // Ограничиваем радиацию до 80%, чтобы дать подняться с 20% HP
         player.hp = 20; // Оживает с 20% хп
         saveState();
         document.getElementById('corpse-qr-container').style.display = "none";
@@ -815,26 +815,42 @@
     }
 
     function updateHUD() {
-        let maxHp = 100 - player.rads;
-        if (player.hp > maxHp) player.hp = maxHp;
+        try {
+            let maxHp = 100 - (player.rads || 0);
+            if (player.hp > maxHp) player.hp = maxHp;
 
-        let k = getKarmaStatus();
+            let k = getKarmaStatus();
 
-        document.getElementById('hp-val').innerText = player.hp; 
-        document.getElementById('rad-val').innerText = player.rads; 
-        document.getElementById('hunger-val').innerText = player.hunger;
-        document.getElementById('inv-val').innerText = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0); 
-        document.getElementById('inv-max').innerText = player.maxSize; 
-        document.getElementById('score-val').innerText = player.score;
+            if (document.getElementById('hp-val')) document.getElementById('hp-val').innerText = player.hp; 
+            if (document.getElementById('rad-val')) {
+                document.getElementById('rad-val').innerText = player.rads;
+                document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
+            }
+            if (document.getElementById('hunger-val')) {
+                document.getElementById('hunger-val').innerText = player.hunger;
+                document.getElementById('hunger-val').className = player.hunger <= 20 ? 'danger' : '';
+            }
 
-        document.getElementById('hp-val').className = player.hp <= 20 ? 'danger' : ''; 
-        document.getElementById('hunger-val').className = player.hunger <= 20 ? 'danger' : '';
-        document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
+            if (document.getElementById('inv-val')) {
+                let invSize = 0;
+                if (player.inventory && Array.isArray(player.inventory)) {
+                    player.inventory.forEach(id => {
+                        if (ITEMS_DB[id]) invSize += ITEMS_DB[id].size || 0;
+                    });
+                }
+                document.getElementById('inv-val').innerText = invSize; 
+            }
+            if (document.getElementById('inv-max') && player.maxSize !== undefined) document.getElementById('inv-max').innerText = player.maxSize; 
+            if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
 
-        // Визуальный глоу для героя в HUD
-        if(k.name === 'ГЕРОЙ') {
-            document.getElementById('rad-val').style.color = 'var(--hero-color)';
-            document.getElementById('rad-val').innerText = "ИММУН";
+            if (document.getElementById('hp-val')) document.getElementById('hp-val').className = player.hp <= 20 ? 'danger' : ''; 
+
+            if (k.name === 'ГЕРОЙ' && document.getElementById('rad-val')) {
+                document.getElementById('rad-val').style.color = 'var(--hero-color)';
+                document.getElementById('rad-val').innerText = "ИММУН";
+            }
+        } catch (e) {
+            console.error("updateHUD error:", e);
         }
     }
 
