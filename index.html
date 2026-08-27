@@ -440,7 +440,6 @@
 
     // Каждые 5 секунд обновляем метку присутствия
     setInterval(() => {
-            if (player.inBase || player.hp <= 0) return; // На базе время остановлено
         localStorage.setItem('pda_heartbeat', Date.now().toString());
     }, 5000);
 
@@ -1475,6 +1474,7 @@
     // === ИВЕНТЫ ===
     function startEventLoop() {
         setInterval(() => {
+            if (player.inBase || player.hp <= 0) return; // Если игрок на базе (пауза) или мертв, ресурсы не тратятся
             // Износ активного оружия (1% - 3% за цикл)
             if (player.weapons) {
                 let changed = false;
