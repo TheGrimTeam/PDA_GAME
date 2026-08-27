@@ -431,7 +431,19 @@
     const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
 
     function init() { let hasPresetZona = false; try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {} if (!player.quests.choices || player.quests.choices.length < 5) generateQuestChoices(); checkDeathState(); startEventLoop(); updateRadioUI(); if (player.radioOn) startRadio(); updateAdminVisibility(); }
-    function saveState() { localStorage.setItem('wasteland_player', JSON.stringify(player)); updateHUD(); }
+    function saveState() { 
+        localStorage.setItem('wasteland_player', JSON.stringify(player)); 
+        updateHUD(); 
+        if (document.getElementById('view-inventory').classList.contains('active')) {
+            renderInventory();
+        }
+        if (document.getElementById('view-quests').classList.contains('active')) {
+            renderQuests();
+        }
+        if (document.getElementById('view-profile').classList.contains('active')) {
+            renderProfile();
+        }
+    }
 
     function changeCallsign() {
         let newName = prompt("Введите ваш новый позывной:", player.callsign);
