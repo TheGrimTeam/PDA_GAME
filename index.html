@@ -577,6 +577,7 @@
     }
 
     function confirmHeal() {
+        if (player.rads > 80) player.rads = 80; // Ограничиваем радиацию до 80%, чтобы дать подняться с 20% HP
         player.hp = 20; // Оживает с 20% хп
         saveState();
         document.getElementById('corpse-qr-container').style.display = "none";
