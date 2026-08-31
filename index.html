@@ -223,14 +223,21 @@
 <div id="device-casing">
 
     <div id="screen">
+        <div id="blowout-warning-banner" style="display:none; position:relative; width:100%; background:rgba(220,0,0,0.95); color:#fff; text-align:center; padding:10px 8px; font-family:monospace; font-weight:bold; z-index:99999; animation: pulse-led 0.4s infinite alternate; font-size:0.95rem; border-bottom:2px solid var(--rad-color);"></div>
         <div class="crt-overlay"></div>
         <div class="crt-noise"></div>
         <div id="low-hp-overlay" class="low-hp-vignette"></div>
         <div id="screen-content">
         <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
         <div id="view-base" class="view">
-            <h2 style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px;">ГРИМ-СЕТЬ: БАЗА</h2>
+            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА</h2>
+            <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color); background:rgba(255,0,0,0.05);">
+                <h4 style="color:var(--rad-color); margin-bottom:8px; border-bottom:1px dashed var(--rad-color); padding-bottom:4px; text-align:center;">⚠️ СИСТЕМА УКРЫТИЯ (ВЫБРОС)</h4>
+                <div id="blowout-status-text" style="font-size:0.9rem; color:#ccc; text-align:center;">Статус: Спокойно (Авто-выброс раз в час)</div>
+            </div>
             <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
+
+            
 
             <div class="profile-card" style="margin-bottom:15px;">
                 <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
@@ -265,6 +272,12 @@
                 <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
                 <div>ЕДА:<span id="hunger-val">100</span>%</div>
                 <div>ВЕС:<span id="inv-val">0</span>/<span id="inv-max">15</span></div>
+            </div>
+            <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
+            <div class="hud-row" style="margin-top: 5px; gap: 6px; justify-content: space-between; margin-bottom: 5px;">
+                <button onclick="quickUseItem('hp')" style="padding: 2px 4px; font-size: 0.75rem; border-color: #fff; color: #fff; flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">❤️ ЗДОРОВЬЕ</button>
+                <button onclick="quickUseItem('rad')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--rad-color); color: var(--rad-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">☢️ РАДИАЦИЯ</button>
+                <button onclick="quickUseItem('food')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--quest-color); color: var(--quest-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">🍖 ЕДА</button>
             </div>
             <div class="hud-row">
                 <div style="color:var(--trade-color)">КРЕДИТЫ: <span id="score-val">0</span> 💎</div>
@@ -313,12 +326,17 @@
             </div>
             <div id="radio-panel">
                 <div id="radio-header">
-                    <span style="font-weight:bold;">📻 РАДИОЧАСТОТА FM-42</span>
+                    <span onclick="registerRadioSecretClick()" style="font-weight:bold; cursor:pointer; user-select:none;">📻 РАДИОЧАСТОТА FM-42</span>
                     <button id="btn-radio-toggle" onclick="toggleRadio()" style="padding: 2px 6px; font-size: 0.9rem; border-color: var(--trade-color); color: var(--trade-color);">ВЫКЛ</button>
                 </div>
                 <div id="radio-text">Нажмите [ВКЛ], чтобы слушать перехват местных радиопередач...</div>
             </div>
             <div id="scan-result" style="margin-top:10px; text-align:center;"></div>
+
+            <div class="profile-card" style="margin-top:15px; padding: 10px;">
+                <h4 style="border-bottom:1px dashed var(--quest-color); padding-bottom:4px; margin-bottom:8px; color:var(--quest-color); font-size:1.1rem; text-align:center;">📔 БЛОКНОТ ВЫЖИВШЕГО</h4>
+                <textarea id="survival-notes" oninput="saveSurvivalNotes()" style="width:100%; height:110px; background:rgba(0,0,0,0.5); border:1px solid var(--term-green); color:var(--term-green); font-family:'VT323',monospace; font-size:1.15rem; padding:8px; resize:none;" placeholder="Сюда можно записать коды дверей, координаты тайников или список необходимых ресурсов..."></textarea>
+            </div>
         </div>
 
         <!-- 2. ИНВЕНТАРЬ И КРАФТ -->
@@ -346,6 +364,8 @@
         <div id="view-quests" class="view">
             <h3 class="quest-text">СЕТЬ КОНТРАКТОВ</h3>
             <div id="quests-container"></div>
+
+
         </div>
 
         <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
@@ -442,6 +462,38 @@
                 <p id="shelter-req-list" style="font-size: 0.95rem; color:var(--text-dim); margin-bottom: 10px; line-height: 1.3;"></p>
                 <button id="btn-upgrade-shelter" onclick="upgradeShelter()" class="btn-safe" style="width: 100%; display: none;">УЛУЧШИТЬ УБЕЖИЩЕ</button>
             </div>
+
+            <!-- СЛОТ-МАШИНА -->
+            <div class="profile-card" style="margin-top:20px; border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
+                <h4 style="color:var(--quest-color); margin-bottom:8px; border-bottom:1px dashed var(--quest-color); padding-bottom:4px; text-align:center;">🎰 ИГРОВОЙ АВТОМАТ «УДАЧА ПУСТОШЕЙ»</h4>
+
+                <!-- Экран слотов -->
+                <div style="display:flex; justify-content:center; gap:12px; margin:15px 0;">
+                    <div id="slot-reel-1" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                    <div id="slot-reel-2" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                    <div id="slot-reel-3" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                </div>
+
+                <!-- Информация об игре -->
+                <div style="display:flex; justify-content:space-between; font-size:0.95rem; color:#ccc; margin-bottom:10px;">
+                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> 💎</div>
+                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> 💎</div>
+                </div>
+
+                <!-- Панель управления ставками -->
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button onclick="adjustSlotBet(-5)" style="flex:1; padding:4px; background:rgba(0,229,255,0.05); border-color:var(--trade-color); color:var(--trade-color); font-size:0.9rem; cursor:pointer;">-5</button>
+                    <button onclick="adjustSlotBet(5)" style="flex:1; padding:4px; background:rgba(0,229,255,0.05); border-color:var(--trade-color); color:var(--trade-color); font-size:0.9rem; cursor:pointer;">+5</button>
+                    <button onclick="setSlotBetMax()" style="flex:1; padding:4px; background:rgba(255,183,0,0.1); border-color:var(--quest-color); color:var(--quest-color); font-size:0.9rem; font-weight:bold; cursor:pointer;">МАКС</button>
+                </div>
+
+                <!-- Главная кнопка -->
+                <button id="btn-spin-slots" onclick="spinSlots()" style="width:100%; padding:10px; background:rgba(255,183,0,0.2); border-color:var(--quest-color); color:var(--quest-color); font-weight:bold; font-size:1.1rem; letter-spacing:1px; cursor:pointer;">🎰 ДЕРНУТЬ РЫЧАГ</button>
+
+                <!-- Лог результата -->
+                <div id="slot-result-log" style="text-align:center; font-size:0.95rem; margin-top:8px; min-height:20px; color:#aaa;">Сделайте ставку и испытайте удачу!</div>
+            </div>
+
             <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>
         </div>
 
@@ -524,20 +576,20 @@
     function runGeigerLoop() {
         if (geigerTimer) clearTimeout(geigerTimer);
         if (player.hp <= 0 || player.inBase || !player.rads || player.rads <= 0) {
-            geigerTimer = setTimeout(runGeigerLoop, 2500);
+            geigerTimer = setTimeout(runGeigerLoop, 5000);
             return;
         }
         playGeigerClick();
         let r = player.rads;
         let minDelay, maxDelay;
         if (r < 15) {
-            minDelay = 4000; maxDelay = 12000; // Редкие одиночные щелчки (раз в 4-12 сек)
+            minDelay = 8000; maxDelay = 24000; // Очень редкие одиночные щелчки (раз в 8-24 сек)
         } else if (r < 30) {
-            minDelay = 1800; maxDelay = 5000;  // Нечастый предупреждающий треск (раз в 2-5 сек)
+            minDelay = 3600; maxDelay = 10000; // Редкий предупреждающий треск (раз в 4-10 сек)
         } else if (r < 45) {
-            minDelay = 800; maxDelay = 2200;   // Умеренно частые щелчки (раз в 1-2 сек)
+            minDelay = 1600; maxDelay = 4400;  // Умеренные щелчки (раз в 2-4 сек)
         } else {
-            minDelay = 250; maxDelay = 700;    // Тревожный, но не надоедающий ритм (2-4 щелчка в сек)
+            minDelay = 500; maxDelay = 1400;   // Заметный треск при сильном заражении (раз в 0.5 - 1.4 сек)
         }
         let nextDelay = Math.random() * (maxDelay - minDelay) + minDelay;
         geigerTimer = setTimeout(runGeigerLoop, nextDelay);
@@ -671,12 +723,16 @@
             osc.start(now); osc.stop(now + 1.5);
         } else if (type === 'death') {
             osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(10, now + 2);
-            gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 2);
+            gain.gain.setValueAtTime(0.147, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 2);
             osc.start(now); osc.stop(now + 2);
         } else if (type === 'use') {
             osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
             gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
             osc.start(now); osc.stop(now + 0.3);
+        } else if (type === 'siren') {
+            osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.exponentialRampToValueAtTime(320, now + 0.5); osc.frequency.exponentialRampToValueAtTime(180, now + 1.0);
+            gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.0, now + 1.0);
+            osc.start(now); osc.stop(now + 1.0);
         } else if (type === 'radio') {
             osc.type = 'square'; osc.frequency.setValueAtTime(1200, now); osc.frequency.setValueAtTime(1800, now + 0.1); 
             gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
@@ -923,7 +979,7 @@
     }
 
     let scanner = null, deadScanner = null, currentTradeNpc = null, currentTradeStock = [], lootQrObj = null, radioTimer = null;
-    const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
+    const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "📻 [ПОМЕХИ] Какой-то сталкер в баре бредил радиостанцией 'УВБ-76'. Рассказывал, что если быстро нажать 5 раз на надпись '📻 РАДИОЧАСТОТА FM-42' в сканере, поймаешь секретный эфир...", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "📻 [ПОМЕХИ] Слышал легенду? Если быстро нажать 5 раз по надписи 'ГРИМ-СЕТЬ: БАЗА' на экране Базы, то получишь статус суперпользователя...", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
 
     function init() {
         applyTheme(player.theme || 'green');
@@ -942,7 +998,14 @@
 
         runGeigerLoop();
         runHeartbeatLoop();
+
+        let notesEl = document.getElementById('survival-notes');
+        if (notesEl) {
+            notesEl.value = localStorage.getItem('wasteland_notes') || '';
+        }
+
         startEventLoop();
+        startBlowoutSchedule();
         updateRadioUI();
         if (player.radioOn && !player.inBase) startRadio();
         updateAdminVisibility();
@@ -996,24 +1059,51 @@
         if (radioTimer) clearTimeout(radioTimer);
         radioTimer = setTimeout(() => {
             if (!player.radioOn || player.hp <= 0) return;
-            playSound('radio');
-            let msg = RADIO_MSGS[Math.floor(Math.random() * RADIO_MSGS.length)];
-            let timeStr = new Date().toLocaleTimeString().slice(0, 5); // ЧЧ:ММ
-            let formatted = `[${timeStr}] ${msg}`;
+
+            let msg;
+            if (uvbActive) {
+                playCreepyBuzz();
+                let uvbMessages = [
+                    "⚠️ УВБ-76: [ТОН 60Гц] МДЖБ 76 49 21 82 ... ПРИЕМ",
+                    "⚠️ УВБ-76: [ШУМ] Сектор 14 пуст. Эвакуация провалена.",
+                    "⚠️ УВБ-76: [ИДИ НА СЕВЕР] Запись 2084: Они идут из подвала Убежища...",
+                    "⚠️ УВБ-76: [ТОН] Бром-9, Янтарь-21, Кобальт-4. Ответьте.",
+                    "⚠️ УВБ-76: 8 2 1 9 4 0 (повторяется тихим синтетическим голосом)",
+                    "⚠️ УВБ-76: [ШОРОХ] ...объект 404 нарушил герметичность нижних уровней...",
+                    "⚠️ УВБ-76: [ПОМЕХИ] Внимание, протокол 'Чистое Небо' аннулирован.",
+                    "⚠️ УВБ-76: [ПИКСЕЛЬНЫЙ ШУМ] Ч-55-12-88. Процедура самоликвидации отложена.",
+                    "⚠️ УВБ-76: [ТОН 60Гц] МДЖБ 21 440 98 10 ... НАЧАЛО ТРАНСЛЯЦИИ",
+                    "⚠️ УВБ-76: [ГОЛОС] Не доверяйте ИИ Убежища. Он лжет о запасах воды.",
+                    "⚠️ УВБ-76: [СИГНАЛ] Координаты схрона: 54.89, 37.45. Код от сейфа 0451.",
+                    "⚠️ УВБ-76: [ПОМЕХИ] Сталкер по кличке Меченый, срочно вернись на Кордон.",
+                    "⚠️ УВБ-76: [МЕТАЛЛИЧЕСКИЙ ЗВУК] ...гермозатвор сектора Г заблокирован...",
+                    "⚠️ УВБ-76: [ДЫХАНИЕ] Они... они уже пробрались в вентиляционную шахту...",
+                    "⚠️ УВБ-76: [ТОН] 18 49 20 02. Времени больше нет.",
+                    "⚠️ УВБ-76: [СИРЕНА] Обнаружен критический радиационный выброс класса X-1.",
+                    "⚠️ УВБ-76: [ХРИП СВЯЗИ] База, это Ворон, мы нашли их гнездо, запрашиваем поддержку...",
+                    "⚠️ УВБ-76: [МЕХАНИЧЕСКИЙ ЩЕЛЧОК] Инициализирован резервный протокол 'Новый Эдем'...",
+                    "⚠️ УВБ-76: [ИСКАЖЕНИЯ] ...Прайс... это он во всем виноват... он не тот, кем кажется..."
+                ];
+                msg = uvbMessages[Math.floor(Math.random() * uvbMessages.length)];
+            } else {
+                playSound('radio');
+                let baseMsg = RADIO_MSGS[Math.floor(Math.random() * RADIO_MSGS.length)];
+                let timeStr = new Date().toLocaleTimeString().slice(0, 5); // ЧЧ:ММ
+                msg = `[${timeStr}] ${baseMsg}`;
+            }
 
             player.radioMessages = player.radioMessages || [];
-            player.radioMessages.push(formatted);
+            player.radioMessages.push(msg);
             if (player.radioMessages.length > 3) {
                 player.radioMessages.shift(); // Оставляем только 3 последних
             }
             saveState();
             updateRadioUI();
             startRadio();
-        }, Math.floor(Math.random() * 40000) + 20000); // Интервал приема 20-60 сек
+        }, uvbActive ? (Math.floor(Math.random() * 30000) + 30000) : (Math.floor(Math.random() * 40000) + 20000)); // Интервал приема 30-60 сек
     }
     function stopRadio() { if (radioTimer) clearTimeout(radioTimer); }
 
-    // === СМЕРТЬ ===
     function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState(); checkDeathState(); } }
     function checkDeathState() {
         updateHUD();
@@ -1253,7 +1343,11 @@
         const roleEl = document.getElementById('prof-role');
         if (roleEl) {
             roleEl.innerText = player.role || 'Безработный';
-            roleEl.style.color = player.role === 'Военный' ? 'var(--quest-color)' : (player.role === 'Рабочий' ? 'var(--trade-color)' : '#aaa');
+            if (player.role === 'ХАКЕР ПУСТОШЕЙ') {
+                roleEl.style.color = 'var(--term-green)';
+            } else {
+                roleEl.style.color = player.role === 'Военный' ? 'var(--quest-color)' : (player.role === 'Рабочий' ? 'var(--trade-color)' : '#aaa');
+            }
         }
 
         // Показываем/скрываем служебные полномочия военного в профиле
@@ -1435,6 +1529,45 @@
         if (manualEl) manualEl.placeholder = (viewName === 'scan') ? "Код (junk_1, anom_1, npc_base)" : "Код";
     }
 
+    let radioSecretClicks = 0;
+    function registerRadioSecretClick() {
+        if (uvbActive || radioSecretClicks >= 5) {
+            return; // Игнорируем любые нажатия после 5, чтобы не прерывать эффекты
+        }
+        radioSecretClicks++;
+        playSound('scan');
+        showBanner("НАСТРОЙКА ЧАСТОТЫ: " + radioSecretClicks + "/5", 'var(--trade-color)');
+        if (radioSecretClicks === 5) {
+            triggerRadioEasterEgg();
+        }
+    }
+
+    let hackClicks = 0;
+    function registerHackClick() {
+        if (player.role === "ХАКЕР ПУСТОШЕЙ" || hackClicks >= 5) {
+            return; // Игнорируем любые нажатия после 5, чтобы не прерывать эффекты взлома и глитч
+        }
+        hackClicks++;
+        playSound('scan');
+        showBanner("АКТИВАЦИЯ ТЕРМИНАЛА: " + hackClicks + "/5", 'var(--quest-color)');
+        if (hackClicks === 5) {
+            player.role = "ХАКЕР ПУСТОШЕЙ";
+            saveState();
+            let roleEl = document.getElementById('prof-role');
+            if (roleEl) {
+                roleEl.innerText = "ХАКЕР ПУСТОШЕЙ";
+                roleEl.style.color = "var(--term-green)";
+            }
+            playSound('karma');
+            let scr = document.getElementById('screen');
+            if (scr) {
+                scr.style.filter = "invert(1) hue-rotate(90deg) contrast(2)";
+                setTimeout(() => { scr.style.filter = ""; }, 800);
+            }
+            showBanner("СУПЕРПОЛЬЗОВАТЕЛЬ АКТИВИРОВАН!", 'var(--term-green)');
+        }
+    }
+
     function updateHUD() {
         try {
             if (player.rads > 60) player.rads = 60;
@@ -1504,9 +1637,70 @@
     }
 
     // === СКАНЕР И АНОМАЛИИ ===
+    let uvbActive = false;
+    function triggerRadioEasterEgg() {
+        uvbActive = true;
+        playSound('error');
+
+        let radioText = document.getElementById('radio-text');
+        const alertMsg = `<div style="margin-bottom:8px; border-bottom:1px dashed #ff3333; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: #ff3333; line-height: 1.3; animation: pulse-led 0.5s infinite alternate;">⚠️ ОБНАРУЖЕНА АВАРИЙНАЯ ЧАСТОТА УВБ-76 ⚠️</div><div style="font-size:0.9rem; color:#aaa;">[ЖУЖЖАНИЕ СЕТИ] МДЖБ 76 49 21 82... ВЫЖИВШИЙ, ТЫ СЛЫШИШЬ НАС?</div>`;
+
+        player.radioMessages = player.radioMessages || [];
+        player.radioMessages.push(alertMsg);
+        if (player.radioMessages.length > 3) player.radioMessages.shift();
+
+        player.radioOn = true;
+        saveState();
+        updateRadioUI();
+
+        // Сбрасываем старый таймер и запускаем радио-цикл немедленно
+        if (radioTimer) clearTimeout(radioTimer);
+        startRadio();
+
+        playCreepyBuzz();
+        showBanner("ПОДКЛЮЧЕНО К УВБ-76", 'var(--rad-color)');
+    }
+
+    function playCreepyBuzz() {
+        if (!audioCtx || audioCtx.state === 'suspended') return;
+        try {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            const filter = audioCtx.createBiquadFilter();
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(60, audioCtx.currentTime);
+
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(150, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 1.8);
+            gain.gain.linearRampToValueAtTime(0.0, audioCtx.currentTime + 2.0);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 2.0);
+        } catch(e) {}
+    }
+
     function handleScan(qrCode) {
         document.getElementById('manual-code').value = ''; let code = qrCode.trim().toLowerCase(); let resDiv = document.getElementById('scan-result');
         if (player.hp <= 0) return;
+        if (checkBlowoutShelterScan(code)) return;
+
+        if (code === 'uvb76' || code === 'uvb-76' || code === 'жужжалка') {
+            triggerRadioEasterEgg();
+            return;
+        }
+
+        // Проверка укрытия от Выброса по QR-коду базы
+        if (checkBlowoutShelterScan(code)) {
+            return;
+        }
 
         // Взлом терминалов и флешек
         if (code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_")) {
@@ -2094,6 +2288,43 @@
         playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
     }
 
+    function quickUseItem(type) {
+        if (player.hp <= 0) return alert("Вы мертвы!");
+        if (type === 'hp') {
+            let foundIdx = player.inventory.findIndex(id => ITEMS_DB[id] && ITEMS_DB[id].heal > 0);
+            if (foundIdx !== -1) {
+                let id = player.inventory[foundIdx];
+                useMedkit(foundIdx, id, false);
+                showBanner("ЛЕЧЕНИЕ: " + ITEMS_DB[id].name.toUpperCase(), '#fff');
+            } else {
+                alert("В рюкзаке нет лечащих медикаментов!");
+            }
+        } else if (type === 'rad') {
+            let foundIdx = player.inventory.findIndex(id => ITEMS_DB[id] && ITEMS_DB[id].radCure > 0);
+            if (foundIdx !== -1) {
+                let id = player.inventory[foundIdx];
+                useMedkit(foundIdx, id, false);
+                showBanner("АНТИРАД: " + ITEMS_DB[id].name.toUpperCase(), 'var(--rad-color)');
+            } else {
+                alert("В рюкзаке нет средств вывода радиации!");
+            }
+        } else if (type === 'food') {
+            let foundIdx = player.inventory.findIndex(id => ITEMS_DB[id] && ITEMS_DB[id].feed > 0);
+            if (foundIdx !== -1) {
+                let id = player.inventory[foundIdx];
+                useFood(foundIdx, id, false);
+                showBanner("СЪЕДЕНО: " + ITEMS_DB[id].name.toUpperCase(), 'var(--quest-color)');
+            } else {
+                alert("В рюкзаке нет еды или воды!");
+            }
+        }
+    }
+
+    function saveSurvivalNotes() {
+        let text = document.getElementById('survival-notes').value;
+        localStorage.setItem('wasteland_notes', text);
+    }
+
     function useFood(index, id, isSafe=false) { player.stats.foodEaten = (player.stats.foodEaten || 0) + 1; 
         let it = ITEMS_DB[id]; 
         if (it.radCure && player.karma_score < 3) {
@@ -2374,6 +2605,9 @@
         runBootSequence();
         setTimeout(() => {
             switchView('scan');
+            if (player.radioOn) {
+                startRadio();
+            }
         }, 1800);
     }
 
@@ -2463,6 +2697,8 @@
                 btnUpgrade.style.display = 'none';
             }
         }
+    
+        if (typeof updateSlotUI === "function") updateSlotUI();
     }
 
     function upgradeShelter() {
@@ -2933,6 +3169,263 @@
         player.inBase = true;
         saveState();
         switchView('base');
+    }
+
+    // === СИСТЕМА ПСИ-ВЫБРОСА ===
+    let blowoutTimer = null;
+    let blowoutActiveTimer = null;
+    let blowoutSecondsLeft = 0;
+    let isBlowoutIncoming = false;
+
+    function startBlowoutSchedule() {
+        if (blowoutTimer) clearInterval(blowoutTimer);
+        // Каждый 1 час (3600000 мс)
+        blowoutTimer = setInterval(() => {
+            triggerBlowoutSequence();
+        }, 3600000);
+    }
+
+    function triggerTestBlowout() {
+        if (isBlowoutIncoming) {
+            alert("Выброс уже приближается!");
+            return;
+        }
+        triggerBlowoutSequence();
+        alert("Тестовый выброс запущен! У вас есть 4 минуты. Вы должны отсканировать QR-код своей фракционной базы, чтобы спастись (для Выживших: npc_base, для Бандитов: npc_bandit_base).");
+    }
+
+    function triggerBlowoutSequence() {
+        isBlowoutIncoming = true;
+        blowoutSecondsLeft = 240; // 4 минуты (240 секунд)
+        updateBlowoutUI();
+
+        if (blowoutActiveTimer) clearInterval(blowoutActiveTimer);
+        blowoutActiveTimer = setInterval(() => {
+            blowoutSecondsLeft--;
+            updateBlowoutUI();
+
+            // Звук сирены каждые 2 секунды
+            if (blowoutSecondsLeft % 2 === 0) {
+                playSound('siren');
+            }
+
+            if (blowoutSecondsLeft <= 0) {
+                clearInterval(blowoutActiveTimer);
+                resolveBlowout();
+            }
+        }, 1000);
+    }
+
+    function updateBlowoutUI() {
+        let banner = document.getElementById('blowout-warning-banner');
+        let statusText = document.getElementById('blowout-status-text');
+
+        let mins = Math.floor(blowoutSecondsLeft / 60);
+        let secs = blowoutSecondsLeft % 60;
+        let timeStr = `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+        if (isBlowoutIncoming) {
+            if (banner) {
+                banner.style.display = 'block';
+                banner.innerText = `⚠️ ВНИМАНИЕ! ПСИ-ВЫБРОС ЧЕРЕЗ ${timeStr}! ОТСКАНИРУЙТЕ QR-КОД ВАШЕЙ БАЗЫ ДЛЯ СПАСЕНИЯ!`;
+            }
+            if (statusText) {
+                statusText.innerHTML = `<span style="color:var(--rad-color); font-weight:bold; animation: pulse-led 0.5s infinite alternate;">⚠️ ВЫБРОС ЧЕРЕЗ ${timeStr}!</span>`;
+            }
+        } else {
+            if (banner) banner.style.display = 'none';
+            if (statusText) {
+                statusText.innerText = `Статус: Спокойно (Следующий примерно через час)`;
+            }
+        }
+    }
+
+    function resolveBlowout() {
+        isBlowoutIncoming = false;
+        updateBlowoutUI();
+
+        // Игрок не успел отсканировать нужный QR-код во время Выброса
+        playSound('death');
+        player.hp = Math.max(1, Math.round(player.hp * 0.3)); // Снижает HP до 30%
+        player.rads = Math.min(60, (player.rads || 0) + 35); // Радиация
+        saveState();
+
+        let scr = document.getElementById('screen');
+        if (scr) {
+            scr.style.filter = "invert(1) hue-rotate(0deg) contrast(3)";
+            setTimeout(() => { scr.style.filter = ""; }, 1200);
+        }
+        showBanner("⚠️ ВАС НАКРЫЛ ПСИ-ВЫБРОС! ВЫ НЕ УСПЕЛИ ДОБЕЖАТЬ ДО УКРЫТИЯ!", 'var(--rad-color)');
+    }
+
+    function checkBlowoutShelterScan(scannedCode) {
+        if (!isBlowoutIncoming) return false;
+        let c = scannedCode.trim().toLowerCase();
+        let k = getKarmaStatus();
+        let isBandit = k.name === 'БАНДИТ';
+
+        // Валидные коды укрытий
+        let survivorCodes = ['base', 'base_safe', 'npc_base', 'убежище'];
+        let banditCodes = ['npc_bandit_base', 'npc_camp', 'camp_bandit', 'bandit_camp'];
+
+        if (isBandit) {
+            if (banditCodes.includes(c)) {
+                isBlowoutIncoming = false;
+                if (blowoutActiveTimer) clearInterval(blowoutActiveTimer);
+                updateBlowoutUI();
+
+                playSound('karma');
+                showBanner("✅ УКРЫТИЕ В ЛАГЕРЕ БАНДИТОВ ПОДТВЕРЖДЕНО!", 'var(--term-green)');
+                player.score = (player.score || 0) + 200;
+                saveState();
+                return true;
+            } else if (survivorCodes.includes(c)) {
+                playSound('error');
+                showBanner("⚠️ ВЫ БАНДИТ! ОХРАНА БАЗЫ ВЫЖИВШИХ ВАС НЕ ПУСКАЕТ!", 'var(--rad-color)');
+                return true; // Считаем сканирование обработанным, но спасения не произошло
+            }
+        } else {
+            // Выжившие, нейтралы, военные
+            if (survivorCodes.includes(c)) {
+                isBlowoutIncoming = false;
+                if (blowoutActiveTimer) clearInterval(blowoutActiveTimer);
+                updateBlowoutUI();
+
+                playSound('karma');
+                showBanner("✅ УКРЫТИЕ НА БАЗЕ ВЫЖИВШИХ ПОДТВЕРЖДЕНО!", 'var(--term-green)');
+                player.score = (player.score || 0) + 200;
+                saveState();
+                return true;
+            } else if (banditCodes.includes(c)) {
+                playSound('error');
+                showBanner("⚠️ БАНДИТЫ В ЛАГЕРЕ ОТКРЫЛИ ПО ВАМ ОГОНЬ!", 'var(--rad-color)');
+                return true; // Обработано, но не спасло
+            }
+        }
+        return false;
+    }
+
+    // === МИНИ-ИГРА: ИГРОВОЙ АВТОМАТ ===
+    let currentSlotBet = 10;
+    let isSlotSpinning = false;
+    const slotSymbols = [
+        { char: '🔋', weight: 25, payout: 3 },    // Батарея
+        { char: '💊', weight: 20, payout: 4 },    // Рад-Х
+        { char: '🔫', weight: 15, payout: 5 },    // Ствол
+        { char: '☣️', weight: 12, payout: 6 },    // Биохазард
+        { char: '💎', weight: 6, payout: 15 },    // Кристаллы (джекпот!)
+        { char: '💀', weight: 22, payout: 0 }     // Череп (пустышка)
+    ];
+
+    function updateSlotUI() {
+        let balanceVal = document.getElementById('slot-balance-val');
+        let betVal = document.getElementById('slot-bet-val');
+        if (balanceVal) balanceVal.innerText = player.score || 0;
+        if (betVal) betVal.innerText = currentSlotBet;
+    }
+
+    function adjustSlotBet(amount) {
+        if (isSlotSpinning) return;
+        currentSlotBet = Math.max(5, Math.min(100, currentSlotBet + amount));
+        playSound('scan');
+        updateSlotUI();
+    }
+
+    function setSlotBetMax() {
+        if (isSlotSpinning) return;
+        currentSlotBet = Math.max(5, Math.min(100, player.score || 0));
+        if (currentSlotBet < 5) currentSlotBet = 5;
+        playSound('scan');
+        updateSlotUI();
+    }
+
+    function getRandomSlotSymbol() {
+        let totalWeight = slotSymbols.reduce((sum, s) => sum + s.weight, 0);
+        let rand = Math.random() * totalWeight;
+        let cumulative = 0;
+        for (let s of slotSymbols) {
+            cumulative += s.weight;
+            if (rand <= cumulative) return s;
+        }
+        return slotSymbols[0];
+    }
+
+    function spinSlots() {
+        if (isSlotSpinning) return;
+        if ((player.score || 0) < currentSlotBet) {
+            playSound('error');
+            let log = document.getElementById('slot-result-log');
+            if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРИСТАЛЛОВ 💎!</span>";
+            return;
+        }
+
+        isSlotSpinning = true;
+        player.score -= currentSlotBet;
+        saveState();
+        updateSlotUI();
+
+        let log = document.getElementById('slot-result-log');
+        if (log) log.innerHTML = "<span style='color:var(--quest-color);'>Барабаны вращаются...</span>";
+
+        let spinCount = 0;
+        const spinInterval = setInterval(() => {
+            document.getElementById('slot-reel-1').innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)].char;
+            document.getElementById('slot-reel-2').innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)].char;
+            document.getElementById('slot-reel-3').innerText = slotSymbols[Math.floor(Math.random() * slotSymbols.length)].char;
+            playSound('click');
+            spinCount++;
+
+            if (spinCount >= 10) {
+                clearInterval(spinInterval);
+                resolveSlots();
+            }
+        }, 100);
+    }
+
+    function resolveSlots() {
+        let sym1 = getRandomSlotSymbol();
+        let sym2 = getRandomSlotSymbol();
+        let sym3 = getRandomSlotSymbol();
+
+        document.getElementById('slot-reel-1').innerText = sym1.char;
+        document.getElementById('slot-reel-2').innerText = sym2.char;
+        document.getElementById('slot-reel-3').innerText = sym3.char;
+
+        let log = document.getElementById('slot-result-log');
+        let winAmount = 0;
+
+        if (sym1.char === sym2.char && sym2.char === sym3.char) {
+            if (sym1.payout > 0) {
+                winAmount = Math.round(currentSlotBet * sym1.payout);
+                playSound('karma');
+                if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
+            } else {
+                player.rads = Math.min(60, (player.rads || 0) + 5);
+                playSound('death');
+                if (log) log.innerHTML = '<span style="color:var(--bandit-color); font-weight:bold;">ПРОКЛЯТЫЙ ДЖЕКПОТ 3x 💀! Получено +5 Рад!</span>';
+            }
+        } else if (sym1.char === sym2.char || sym2.char === sym3.char || sym1.char === sym3.char) {
+            let matchingSym = (sym1.char === sym2.char || sym1.char === sym3.char) ? sym1 : sym2;
+            if (matchingSym.payout > 0) {
+                winAmount = Math.round(currentSlotBet * 1.5);
+                playSound('sell');
+                if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
+            } else {
+                playSound('error');
+                if (log) log.innerHTML = '<span style="color:#888;">Пусто! Пара черепов 💀 принесла лишь пыль.</span>';
+            }
+        } else {
+            playSound('error');
+            if (log) log.innerHTML = '<span style="color:#777;">Мимо! Ни одного совпадения.</span>';
+        }
+
+        if (winAmount > 0) {
+            player.score += winAmount;
+        }
+
+        saveState();
+        updateSlotUI();
+        isSlotSpinning = false;
     }
 
     init();
