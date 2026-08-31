@@ -21,10 +21,87 @@
         }
         @font-face { font-family: 'VT323'; src: url('https://fonts.gstatic.com/s/vt323/v17/pxiKyp0ihIEF2isfFJXUdVTE.woff2') format('woff2'); }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { background-color: #000; color: var(--term-green); font-family: 'VT323', monospace; font-size: 1.2rem; height: 100vh; height: 100dvh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        #device-casing { width: 100%; height: 100%; max-width: 500px; background: var(--metal-bg); border: 8px solid var(--metal-border); border-style: ridge; padding: 10px; padding-bottom: calc(10px + env(safe-area-inset-bottom, 15px)); display: flex; flex-direction: column; position: relative; }
-        #screen { background-color: var(--term-dark); flex-grow: 1; position: relative; border: 4px solid #111; border-radius: 10px; overflow-y: auto; overflow-x: hidden; padding: 10px; box-shadow: inset 0 0 20px rgba(0,255,0,0.2); text-shadow: 0 0 5px var(--term-green); }
-        #screen::after { content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; pointer-events: none; }
+        body { 
+            background: radial-gradient(circle at center, rgba(45,40,35,0.85) 0%, rgba(10,9,8,1.0) 100%), 
+                        repeating-linear-gradient(45deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 3px, transparent 3px, transparent 15px), 
+                        repeating-linear-gradient(-45deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 3px, transparent 3px, transparent 15px); 
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+            color: var(--term-green); font-family: 'VT323', monospace; font-size: 1.2rem; height: 100vh; height: 100dvh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #device-casing { 
+            width: 100%; 
+            height: 100%; 
+            max-width: 500px; 
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.0) 50%, rgba(0,0,0,0.2) 100%), var(--metal-bg); 
+            border: 14px solid var(--metal-border); 
+            border-style: outset; 
+            border-radius: 28px; 
+            padding: 12px; 
+            padding-bottom: calc(12px + env(safe-area-inset-bottom, 15px)); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.9), inset 0 0 20px rgba(0,0,0,0.8), 0 0 0 3px #1a1e1a;
+        }
+        #screen { 
+            background-color: var(--term-dark); 
+            flex-grow: 1; 
+            position: relative; 
+            border: 8px solid #1e211e; 
+            border-radius: 14px; 
+            overflow: hidden; 
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 35px rgba(0,255,0,0.25), 0 4px 10px rgba(0,0,0,0.9); 
+            text-shadow: 0 0 4px var(--term-green); 
+            transition: background 0.3s ease;
+        }
+
+        /* Элемент скроллинга контента внутри экрана */
+        #screen-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 12px;
+            height: 100%;
+            width: 100%;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Эффект стеклянных линий кинескопа */
+        .crt-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 999;
+            pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+            background-size: 100% 4px, 6px 100%;
+        }
+
+        /* Динамические аналоговые помехи (белый шум) */
+        .crt-noise {
+            position: absolute;
+            top: -20px; left: -20px; width: calc(100% + 40px); height: calc(100% + 40px);
+            z-index: 998;
+            pointer-events: none;
+            opacity: 0.035; /* Смягченный белый шум, не мешающий чтению */
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+            animation: noise-move 0.25s infinite steps(4);
+        }
+
+
+
+        @keyframes noise-move {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-1px, 1px); }
+            50% { transform: translate(1px, -1px); }
+            75% { transform: translate(-1px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+
+
+
         #hud { border-bottom: 2px dashed var(--term-green); padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
         .hud-row { display: flex; justify-content: space-between; margin-bottom: 2px; align-items: center; font-size: 1.05rem;}
         .danger { color: var(--bandit-color); text-shadow: 0 0 5px var(--bandit-color); }
@@ -34,7 +111,24 @@
         #event-banner { background: var(--term-green); color: var(--term-dark); text-align: center; padding: 5px; margin-bottom: 10px; display: none; font-weight: bold; animation: blink 1s infinite; }
         @keyframes blink { 50% { opacity: 0.5; } }
         .view { display: none; z-index: 10; position: relative; } .view.active { display: block; }
-        .item, .quest-card, .profile-card { border: 1px solid var(--term-green); padding: 8px; margin-bottom: 8px; background: rgba(57, 255, 20, 0.05); }
+        
+        .item, .quest-card, .profile-card { 
+            border: 2px solid var(--term-green); 
+            border-radius: 8px;
+            padding: 10px; 
+            margin-bottom: 10px; 
+            background: rgba(0, 229, 255, 0.01); 
+            box-shadow: inset 0 0 8px rgba(0,255,0,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .item::before, .quest-card::before, .profile-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--term-green);
+        }
+
         .item { display: flex; justify-content: space-between; align-items: center; }
         button { background: var(--term-dark); color: var(--term-green); border: 2px solid var(--term-green); font-family: 'VT323', monospace; padding: 8px 12px; cursor: pointer; font-size: 1.1rem; text-transform: uppercase; }
         button:active { background: var(--term-green); color: var(--term-dark); }
@@ -42,13 +136,69 @@
         .btn-danger { border-color: var(--bandit-color); color: var(--bandit-color); } .btn-danger:active { background: var(--bandit-color); color: #000; }
         .btn-safe { border-color: var(--trade-color); color: var(--trade-color); } .btn-safe:active { background: var(--trade-color); color: var(--term-dark); }
         .btn-hero { border-color: var(--hero-color); color: var(--hero-color); } .btn-hero:active { background: var(--hero-color); color: var(--term-dark); }
-        #nav-buttons { display: flex; gap: 2px; margin-top: 10px; } #nav-buttons button { flex: 1; font-size: 0.92rem; border-color: var(--metal-border); color: #ccc; padding: 10px 4px; text-align: center; white-space: nowrap; } #nav-buttons button.active-nav { border-color: var(--term-green); color: var(--term-green); }
+        #nav-buttons { 
+            display: flex; 
+            gap: 5px; 
+            margin-top: 12px; 
+            background: rgba(0,0,0,0.4); 
+            padding: 6px; 
+            border-radius: 10px; 
+            border: 2px solid #222;
+        } 
+        #nav-buttons button { 
+            flex: 1; 
+            font-size: 0.88rem; 
+            font-weight: bold;
+            background: linear-gradient(to bottom, #444a44 0%, #252a25 100%); 
+            border: 2px solid #555e55; 
+            border-bottom: 5px solid #111; 
+            border-radius: 6px; 
+            color:var(--text-dim); 
+            padding: 8px 2px; 
+            text-align: center; 
+            white-space: nowrap; 
+            text-shadow: 0 -1px 0 rgba(0,0,0,0.8);
+            transition: all 0.05s ease;
+        } 
+        #nav-buttons button:active {
+            transform: translateY(3px);
+            border-bottom: 2px solid #111;
+        }
+        #nav-buttons button.active-nav { 
+            background: linear-gradient(to bottom, #252a25 0%, #151815 100%);
+            border-color: var(--term-green); 
+            color: var(--term-green); 
+            border-bottom: 2px solid var(--term-green);
+            box-shadow: 0 0 10px rgba(57,255,20,0.3);
+            transform: translateY(3px);
+        }
         #qr-reader, #qr-reader-dead { width: 100%; margin-bottom: 10px; border: 2px solid var(--term-green); }
         .debug-input { display: flex; gap: 5px; margin-top: 10px; } .debug-input input { background: #000; color: var(--term-green); border: 1px solid var(--term-green); flex-grow: 1; padding: 5px; font-family: 'VT323'; }
         h3 { text-align: center; margin-bottom: 10px; border-bottom: 1px solid;} h4 { margin-bottom: 5px; }
+
+        /* Низкое здоровье - красное свечение */
+        .low-hp-vignette {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 996;
+            pointer-events: none;
+            box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.0);
+            opacity: 0;
+            transition: opacity 0.5s ease, box-shadow 0.5s ease;
+        }
+        .low-hp-active {
+            opacity: 1;
+            box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.65);
+            animation: pulse-vignette 1.8s infinite alternate ease-in-out;
+        }
+        @keyframes pulse-vignette {
+            0% { opacity: 0.2; box-shadow: inset 0 0 35px rgba(255, 0, 0, 0.4); }
+            100% { opacity: 0.9; box-shadow: inset 0 0 65px rgba(255, 0, 0, 0.75); }
+        }
+
         #radio-panel { border: 1px dashed var(--trade-color); padding: 8px; margin-top: 15px; background: rgba(0, 229, 255, 0.05); position: relative; }
         #radio-header { display: flex; justify-content: space-between; align-items: center; color: var(--trade-color); border-bottom: 1px solid var(--trade-color); padding-bottom: 4px; margin-bottom: 6px; }
-        #radio-text { font-size: 1rem; color: #aaa; min-height: 3.5rem; }
+        #radio-text { font-size: 1rem; color:var(--text-dim); min-height: 3.5rem; }
         .typewriter { overflow: hidden; border-right: .15em solid var(--trade-color); white-space: pre-wrap; animation: typing 2s steps(40, end), blink-caret .75s step-end infinite; }
         @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: var(--trade-color); } }
 
@@ -66,13 +216,39 @@
     </style>
 </head>
 <body>
+    <!-- RETRO BOOT SEQUENCE OVERLAY -->
+    <div id="bios-boot" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--term-dark); color:var(--term-green); font-family:'VT323', monospace; padding:20px; z-index:999999; display:none; flex-direction:column; justify-content:flex-start; font-size: 1.35rem; line-height:1.2; text-shadow:0 0 4px var(--term-green);">
+        <div id="bios-text"></div>
+    </div>
 
 <div id="device-casing">
+    <!-- ИНДУСТРИАЛЬНЫЙ СВЕТОДИОДНЫЙ ИНДИКАТОРНЫЙ БЛОК -->
+    <div style="display:flex; justify-content:space-between; align-items:center; background:#1b1e1b; border: 2px solid #2e342e; border-radius: 8px; padding: 4px 10px; margin-bottom: 8px; font-size:0.8rem; color:#889088; font-family:monospace;">
+        <div style="display:flex; align-items:center; gap:5px;">
+            <span style="display:inline-block; width:8px; height:8px; background:#39ff14; border-radius:50%; box-shadow: 0 0 6px #39ff14;"></span>
+            <span>POWER</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px;">
+            <span id="led-link" style="display:inline-block; width:8px; height:8px; background:#00e5ff; border-radius:50%; box-shadow: 0 0 6px #00e5ff; animation: pulse-led 1s infinite alternate;"></span>
+            <span>LINK</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px;">
+            <span id="led-bat" style="display:inline-block; width:8px; height:8px; background:#ffcc00; border-radius:50%; box-shadow: 0 0 6px #ffcc00;"></span>
+            <span>BATTERY</span>
+        </div>
+    </div>
+    <style>
+        @keyframes pulse-led { 0% { opacity: 0.3; } 100% { opacity: 1; } }
+    </style>
     <div id="screen">
+        <div class="crt-overlay"></div>
+        <div class="crt-noise"></div>
+        <div id="low-hp-overlay" class="low-hp-vignette"></div>
+        <div id="screen-content">
         <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
         <div id="view-base" class="view">
             <h2 style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px;">ГРИМ-СЕТЬ: БАЗА</h2>
-            <p style="text-align:center; font-size:0.95rem; color:#aaa; margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
+            <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
 
             <div class="profile-card" style="margin-bottom:15px;">
                 <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
@@ -90,6 +266,7 @@
                     <option value="cyberpunk">🟣 Неоновый киберпанк</option>
                     <option value="noir">⚪ Мрачный черно-белый нуар</option>
                     <option value="rad">🔴 Радиационная угроза</option>
+                    <option value="vintage">🟫 Винтажный бумажный (Бежевый)</option>
                 </select>
             </div>
 
@@ -134,7 +311,7 @@
             <button onclick="switchView('profile')" style="width:100%; border-color:var(--term-green); color:var(--term-green); margin-bottom: 15px;">ПОСМОТРЕТЬ ПРОФИЛЬ</button>
 
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
-            <p style="text-align:center; color:#ccc; font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
+            <p style="text-align:center; color:var(--text-dim); font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
             <div id="qr-reader-dead" style="display:none;"></div>
             <button id="btn-dead-scan" onclick="startDeadScan()" style="width:100%; border-color:#ffcc00; color:#ffcc00;">ВКЛЮЧИТЬ СКАНЕР БАЗЫ</button>
             <div class="debug-input" id="admin-manual-dead-box" style="display:none; margin-top:15px;">
@@ -168,7 +345,7 @@
             <div id="inventory-list"></div>
             <div id="safe-box-container" style="display:none; border: 2px solid var(--trade-color); padding: 10px; margin-top: 15px;">
                 <h4 style="color:var(--trade-color); text-align:center;">ЗАЩИЩЕННЫЙ ПОДСУМОК (<span id="safe-val">0</span>/5)</h4>
-                <p style="font-size: 0.9rem; color:#aaa; text-align:center; margin-bottom:10px;">Лут здесь не сгорает при смерти</p>
+                <p style="font-size: 0.9rem; color:var(--text-dim); text-align:center; margin-bottom:10px;">Лут здесь не сгорает при смерти</p>
                 <div id="safebox-list"></div>
             </div>
             <div id="safebox-quest-box" style="border: 1px dashed var(--trade-color); padding: 10px; margin-top: 20px;">
@@ -195,7 +372,7 @@
             <div class="profile-card">
                 <p style="font-size: 1.5rem; margin-bottom:10px;">Позывной: <b id="prof-callsign" style="color:#fff; cursor:pointer; border-bottom:1px dashed #fff;" onclick="changeCallsign()"></b> ✏️</p>
                 <p style="font-size: 1.3rem;">Статус: <b id="prof-karma"></b></p>
-                <p style="font-size: 1.1rem; color:#aaa; margin-top: 5px;">Очки Кармы: <b id="prof-karma-score">0</b></p>
+                <p style="font-size: 1.1rem; color:var(--text-dim); margin-top: 5px;">Очки Кармы: <b id="prof-karma-score">0</b></p>
                 <p style="font-size: 1.1rem; color:var(--trade-color); margin-top: 5px;">Должность / Роль: <b id="prof-role" style="color:var(--quest-color)">БЕЗРАБОТНЫЙ</b></p>
             </div>
 
@@ -208,7 +385,7 @@
             <!-- СЛУЖЕБНЫЕ ПОЛНОМОЧИЯ ВОЕННОГО -->
             <div class="profile-card" id="military-actions-card" style="display:none; border-color:var(--quest-color); background:rgba(255,183,0,0.03);">
                 <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">⚔️ СЛУЖЕБНЫЕ ПОЛНОМОЧИЯ (ВОЕННЫЙ)</h4>
-                <p style="font-size:0.92rem; color:#aaa; margin-bottom:8px; text-align:center;">Только для служащих Вооруженных Сил Базы. Позволяет оформлять ордера на арест нарушителей.</p>
+                <p style="font-size:0.92rem; color:var(--text-dim); margin-bottom:8px; text-align:center;">Только для служащих Вооруженных Сил Базы. Позволяет оформлять ордера на арест нарушителей.</p>
                 <button onclick="generateArrestWarrantQR()" style="width:100%; border-color:var(--quest-color); color:var(--quest-color); font-size:1.1rem; padding:8px;">📜 ОФОРМИТЬ ОРДЕР НА АРЕСТ</button>
                 <div id="arrest-qr-container" style="background:#fff; padding:15px; margin: 10px auto; width: 200px; display:none;"></div>
             </div>
@@ -222,7 +399,7 @@
             <!-- АРСЕНАЛ И ИЗНОС ОРУЖИЯ -->
             <div class="profile-card">
                 <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">АРСЕНАЛ И ИЗНОС ОРУЖИЯ</h4>
-                <p style="font-size: 0.9rem; color: #aaa; margin-bottom: 8px; text-align: center;">Отметьте имеющееся оружие. Износ снижает прочность. Чините хламом или на Базе!</p>
+                <p style="font-size: 0.9rem; color:var(--text-dim); margin-bottom: 8px; text-align: center;">Отметьте имеющееся оружие. Износ снижает прочность. Чините хламом или на Базе!</p>
                 <div id="profile-weapons-list"></div>
             </div>
 
@@ -234,17 +411,17 @@
                 <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">ЖУРНАЛ АКТИВНОСТИ</h4>
                 <div id="prof-history-list" style="font-size: 1rem; line-height: 1.2;"></div>
             </div>
-            <p style="color:#aaa; font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
+            <p style="color:var(--text-dim); font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
             <div id="admin-controls-box" style="display:none; margin-top:10px; border:1px dashed var(--trade-color); padding:8px; background:rgba(0,229,255,0.03);">
                 <h5 style="color:var(--trade-color); text-align:center; margin-bottom:6px;">ПАНЕЛЬ НАЙМА (АДМИН)</h5>
-                <label style="font-size:0.9rem; color:#aaa; display:block; margin-bottom:4px;">Назначить роль игроку:</label>
+                <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
                 <div style="display:flex; gap:5px; margin-bottom:8px;">
                     <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
                     <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3💎/мин)</button>
                     <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5💎/мин)</button>
-                </div>
+</div>
 
                 <button onclick="factoryReset()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ПОЛНЫЙ СБРОС ПДА (ВАЙП)</button>
                 <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
@@ -261,7 +438,7 @@
 
             <div class="profile-card" style="text-align: center; border-color: var(--trade-color); background: rgba(0, 229, 255, 0.03);">
                 <h2 id="shelter-level-title" style="color:var(--trade-color); letter-spacing: 2px;">УРОВЕНЬ 0: УЛИЦА</h2>
-                <p id="shelter-bonus-desc" style="font-size: 0.95rem; color: #aaa; margin-top: 5px; line-height: 1.3;">Нет бонусов. Постройте убежище, чтобы защититься от опасностей Пустоши.</p>
+                <p id="shelter-bonus-desc" style="font-size: 0.95rem; color:var(--text-dim); margin-top: 5px; line-height: 1.3;">Нет бонусов. Постройте убежище, чтобы защититься от опасностей Пустоши.</p>
             </div>
 
             <div class="profile-card">
@@ -280,7 +457,7 @@
             <div class="profile-card" id="shelter-upgrade-box" style="border-color: var(--term-green);">
                 <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">🔧 УЛУЧШЕНИЕ УБЕЖИЩА</h4>
                 <p id="shelter-next-level-name" style="font-weight: bold; margin-bottom: 5px; color:#fff;"></p>
-                <p id="shelter-req-list" style="font-size: 0.95rem; color: #ccc; margin-bottom: 10px; line-height: 1.3;"></p>
+                <p id="shelter-req-list" style="font-size: 0.95rem; color:var(--text-dim); margin-bottom: 10px; line-height: 1.3;"></p>
                 <button id="btn-upgrade-shelter" onclick="upgradeShelter()" class="btn-safe" style="width: 100%; display: none;">УЛУЧШИТЬ УБЕЖИЩЕ</button>
             </div>
             <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>
@@ -321,7 +498,7 @@
             <div id="trade-sell-list"></div>
             <button onclick="switchView('scan')" style="width:100%; margin-top:20px;">ЗАКОНЧИТЬ ТОРГОВЛЮ</button>
         </div>
-    </div>
+    </div></div> <!-- ends screen-content and screen -->
 
     <div id="nav-buttons">
         <button onclick="switchView('scan')" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
@@ -337,10 +514,147 @@
     const AudioContext = window.AudioContext || window.webkitAudioContext;
     let audioCtx = new AudioContext();
 
-    document.body.addEventListener('click', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
-    document.body.addEventListener('touchstart', () => { if (audioCtx.state === 'suspended') audioCtx.resume(); }, { once: true });
+    function tryResumeAudio() {
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume();
+        }
+    }
+
+    document.body.addEventListener('click', tryResumeAudio, { once: true });
+    document.body.addEventListener('touchstart', tryResumeAudio, { once: true });
+
+    // === ДИНАМИЧЕСКИЙ ГЕЙГЕР И СЕРДЦЕБИЕНИЕ (OFFLINE СИНТЕЗ) ===
+    let geigerTimer = null;
+    function playGeigerClick() {
+        if (!audioCtx || audioCtx.state === 'suspended' || player.inBase || player.hp <= 0) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.frequency.setValueAtTime(1300 + Math.random() * 900, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.015);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.02);
+    }
+
+    function runGeigerLoop() {
+        if (geigerTimer) clearTimeout(geigerTimer);
+        if (player.hp <= 0 || player.inBase || !player.rads || player.rads <= 0) {
+            geigerTimer = setTimeout(runGeigerLoop, 1500);
+            return;
+        }
+        playGeigerClick();
+        let r = player.rads;
+        let minDelay, maxDelay;
+        if (r < 15) {
+            minDelay = 900; maxDelay = 3500;
+        } else if (r < 30) {
+            minDelay = 300; maxDelay = 1200;
+        } else if (r < 45) {
+            minDelay = 90; maxDelay = 350;
+        } else {
+            minDelay = 30; maxDelay = 100; // Треск трещит бешено
+        }
+        let nextDelay = Math.random() * (maxDelay - minDelay) + minDelay;
+        geigerTimer = setTimeout(runGeigerLoop, nextDelay);
+    }
+
+    let heartbeatTimer = null;
+    function playHeartbeatBeat(freq, vol) {
+        if (!audioCtx || audioCtx.state === 'suspended') return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.28);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.3);
+    }
+
+    function runHeartbeatLoop() {
+        if (heartbeatTimer) clearTimeout(heartbeatTimer);
+        if (player.hp <= 0 || player.hp > 25 || player.inBase) {
+            heartbeatTimer = setTimeout(runHeartbeatLoop, 1500);
+            return;
+        }
+        playHeartbeatBeat(58, 0.12);
+        setTimeout(() => {
+            playHeartbeatBeat(53, 0.09);
+        }, 220);
+        let interval = 1300;
+        if (player.hp <= 12) interval = 750; // Паника!
+        heartbeatTimer = setTimeout(runHeartbeatLoop, interval);
+    }
+
+    // === RETRO BIOS BOOT SEQUENCE ===
+    function playRetroBeep() {
+        if (!audioCtx || audioCtx.state === 'suspended') return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.frequency.setValueAtTime(950, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+    }
+
+    function runBootSequence() {
+        let bootScreen = document.getElementById('bios-boot');
+        if (bootScreen) {
+            bootScreen.style.transition = 'none';
+            bootScreen.style.opacity = 1;
+            bootScreen.style.display = 'flex';
+        }
+        let el = document.getElementById('bios-text');
+        if (!el) return;
+        let biosLines = [
+            "GRIM-NET BOOTLOADER V4.15",
+            "COPYRIGHT (C) 2084 GRIM CORP.",
+            "------------------------------------",
+            "CPU: GRIM-TX80 @ 12MHz... OK",
+            "RAM: 64KB MEMORY ADDR STABLE... OK",
+            "NVRAM STORAGE CHIP LOADED... OK",
+            "GEIGER RADIATION SCANNER... OK",
+            "RADIO FM-42 TUNING ANTENNA... OK",
+            "LOADED USER PROFILE CALLSIGN: " + player.callsign,
+            "STATUS: OUTPOST OFFLINE MESH ENABLED",
+            "------------------------------------",
+            "BOOT COMPLETE. LAUNCHING SHELL INTERFACE..."
+        ];
+
+        let lineIdx = 0;
+        el.innerHTML = "";
+
+        function printLine() {
+            if (lineIdx < biosLines.length) {
+                el.innerHTML += biosLines[lineIdx] + "<br>";
+                lineIdx++;
+                playRetroBeep();
+                setTimeout(printLine, 120 + Math.random() * 100);
+            } else {
+                setTimeout(() => {
+                    let bootScreen = document.getElementById('bios-boot');
+                    if (bootScreen) {
+                        bootScreen.style.transition = 'opacity 0.6s ease';
+                        bootScreen.style.opacity = 0;
+                        setTimeout(() => { bootScreen.style.display = 'none'; }, 600);
+                    }
+                }, 600);
+            }
+        }
+        setTimeout(printLine, 200);
+    }
 
     function playSound(type) {
+        if (audioCtx && audioCtx.state === 'suspended') {
+            audioCtx.resume().catch(e => {});
+        }
         if (!audioCtx || audioCtx.state === 'suspended') return;
         const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
@@ -543,7 +857,7 @@
             if (player.karma_score < 3) {
                 let radGainPerMin = (player.equipment === 'eq_rad') ? 1 : 2;
                 totalRadGain = diffMinutes * radGainPerMin;
-                player.rads = Math.min(100, player.rads + totalRadGain);
+                player.rads = Math.min(60, player.rads + totalRadGain);
             }
 
             // Урон от голода или радиации в офлайне
@@ -551,9 +865,7 @@
                 let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
                 player.hp = Math.max(0, player.hp - (diffMinutes * hungerDmg));
             }
-            if (player.rads >= 100) {
-                player.hp = 0;
-            }
+
 
             saveState();
 
@@ -571,6 +883,8 @@
         let nowTime = Date.now();
         let prevHeartbeat = parseInt(localStorage.getItem('pda_heartbeat')) || nowTime;
         localStorage.setItem('pda_heartbeat', nowTime.toString());
+
+
 
         // Проверка ареста (10 минут блокировки)
         if (player.arrestedUntil && Date.now() < player.arrestedUntil) {
@@ -643,6 +957,8 @@
             switchView('scan');
         }
 
+        runGeigerLoop();
+        runHeartbeatLoop();
         startEventLoop();
         updateRadioUI();
         if (player.radioOn && !player.inBase) startRadio();
@@ -1012,9 +1328,9 @@
                     <div style="margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <b style="color: var(--term-green); font-size: 1.05rem;">${npc.icon} ${npc.name}</b>
-                            <span style="color: var(--quest-color); font-weight: bold;">Ур. ${lvl} <small style="color:#aaa;">(${pts} очков)</small></span>
+                            <span style="color: var(--quest-color); font-weight: bold;">Ур. ${lvl} <small style="color:var(--text-dim);">(${pts} очков)</small></span>
                         </div>
-                        <div style="font-size: 0.9rem; color: #ccc; margin-top: 2px;">Привилегия: ${npc.desc(lvl)}</div>
+                        <div style="font-size: 0.9rem; color:var(--text-dim); margin-top: 2px;">Привилегия: ${npc.desc(lvl)}</div>
                     </div>
                 `;
             });
@@ -1065,18 +1381,18 @@
             let sellPrice = Math.floor(item.val / 2);
             eqContent.innerHTML = `
                 <div style="font-weight: bold; color: var(--trade-color);">${item.name}</div>
-                <div style="font-size: 0.92rem; color: #ccc; margin: 4px 0;">${item.desc}</div>
+                <div style="font-size: 0.92rem; color:var(--text-dim); margin: 4px 0;">${item.desc}</div>
                 <button class="btn-danger" style="margin-top: 8px; width: 100%; padding: 4px; font-size: 1rem;" onclick="sellEquipment()">ПРОДАТЬ ЗА ${sellPrice} 💎</button>
             `;
         } else {
-            eqContent.innerHTML = `<div style="color:#777; text-align:center;">Слот пуст. Купите снаряжение на Базе или в Лагере.</div>`;
+            eqContent.innerHTML = `<div style="color:var(--text-dim); text-align:center;">Слот пуст. Купите снаряжение на Базе или в Лагере.</div>`;
         }
 
         // Рендерим лог истории
         const histList = document.getElementById('prof-history-list');
         if (histList) {
             if (!player.history || player.history.length === 0) {
-                histList.innerHTML = "<p style='color:#777; text-align:center;'>Активностей не зафиксировано</p>";
+                histList.innerHTML = "<p style='color:var(--text-dim); text-align:center;'>Активностей не зафиксировано</p>";
             } else {
                 histList.innerHTML = player.history.map(h => {
                     let time = new Date(h.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -1138,6 +1454,7 @@
 
     function updateHUD() {
         try {
+            if (player.rads > 60) player.rads = 60;
             let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
             let crowLvl = getNpcRepLevel(crowRep);
             let baseMaxHp = Math.round(100 * (1 + crowLvl * 0.1));
@@ -1146,6 +1463,16 @@
             }
             let maxHp = baseMaxHp - (player.rads || 0);
             if (player.hp > maxHp) player.hp = maxHp;
+
+            // Проверка критического уровня здоровья (виньетка)
+            let vig = document.getElementById('low-hp-overlay');
+            if (vig) {
+                if (player.hp <= 25 && player.hp > 0 && !player.inBase) {
+                    vig.classList.add('low-hp-active');
+                } else {
+                    vig.classList.remove('low-hp-active');
+                }
+            }
 
             let k = getKarmaStatus();
 
@@ -1186,6 +1513,8 @@
                 document.getElementById('rad-val').style.color = 'var(--hero-color)';
                 document.getElementById('rad-val').innerText = "ИММУН";
             }
+
+
         } catch (e) {
             console.error("updateHUD error:", e);
         }
@@ -1252,7 +1581,7 @@
             let victimName = "Неизвестный";
             let items = [];
 
-            if (parts[1] === 'bandit' || parts[1] === 'survivor') {
+            if (parts[1] === 'bandit' || parts[1] === 'survivor' || parts[1] === 'military') {
                 corpseType = parts[1];
                 corpseId = parts[2];
                 victimName = parts[3] || "Неизвестный";
@@ -1274,29 +1603,26 @@
 
             let isBanditRobber = (player.karma_score <= -3);
             let earnedBounty = 0;
+            let pickedUp = []; 
+            let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
 
             if (corpseType === 'military') {
                 if (isBanditRobber) {
-                    // Бандит обыскивает военного - получает премию 150 кредитов и не теряет карму
                     earnedBounty = 150;
                     player.score += 150;
                     playSound('sell');
                 } else {
-                    // Обычный выживший обыскивает военного - снижается карма
                     player.karma_score--;
                     playSound('karma');
                 }
             } else if (corpseType === 'bandit') {
                 playSound('use');
             } else {
-                // Обычный выживший
                 player.karma_score--;
                 playSound('karma');
             }
 
-            let pickedUp = []; let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
-
-            if (ITEMS_DB[tokenType] && currentSize + ITEMS_DB[tokenType].size <= player.maxSize) {
+            if (tokenType && ITEMS_DB[tokenType] && currentSize + ITEMS_DB[tokenType].size <= player.maxSize) {
                 player.inventory.push(tokenType); currentSize += ITEMS_DB[tokenType].size; pickedUp.push(ITEMS_DB[tokenType].name); player.tokens_collected++;
             }
             for(let id of items) { if(ITEMS_DB[id] && currentSize + ITEMS_DB[id].size <= player.maxSize) { player.inventory.push(id); currentSize += ITEMS_DB[id].size; pickedUp.push(ITEMS_DB[id].name); } }
@@ -1374,19 +1700,19 @@
                     playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места!</span>`;
                 } else {
                     player.inventory.push(winArt); playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                    resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${usedBolt ? "<br><small style='color:#ccc'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                    resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
                 }
             } else {
                 playSound('hazard'); let penaltyRoll = Math.random();
                 if (penaltyRoll < 0.5 || player.inventory.length === 0) {
                     player.hp = Math.max(0, player.hp - 40);
-                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:#ccc'><i>Даже болт не помог...</i></small>" : ""}`;
+                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
                     checkDeathState();
                 } else {
                     let dropIdx = Math.floor(Math.random() * player.inventory.length);
                     let droppedName = ITEMS_DB[player.inventory[dropIdx]].name;
                     player.inventory.splice(dropIdx, 1);
-                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:#ccc'><i>Даже болт не помог...</i></small>" : ""}`;
+                    resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
                 }
             }
             saveState(); return;
@@ -1456,9 +1782,9 @@
                 let html = `<div class="quest-card" style="border-color:var(--trade-color); margin-bottom:12px;">
                     <h4 style="color:var(--trade-color); display:flex; justify-content:space-between; margin-bottom:5px;">
                         <span>${q.name || "Контракт"}</span>
-                        <small style="font-size:0.8rem; color:#aaa;">Доставить: ${NPC_DB[q.target].name}</small>
+                        <small style="font-size:0.8rem; color:var(--text-dim);">Доставить: ${NPC_DB[q.target].name}</small>
                     </h4>
-                    <p style="font-size:0.9rem; color:#aaa; margin-bottom:8px;">${q.desc || ""}</p>
+                    <p style="font-size:0.9rem; color:var(--text-dim); margin-bottom:8px;">${q.desc || ""}</p>
                     <div style="font-size:0.95rem; margin-bottom:8px;"><b>Требуется:</b></div>`;
 
                 for (let code in q.requirements) { 
@@ -1479,7 +1805,7 @@
                 container.innerHTML += html;
             });
         } else {
-            container.innerHTML += `<div style="color:#666; text-align:center; padding:15px; border:1px dashed #444; margin-bottom:15px;">Нет активных контрактов. Возьмите контракт ниже!</div>`;
+            container.innerHTML += `<div style="color:var(--text-dim); text-align:center; padding:15px; border:1px dashed #444; margin-bottom:15px;">Нет активных контрактов. Возьмите контракт ниже!</div>`;
         }
 
         let unlockInfo = '';
@@ -1511,13 +1837,13 @@
             let html = `<div class="quest-card" style="margin-bottom:12px;">
                 <h4 style="display:flex; justify-content:space-between; margin-bottom:5px;">
                     <span>${q.name || "Контракт"}</span>
-                    <small style="font-size:0.8rem; color:#aaa;">Заказчик: ${NPC_DB[q.target].name}</small>
+                    <small style="font-size:0.8rem; color:var(--text-dim);">Заказчик: ${NPC_DB[q.target].name}</small>
                 </h4>
-                <p style="font-size:0.9rem; color:#aaa; margin-bottom:8px;">${q.desc || ""}</p>
+                <p style="font-size:0.9rem; color:var(--text-dim); margin-bottom:8px;">${q.desc || ""}</p>
                 <div style="font-size:0.9rem; margin-bottom:6px;"><b>Необходимо принести:</b></div>`;
 
             for (let code in q.requirements) { 
-                html += `<div style="padding-left:10px; font-size:0.9rem; color:#ccc;">• ${ITEMS_DB[code] ? ITEMS_DB[code].name : code} (x${q.requirements[code]})</div>`; 
+                html += `<div style="padding-left:10px; font-size:0.9rem; color:var(--text-dim);">• ${ITEMS_DB[code] ? ITEMS_DB[code].name : code} (x${q.requirements[code]})</div>`; 
             }
 
             container.innerHTML += html + `<hr style="border:0; border-top:1px dashed var(--quest-color); margin:8px 0;">
@@ -1780,6 +2106,7 @@
         if (it.radCure && player.karma_score < 3) {
             player.rads = Math.max(0, player.rads - it.radCure);
         }
+
         let maxHp = 100 - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
         playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
     }
@@ -1830,7 +2157,7 @@
         if (player.safeBoxUnlocked) {
             document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';
             document.getElementById('safe-val').innerText = player.safeBox.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
-            const safeList = document.getElementById('safebox-list'); safeList.innerHTML = player.safeBox.length === 0 ? "<p style='color:#aaa'>Пусто</p>" : "";
+            const safeList = document.getElementById('safebox-list'); safeList.innerHTML = player.safeBox.length === 0 ? "<p style='color:var(--text-dim)'>Пусто</p>" : "";
             player.safeBox.forEach((id, i) => {
                 let it = ITEMS_DB[id], acts = `<button onclick="dropItem(${i}, true)">ВЫКИНУТЬ</button>`;
 
@@ -1897,7 +2224,7 @@
                 if (player.shelterLevel >= 2) {
                     radGain = Math.max(1, Math.round(radGain * 0.9));
                 }
-                player.rads = Math.min(100, player.rads + radGain); 
+                player.rads = Math.min(60, player.rads + radGain); 
             } else {
                 player.rads = 0; 
             }
@@ -1911,7 +2238,7 @@
                 showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', '#ff3333'); 
                 checkDeathState(); 
             }
-            if(player.rads >= 100 && player.hp > 0) { player.hp = 0; playSound('hazard'); showBanner('☣ ЛУЧЕВАЯ БОЛЕЗНЬ (СМЕРТЬ)', '#ffcc00'); checkDeathState(); }
+
 
             saveState();
 
@@ -1926,7 +2253,7 @@
                             }
                             let radGain = (player.equipment === 'eq_rad') ? 7 : 15;
                             if(player.karma_score < 3) {
-                                player.rads = Math.min(100, player.rads + radGain); 
+                                player.rads = Math.min(60, player.rads + radGain); 
                             } else {
                                 showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
                             }
@@ -2061,7 +2388,10 @@
     function startGameFromBase() {
         player.inBase = false;
         saveState();
-        switchView('scan');
+        runBootSequence();
+        setTimeout(() => {
+            switchView('scan');
+        }, 1800);
     }
 
     function formatSurvivalTime(seconds) {
@@ -2350,7 +2680,7 @@
         contentEl.innerHTML = `
             <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ВЫ ПРОДАЕТЕ: <b style="color:var(--trade-color)">${item.name}</b></div>
             <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} 💎</b></div>
-            <p style="font-size:0.95rem; color:#aaa; line-height:1.3; margin-bottom:10px;">
+            <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
                 1. Покажите этот QR-код покупателю для оплаты.<br>
                 2. НЕ ЗАКРЫВАЙТЕ это окно.<br>
                 3. Когда покупатель оплатит, он покажет вам подтверждающий QR-код. Нажмите кнопку ниже и отсканируйте его!
@@ -2368,7 +2698,7 @@
         let contentEl = document.getElementById('trade-modal-content');
         contentEl.innerHTML = `
             <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">СКАНИРОВАНИЕ ПОДТВЕРЖДЕНИЯ</div>
-            <p style="font-size:0.95rem; color:#aaa; margin-bottom:10px;">Отсканируйте подтверждающий QR-код с экрана покупателя...</p>
+            <p style="font-size:0.95rem; color:var(--text-dim); margin-bottom:10px;">Отсканируйте подтверждающий QR-код с экрана покупателя...</p>
             <div id="trade-inner-scanner" style="width:100%; border:2px solid var(--term-green); margin-bottom:10px;"></div>
         `;
         document.getElementById('trade-qr-container').style.display = 'none';
@@ -2436,7 +2766,7 @@
                 contentEl.innerHTML = `
                     <div style="font-size:1.2rem; color:var(--term-green); font-weight:bold; margin-bottom:10px;">ПОКУПКА СОВЕРШЕНА!</div>
                     <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
-                    <p style="font-size:0.95rem; color:#aaa; line-height:1.3; margin-bottom:10px;">
+                    <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
                         Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
                     </p>
                 `;
@@ -2518,6 +2848,17 @@
             '--bandit-color': '#555555',
             '--rad-color': '#aaaaaa',
             '--hero-color': '#ffffff'
+        },
+        vintage: {
+            '--term-green': '#4f311c',
+            '--term-dark': '#fcf4de',
+            '--metal-bg': '#917961',
+            '--metal-border': '#594433',
+            '--quest-color': '#a61c1c',
+            '--trade-color': '#3f632b',
+            '--bandit-color': '#9e3800',
+            '--rad-color': '#a36015',
+            '--hero-color': '#a61c1c'
         },
         rad: {
             '--term-green': '#ff3333',
