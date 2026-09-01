@@ -136,13 +136,15 @@
         .btn-safe { border-color: var(--trade-color); color: var(--trade-color); } .btn-safe:active { background: var(--trade-color); color: var(--term-dark); }
         .btn-hero { border-color: var(--hero-color); color: var(--hero-color); } .btn-hero:active { background: var(--hero-color); color: var(--term-dark); }
         #nav-buttons { 
-            display: flex; 
-            gap: 5px; 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 6px; 
             margin-top: 12px; 
-            background: rgba(0,0,0,0.4); 
-            padding: 6px; 
+            background: rgba(0,0,0,0.6); 
+            padding: 8px; 
             border-radius: 10px; 
-            border: 2px solid #222;
+            border: 2px solid var(--term-green);
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.15);
         } 
         #nav-buttons button { 
             flex: 1; 
@@ -305,6 +307,10 @@
             <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
             <button onclick="switchView('profile')" style="width:100%; border-color:var(--term-green); color:var(--term-green); margin-bottom: 15px;">ПОСМОТРЕТЬ ПРОФИЛЬ</button>
 
+            
+
+                        
+
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <p style="text-align:center; color:var(--text-dim); font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
             <div id="qr-reader-dead" style="display:none;"></div>
@@ -320,8 +326,7 @@
             <h3>ПОИСК ЛУТА И NPC</h3>
             <div id="qr-reader"></div>
             <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
-            <input type="file" id="qr-file-input" accept="image/*" onchange="scanQrFromFile(event)" style="display:none;">
-            <button onclick="document.getElementById('qr-file-input').click()" style="width:100%; margin-top:6px; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">📷 СКАНИРОВАТЬ QR С ФОТО/ГАЛЕРЕИ</button>
+
             <div class="debug-input" id="admin-manual-scan-box" style="display:none;">
                 <input type="text" id="manual-code" placeholder="Код (junk_1, anom_1, npc_base)">
                 <button onclick="handleScan(document.getElementById('manual-code').value)">ВВОД</button>
@@ -368,6 +373,8 @@
             <div id="quests-container"></div>
 
 
+        
+            
         </div>
 
         <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
@@ -482,22 +489,9 @@
             </div>
 
             <!-- РЕПУТАЦИЯ И ПРИВИЛЕГИИ У НПС -->
-                        <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
-            <div class="profile-card" style="border-color:var(--term-green); margin-top:15px;">
-                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
-                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания.</p>
+                        
+            
 
-                <input type="file" id="pda-native-camera-input" accept="image/*" capture="environment" onchange="handlePdaPhotoCaptured(event)" style="display:none;">
-                <canvas id="pda-photo-canvas" style="display:none;"></canvas>
-
-                <button onclick="document.getElementById('pda-native-camera-input').click()" style="width:100%; border-color:var(--term-green); color:var(--term-green); font-size:1.05rem; padding:10px;">📷 СДЕЛАТЬ ФОТО С ШТАМПОМ ПДА</button>
-
-                <div id="photo-preview-box" style="display:none; margin-top:12px; border-top:1px dashed var(--term-green); padding-top:8px; text-align:center;">
-                    <h5 style="color:var(--term-green); margin-bottom:6px;">ГОТОВЫЙ СНИМОК СТАТУСА ПДА:</h5>
-                    <img id="photo-preview-img" style="width:100%; border:1px solid var(--term-green); border-radius:4px;" />
-                    <a id="photo-download-link" download="pda_photo.png" style="display:block; margin-top:8px; padding:8px; background:var(--term-green); color:#000; text-decoration:none; font-weight:bold; border-radius:4px;">📥 СКАЧАТЬ В ГАЛЕРЕЮ ТЕЛЕФОНА</a>
-                </div>
-            </div>
             <div class="profile-card" id="profile-reputation-card">
                 <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">🛡 РЕПУТАЦИЯ И ПРИВИЛЕГИИ</h4>
                 <div id="profile-reputation-content" style="font-size: 1rem; line-height: 1.3;"></div>
@@ -524,15 +518,38 @@
                 <div id="profile-weapons-list"></div>
             </div>
 
-            <div class="profile-card">
-                <p>Кредиты: <b style="color:var(--trade-color)"><span id="prof-score"></span> 💎</b></p>
-                <p>Собрано жетонов: <b id="prof-tokens">0</b></p>
-            </div>
-            <div class="profile-card" style="max-height: 160px; overflow-y: auto;">
-                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">ЖУРНАЛ АКТИВНОСТИ</h4>
-                <div id="prof-history-list" style="font-size: 1rem; line-height: 1.2;"></div>
-            </div>
+            
             <p style="color:var(--text-dim); font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
+            
+
+                        <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
+            <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
+                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
+                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 💎 за первое фото!</b></p>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size:0.9rem; color:var(--term-green); display:block; margin-bottom:4px; text-align:center; font-weight:bold;">🎨 ВЫБЕРИТЕ РЕЖИМ ФИЛЬТРА ПДА:</label>
+                    <select id="pda-photo-filter-select" style="width:100%; background:#051105; color:var(--term-green); border:1px solid var(--term-green); padding:6px; font-weight:bold; border-radius:4px; font-size:0.95rem;">
+                        <option value="green">☢️ РАДИОАКТИВНЫЙ ФОСФОР (Изумрудный ПДА)</option>
+                        <option value="amber">☣️ ВЫБРОС ЗОНЫ (Янтарный ПНВ / Радиация)</option>
+                        <option value="mono">💀 МЕРТВАЯ ПУСТОШЬ (Чёрно-белый / Нуар выживания)</option>
+                    </select>
+                </div>
+
+                <input type="file" id="pda-native-camera-input" accept="image/*" capture="environment" onchange="handlePdaPhotoCaptured(event)" style="display:none;">
+                <canvas id="pda-photo-canvas" style="display:none;"></canvas>
+
+                <button onclick="document.getElementById('pda-native-camera-input').click()" style="width:100%; border-color:var(--term-green); color:var(--term-green); font-size:1.05rem; padding:10px;">📷 СДЕЛАТЬ ФОТО С ШТАМПОМ ПДА</button>
+
+                <div id="photo-preview-box" style="display:none; margin-top:12px; border-top:1px dashed var(--term-green); padding-top:8px; text-align:center;">
+                    <h5 style="color:var(--term-green); margin-bottom:6px;">ГОТОВЫЙ СНИМОК СТАТУСА ПДА:</h5>
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:6px;">Нажмите кнопку ниже или зажмите изображение для сохранения в галерею:</p>
+                    <img id="photo-preview-img" style="width:100%; border:1px solid var(--term-green); border-radius:4px;" />
+                    <button id="photo-share-btn" onclick="saveOrSharePdaPhoto()" style="width:100%; margin-top:8px; padding:10px; background:var(--term-green); color:#000; font-weight:bold; border:none; border-radius:4px; font-size:1.05rem; cursor:pointer;">💾 СОХРАНИТЬ / ПОДЕЛИТЬСЯ ФОТО</button>
+                    <a id="photo-download-link" download="pda_photo.png" style="display:block; margin-top:6px; padding:6px; border:1px dashed var(--term-green); color:var(--term-green); text-decoration:none; font-size:0.9rem; border-radius:4px;">📥 ПРЯМАЯ ССЫЛКА ДЛЯ СКАЧИВАНИЯ</a>
+                </div>
+            </div>
+
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
             <div id="admin-controls-box" style="display:none; margin-top:10px; border:1px dashed var(--trade-color); padding:8px; background:rgba(0,229,255,0.03);">
@@ -1243,7 +1260,7 @@
             document.getElementById('nav-buttons').style.display = 'none';
             if(scanner) scanner.stop();
         } else {
-            document.getElementById('nav-buttons').style.display = 'flex'; 
+            document.getElementById('nav-buttons').style.display = 'grid'; 
             if(document.getElementById('view-dead').classList.contains('active')) switchView('scan');
             if (player.radioOn) startRadio();
         }
@@ -1630,21 +1647,39 @@
 
         // === ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ ПДА В ПРОФИЛЕ ===
     
-    function scanQrFromFile(event) {
-        let file = event.target.files && event.target.files[0];
-        if (!file) return;
-        if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        scanner.scanFile(file, true)
-            .then(decodedText => {
-                playSound('karma');
-                handleScan(decodedText);
-            })
-            .catch(err => {
-                alert("QR-код на изображении не найден или не распознан. Попробуйте сделать более четкое фото.");
-            });
+        async function saveOrSharePdaPhoto() {
+        let previewImg = document.getElementById('photo-preview-img');
+        let downloadLink = document.getElementById('photo-download-link');
+        if (!previewImg || !previewImg.src) return;
+
+        // Попытка 1: Использование Web Share API (вызывает системный диалог телефона "Сохранить изображение" / "Поделиться")
+        if (navigator.share && navigator.canShare) {
+            try {
+                let response = await fetch(previewImg.src);
+                let blob = await response.blob();
+                let file = new File([blob], `pda_photo_${Date.now()}.png`, { type: 'image/png' });
+                if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                        files: [file],
+                        title: 'Тактическое фото ПДА',
+                        text: 'Снимок статуса выживания в Зоне [WASTELAND PDA]'
+                    });
+                    return;
+                }
+            } catch(e) {
+                console.warn("Share failed, falling back to direct download link", e);
+            }
+        }
+
+        // Попытка 2: Прямое скачивание через ссылку
+        if (downloadLink) {
+            downloadLink.click();
+        } else {
+            window.open(previewImg.src, '_blank');
+        }
     }
 
-    function handlePdaPhotoCaptured(event) {
+function handlePdaPhotoCaptured(event) {
         let file = event.target.files && event.target.files[0];
         if (!file) return;
 
@@ -1676,18 +1711,89 @@
                 // 1. Отрисовка исходного снимка
                 ctx.drawImage(img, 0, 0, width, height);
 
-                // 2. Наложение фосфорного зелёного фильтра Зоны (CRT ЭЛТ)
-                ctx.fillStyle = 'rgba(0, 35, 0, 0.45)';
-                ctx.fillRect(0, 0, width, height);
+                // 2. Атмосферная пиксельная обработка фото под 3 уникальных фильтра Выживания
+                let selectedFilter = document.getElementById('pda-photo-filter-select') ? document.getElementById('pda-photo-filter-select').value : 'green';
 
-                ctx.globalCompositeOperation = 'color';
-                ctx.fillStyle = '#39ff14';
-                ctx.fillRect(0, 0, width, height);
-                ctx.globalCompositeOperation = 'source-over';
+                let themeColor = '#39ff14';
+                let bgDark = 'rgba(2, 11, 2, 0.88)';
 
-                // 3. Горизонтальные сканирующие полосы CRT
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.22)';
-                let lineSpacing = Math.max(3, Math.floor(height / 250));
+                let imgData = ctx.getImageData(0, 0, width, height);
+                let data = imgData.data;
+
+                if (selectedFilter === 'amber') {
+                    // ☣️ ВЫБРОС ЗОНЫ (ЯНТАРНЫЙ ВЫБРОС / АНОМАЛЬНОЕ СВЕЧЕНИЕ)
+                    themeColor = '#ff9900';
+                    bgDark = 'rgba(25, 10, 0, 0.90)';
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        let r = data[i], g = data[i+1], b = data[i+2];
+                        let lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                        // Повышенный контраст и теплые янтарно-оранжевые оттенки аномального заката/выброса
+                        data[i]     = Math.min(255, lum * 1.25 + 35); // Ржавый красный/оранжевый
+                        data[i + 1] = Math.min(255, lum * 0.75 + 10); // Янтарный зеленый
+                        data[i + 2] = Math.max(0, lum * 0.2 - 10);    // Отсечение синего (полный янтарный спектр)
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    // Мягкий янтарный градиент виньетирования
+                    let vignette = ctx.createRadialGradient(width/2, height/2, width*0.3, width/2, height/2, width*0.75);
+                    vignette.addColorStop(0, 'rgba(255, 140, 0, 0.05)');
+                    vignette.addColorStop(1, 'rgba(40, 10, 0, 0.65)');
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, width, height);
+
+                } else if (selectedFilter === 'mono') {
+                    // 💀 МЕРТВАЯ ПУСТОШЬ (ЧЁРНО-БЕЛЫЙ ХОЛОДНЫЙ НУАР ВЫЖИВАНИЯ)
+                    themeColor = '#00e5ff'; // Холодный неоново-голубой стальной интерфейс
+                    bgDark = 'rgba(10, 15, 20, 0.90)';
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        let r = data[i], g = data[i+1], b = data[i+2];
+                        let lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                        // Жесткий кинематографичный контраст постапокалипсиса
+                        let contrastLum = lum < 120 ? lum * 0.7 : Math.min(255, lum * 1.2);
+
+                        data[i]     = Math.min(255, contrastLum * 0.9);
+                        data[i + 1] = Math.min(255, contrastLum * 0.95);
+                        data[i + 2] = Math.min(255, contrastLum * 1.05); // Легкий стальной холодный оттенок
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    // Темная виньетка выживальщика
+                    let vignette = ctx.createRadialGradient(width/2, height/2, width*0.25, width/2, height/2, width*0.7);
+                    vignette.addColorStop(0, 'rgba(0, 0, 0, 0.0)');
+                    vignette.addColorStop(1, 'rgba(5, 5, 10, 0.75)');
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, width, height);
+
+                } else {
+                    // ☢️ РАДИОАКТИВНЫЙ ФОСФОР (КЛАССИЧЕСКИЙ ИЗУМРУДНЫЙ ПДА)
+                    themeColor = '#39ff14';
+                    bgDark = 'rgba(2, 12, 2, 0.90)';
+
+                    for (let i = 0; i < data.length; i += 4) {
+                        let r = data[i], g = data[i+1], b = data[i+2];
+                        let lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+                        data[i]     = Math.max(0, lum * 0.2 - 10);
+                        data[i + 1] = Math.min(255, lum * 1.2 + 20); // Изумрудный фосфор
+                        data[i + 2] = Math.max(0, lum * 0.15);
+                    }
+                    ctx.putImageData(imgData, 0, 0);
+
+                    // Фосфорная виньетка
+                    let vignette = ctx.createRadialGradient(width/2, height/2, width*0.3, width/2, height/2, width*0.75);
+                    vignette.addColorStop(0, 'rgba(0, 30, 0, 0.0)');
+                    vignette.addColorStop(1, 'rgba(0, 15, 0, 0.7)');
+                    ctx.fillStyle = vignette;
+                    ctx.fillRect(0, 0, width, height);
+                }
+
+                // 3. Сканирующие полосы (CRT)
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+                let lineSpacing = Math.max(3, Math.floor(height / 220));
                 for (let y = 0; y < height; y += lineSpacing * 2) {
                     ctx.fillRect(0, y, width, lineSpacing);
                 }
@@ -1701,17 +1807,17 @@
                 let headerH = Math.max(50, Math.floor(height * 0.07));
                 let footerH = Math.max(60, Math.floor(height * 0.08));
 
-                ctx.fillStyle = 'rgba(2, 11, 2, 0.85)';
+                ctx.fillStyle = bgDark;
                 ctx.fillRect(0, 0, width, headerH);
                 ctx.fillRect(0, height - footerH, width, footerH);
 
-                ctx.strokeStyle = '#39ff14';
+                ctx.strokeStyle = themeColor;
                 ctx.lineWidth = Math.max(2, Math.floor(width / 450));
                 ctx.strokeRect(6, 6, width - 12, headerH - 12);
                 ctx.strokeRect(6, height - footerH + 6, width - 12, footerH - 12);
 
-                ctx.fillStyle = '#39ff14';
-                ctx.shadowColor = '#39ff14';
+                ctx.fillStyle = themeColor;
+                ctx.shadowColor = themeColor;
                 ctx.shadowBlur = 6;
 
                 let fontSize = Math.max(16, Math.floor(width / 32));
@@ -1738,10 +1844,21 @@
                     downloadLink.href = dataUrl;
                     downloadLink.download = `pda_photo_${now.getTime()}.png`;
                 }
-                if (previewBox) previewBox.style.display = 'block';
+                if (previewBox) {
+                    previewBox.style.display = 'block';
+                    previewBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
 
                 playSound('photo');
-                showBanner("📸 ФОТО УСПЕШНО ОБРАБОТАНО И СОХРАНЕНО!", 'var(--term-green)');
+                if (!player.photoBonusReceived) {
+                    player.photoBonusReceived = true;
+                    player.score = (player.score || 0) + 100;
+                    saveState();
+                    renderProfile();
+                    showBanner("📸 НАГРАДА! +100 💎 ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
+                } else {
+                    showBanner("📸 ФОТО УСПЕШНО ОБРАБОТАНО И СОХРАНЕНО!", 'var(--term-green)');
+                }
 
                 // Авто-скачивание на мобильном устройстве
                 try {
@@ -1767,7 +1884,7 @@
         if (viewName === 'base' || viewName === 'dead' || player.hp <= 0) {
             document.getElementById('nav-buttons').style.display = 'none';
         } else {
-            document.getElementById('nav-buttons').style.display = 'flex';
+            document.getElementById('nav-buttons').style.display = 'grid';
             if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
         }
 
@@ -2830,12 +2947,17 @@
 
     function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem('wasteland_player'); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
 
-    document.getElementById('start-scan-btn').addEventListener('click', () => {
+        document.getElementById('start-scan-btn').addEventListener('click', () => {
         if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { scanner.stop(); handleScan(t); }, (e) => {}).catch(e => alert("Ошибка камеры."));
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
+            scanner.stop(); 
+            handleScan(t); 
+        }, (e) => {}).catch(err => {
+            alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
+        });
     });
 
-    // === МЕНЮ БАЗЫ (ЛОББИ / ПАУЗА) ===
+// === МЕНЮ БАЗЫ (ЛОББИ / ПАУЗА) ===
     function renderBaseView() {
         player.inBase = true;
         saveState();
@@ -4037,6 +4159,9 @@
     <div id="trade-qr-container" style="background:#fff; padding:15px; margin: 10px auto; width: 230px; display:none;"></div>
 
     <button onclick="closeTradeModal()" class="btn-danger" style="width:100%; margin-top:10px;">ЗАКРЫТЬ</button>
-</div>
+
+
+
+        </div>
 </body>
 </html>
