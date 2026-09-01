@@ -268,7 +268,7 @@
         </div>
         <div id="hud">
             <div class="hud-row" style="margin-bottom: 5px;">
-                <div>HP:<span id="hp-val">100</span>%</div>
+                <div>HP:<span id="hp-val">100</span><span id="hp-max-val" style="font-size:0.85em; color:var(--term-green);">/100</span></div>
                 <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
                 <div>ЕДА:<span id="hunger-val">100</span>%</div>
                 <div>ВЕС:<span id="inv-val">0</span>/<span id="inv-max">15</span></div>
@@ -369,6 +369,104 @@
         </div>
 
         <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
+        <!-- 3.5. КАРТА ЗОНЫ -->
+        <div id="view-map" class="view">
+            <h3 style="color:var(--term-green); border-bottom: 1px dashed var(--term-green); padding-bottom: 5px; margin-bottom:10px; text-align:center;">🗺 ИНТЕРАКТИВНАЯ КАРТА ЗОНЫ</h3>
+
+            <!-- Экран карты -->
+            <div id="map-container" style="position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
+                <!-- СЕТКА КООРДИНАТ 5x5 С СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2;">
+                    <!-- Ряд 1 -->
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A1</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B1</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C1</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D1</div>
+                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E1</div>
+
+                    <!-- Ряд 2 -->
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A2</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B2</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C2</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D2</div>
+                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E2</div>
+
+                    <!-- Ряд 3 -->
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A3</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B3</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C3</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D3</div>
+                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E3</div>
+
+                    <!-- Ряд 4 -->
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A4</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B4</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C4</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D4</div>
+                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E4</div>
+
+                    <!-- Ряд 5 -->
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A5</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B5</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C5</div>
+                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
+                    <div style="padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E5</div>
+                </div>
+
+
+
+                <!-- Слои маркеров рендерится через JS -->
+                <div id="map-markers-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10;"></div>
+            </div>
+
+            <!-- Инфо-карточка локации -->
+            <div id="map-info-card" class="profile-card" style="margin-top:10px; padding:10px; min-height:65px; border-color:var(--term-green);">
+                <div id="map-info-title" style="font-weight:bold; color:var(--term-green); font-size:1.05rem;">Выберите маркер на карте...</div>
+                <div id="map-info-desc" style="font-size:0.9rem; color:#aaa; margin-top:4px;">Нажмите на любую метку, чтобы просмотреть сведения о локации или переместить её в режиме редактора.</div>
+            </div>
+
+            <!-- Переключатель Режима Редактора -->
+            <button id="btn-toggle-map-editor" onclick="toggleMapEditor()" style="width:100%; margin-top:8px; border-color:var(--quest-color); color:var(--quest-color); font-size:0.95rem;">⚙️ ВКТЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)</button>
+
+            <!-- Панель управления редактором (скрыта по умолчанию) -->
+            <div id="map-editor-panel" class="profile-card" style="display:none; margin-top:10px; border-color:var(--quest-color); background:rgba(255,183,0,0.03);">
+                <h4 style="color:var(--quest-color); border-bottom:1px dashed var(--quest-color); padding-bottom:4px; margin-bottom:8px; text-align:center;">🛠 НАСТРОЙКА ЛОКАЦИЙ ЗОНЫ</h4>
+
+                <div style="display:flex; flex-direction:column; gap:6px; font-size:0.9rem;">
+                    <div><label style="color:#ccc;">Название метки:</label><input type="text" id="edit-marker-name" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px;" placeholder="Название объекта..."></div>
+                    <div><label style="color:#ccc;">Иконка (Emoji):</label><input type="text" id="edit-marker-icon" oninput="onIconInputUpdate()" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px;" placeholder="🏰, 📻, ☣️, 💀, 📍..."></div>
+                    <div>
+                        <label style="color:#ccc;">Цвет обводки метки:</label>
+                        <select id="edit-marker-color" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px; font-family:'VT323',monospace; font-size:1.05rem;">
+                            <option value="var(--term-green)">🟢 Зеленый (База / Нейтралы)</option>
+                            <option value="var(--trade-color)">🔵 Голубой (Связь / Торговля)</option>
+                            <option value="var(--quest-color)">🟡 Оранжевый (Важный объект)</option>
+                            <option value="var(--bandit-color)">🔴 Красный (Опасность / Бандиты)</option>
+                            <option value="var(--rad-color)">⚠️ Желтый (Аномалия / Радиация)</option>
+                            <option value="#b026ff">🟣 Фиолетовый (Секретная зона)</option>
+                            <option value="#ffffff">⚪ Белый (Нейтральный)</option>
+                        </select>
+                    </div>
+                    <div><label style="color:#ccc;">Описание:</label><textarea id="edit-marker-desc" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px; height:50px;" placeholder="Описание объекта..."></textarea></div>
+                </div>
+
+                <div style="display:flex; gap:6px; margin-top:8px;">
+                    <button onclick="saveSelectedMarker()" style="flex:1; padding:6px; border-color:var(--term-green); color:var(--term-green);">💾 СОХРАНИТЬ</button>
+                    <button onclick="addNewMapMarker()" style="flex:1; padding:6px; border-color:var(--trade-color); color:var(--trade-color);">➕ СОЗДАТЬ</button>
+                    <button onclick="deleteSelectedMarker()" class="btn-danger" style="flex:1; padding:6px;">🗑 УДАЛИТЬ</button>
+                </div>
+                <button onclick="resetMapMarkersToDefault()" style="width:100%; margin-top:6px; font-size:0.8rem; padding:4px; border-color:#777; color:#aaa;">🔄 СБРОСИТЬ МЕТКИ ПО УМОЛЧАНИЮ</button>
+
+                <!-- ЗАГРУЗКА СОБСТВЕННОЙ КАРТЫ С ТЕЛЕФОНА -->
+                <div style="margin-top:12px; border-top:1px dashed var(--quest-color); padding-top:8px;">
+                    <label style="color:var(--trade-color); font-weight:bold; display:block; margin-bottom:4px; text-align:center;">🖼 ФОНОВЫЙ РИСУНОК КАРТЫ</label>
+                    <input type="file" id="map-bg-file-input" accept="image/*" onchange="uploadCustomMapBg(event)" style="display:none;">
+                    <button onclick="document.getElementById('map-bg-file-input').click()" style="width:100%; border-color:var(--trade-color); color:var(--trade-color); font-size:0.95rem;">📷 ВЫБРАТЬ КАРТЫ ИЗ ГАЛЕРЕИ ТЕЛЕФОНА</button>
+                    <button onclick="resetCustomMapBg()" style="width:100%; margin-top:4px; font-size:0.8rem; padding:3px; border-color:#666; color:#888;">🗑 УДАЛИТЬ ФОН КАРТЫ</button>
+                </div>
+            </div>
+        </div>
+
         <div id="view-profile" class="view">
             <h3>ЛИЧНОЕ ДЕЛО</h3>
             <div class="profile-card">
@@ -539,6 +637,7 @@
         <button onclick="switchView('inventory')" id="btn-nav-inventory">ИНВЕНТ</button>
         <button onclick="switchView('quests')" id="btn-nav-quests">КВЕСТЫ</button>
         <button onclick="switchView('shelter')" id="btn-nav-shelter">УБЕЖИЩЕ</button>
+        <button onclick="switchView('map')" id="btn-nav-map">КАРТА</button>
         <button onclick="switchView('profile')" id="btn-nav-profile">ПРОФИЛЬ</button>
     </div>
 </div> <!-- ends screen -->
@@ -959,7 +1058,7 @@
                 if (player.shelterLevel >= 5) {
                     player.regenTimer = (player.regenTimer || 0) + diffSec;
                     if (player.regenTimer >= 60) {
-                        let maxHp = Math.round(100 * (1 + getNpcRepLevel(player.npcRep['npc_med'] || 0) * 0.1));
+                        let maxHp = getMaxHp();
                         if (player.hp < maxHp - player.rads) {
                             player.hp = Math.min(maxHp - player.rads, player.hp + 1);
                             updateHUD();
@@ -1241,7 +1340,7 @@
         }
 
         if (allowedBase) {
-            playSound('use'); player.hp = 100; player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
+            playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
             document.getElementById('corpse-qr-container').style.display = "none"; 
             document.getElementById('corpse-qr-desc').style.display = "none";
             document.getElementById('btn-confirm-heal').style.display = "none";
@@ -1568,15 +1667,20 @@
         }
     }
 
+    function getMaxHp() {
+        let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
+        let crowLvl = getNpcRepLevel(crowRep);
+        let baseMaxHp = Math.round(100 * (1 + crowLvl * 0.1));
+        if (player.shelterLevel >= 4) {
+            baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
+        }
+        return baseMaxHp;
+    }
+
     function updateHUD() {
         try {
             if (player.rads > 60) player.rads = 60;
-            let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
-            let crowLvl = getNpcRepLevel(crowRep);
-            let baseMaxHp = Math.round(100 * (1 + crowLvl * 0.1));
-            if (player.shelterLevel >= 4) {
-                baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
-            }
+            let baseMaxHp = getMaxHp();
             let maxHp = baseMaxHp - (player.rads || 0);
             if (player.hp > maxHp) player.hp = maxHp;
 
@@ -1592,7 +1696,8 @@
 
             let k = getKarmaStatus();
 
-            if (document.getElementById('hp-val')) document.getElementById('hp-val').innerText = player.hp; 
+            if (document.getElementById('hp-val')) document.getElementById('hp-val').innerText = player.hp;
+            if (document.getElementById('hp-max-val')) document.getElementById('hp-max-val').innerText = '/' + baseMaxHp; 
             if (document.getElementById('rad-val')) {
                 document.getElementById('rad-val').innerText = player.rads;
                 document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
@@ -2264,11 +2369,12 @@
             healCost = Math.round(healCost * discountMult);
         }
 
-        if(player.hp >= 100 && player.rads === 0) return alert("Здоров!"); 
+        let currentMaxHp = getMaxHp();
+        if(player.hp >= currentMaxHp && player.rads === 0) return alert("Здоров!"); 
         if(player.score < healCost) return alert("Мало кредитов!"); 
         playSound('use'); 
         player.score -= healCost; 
-        player.hp = 100; 
+        player.hp = currentMaxHp; 
         player.rads = 0; 
         saveState(); 
         renderTradeView(); 
@@ -2284,7 +2390,7 @@
             player.rads = Math.max(0, player.rads - it.radCure);
         }
 
-        let maxHp = 100 - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
+        let maxHp = getMaxHp() - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
         playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
     }
 
@@ -2333,7 +2439,7 @@
         let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
         let barLvl = getNpcRepLevel(barRep);
         let maxHunger = 100 + (barLvl * 10);
-        player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = 100 - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+        player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
         playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
     }
 
@@ -2443,7 +2549,7 @@
                 player.rads = 0; 
             }
 
-            let maxHp = 100 - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+            let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
 
             if(player.hunger === 0 && player.hp > 0) { 
                 let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
@@ -3427,6 +3533,338 @@
         updateSlotUI();
         isSlotSpinning = false;
     }
+
+    // === ИНТЕРАКТИВНАЯ КАРТА ЗОНЫ И РЕДАКТОР МЕТОК ===
+    const DEFAULT_MAP_MARKERS = [];
+
+    let zoneMarkers = [];
+    let isMapEditorActive = false;
+    let selectedMarkerId = null;
+    let draggedMarkerId = null;
+
+    function applyMapBackground() {
+        const mapContainer = document.getElementById('map-container');
+        if (!mapContainer) return;
+        const savedBg = localStorage.getItem('pda_custom_map_bg');
+        if (savedBg) {
+            mapContainer.style.backgroundImage = `url(${savedBg})`;
+            mapContainer.style.backgroundSize = 'cover';
+            mapContainer.style.backgroundPosition = 'center';
+            mapContainer.style.backgroundRepeat = 'no-repeat';
+        } else {
+            mapContainer.style.backgroundImage = 'none';
+            mapContainer.style.backgroundColor = '#020b02';
+        }
+    }
+
+    function uploadCustomMapBg(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        if (file.size > 12 * 1024 * 1024) {
+            alert("Файл слишком большой! Пожалуйста, выберите картинку размером до 12 МБ.");
+            return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const dataUrl = e.target.result;
+            try {
+                localStorage.setItem('pda_custom_map_bg', dataUrl);
+                applyMapBackground();
+                playSound('karma');
+                alert("Изображение карты успешно загружено и сохранено в ПДА!");
+            } catch(err) {
+                alert("Не удалось сохранить карту (превышен лимит памяти браузера). Попробуйте сожать фото перед загрузкой.");
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+
+    function resetCustomMapBg() {
+        localStorage.removeItem('pda_custom_map_bg');
+        applyMapBackground();
+        playSound('use');
+        alert("Фон карты сброшен к стандартному виду.");
+    }
+
+    function initMapSystem() {
+        let saved = localStorage.getItem('pda_zone_markers');
+        if (saved) {
+            try {
+                zoneMarkers = JSON.parse(saved);
+            } catch(e) {
+                zoneMarkers = [...DEFAULT_MAP_MARKERS];
+            }
+        } else {
+            zoneMarkers = [...DEFAULT_MAP_MARKERS];
+        }
+        applyMapBackground();
+    }
+
+    function renderZoneMap() {
+        let layer = document.getElementById('map-markers-layer');
+        if (!layer) return;
+        layer.innerHTML = '';
+
+        zoneMarkers.forEach(m => {
+            let el = document.createElement('div');
+            el.className = 'map-marker-node';
+            el.id = `map-node-${m.id}`;
+            el.style.position = 'absolute';
+            el.style.left = `${m.x}%`;
+            el.style.top = `${m.y}%`;
+            el.style.transform = 'translate(-50%, -50%)';
+            el.style.cursor = 'pointer';
+            el.style.fontSize = '1.4rem';
+            el.style.padding = '4px';
+            el.style.borderRadius = '50%';
+            el.style.background = m.id === selectedMarkerId ? 'rgba(57,255,20,0.3)' : 'rgba(0,0,0,0.6)';
+            el.style.border = `2px solid ${m.color || 'var(--term-green)'}`;
+            el.style.boxShadow = m.id === selectedMarkerId ? '0 0 12px var(--term-green)' : '0 0 5px rgba(0,0,0,0.8)';
+            el.style.transition = 'transform 0.15s ease, box-shadow 0.15s ease';
+            el.innerHTML = m.icon || '📍';
+
+            // При клике на маркер
+            el.onclick = (e) => {
+                e.stopPropagation();
+                selectMapMarker(m.id);
+            };
+
+            // Если включен режим перетаскивания (Drag & Drop)
+            if (isMapEditorActive) {
+                el.style.cursor = 'grab';
+                el.onmousedown = (e) => startDragMarker(e, m.id);
+                el.ontouchstart = (e) => startDragMarkerTouch(e, m.id);
+            }
+
+            layer.appendChild(el);
+        });
+    }
+
+    function selectMapMarker(id) {
+        selectedMarkerId = id;
+        let m = zoneMarkers.find(x => x.id === id);
+        let titleEl = document.getElementById('map-info-title');
+        let descEl = document.getElementById('map-info-desc');
+
+        if (m) {
+            playSound('scan');
+            if (titleEl) titleEl.innerHTML = `<span style="color:${m.color || 'var(--term-green)'}">${m.icon} ${m.name}</span> <span style="font-size:0.8rem; color:#888;">[X:${m.x}%, Y:${m.y}%]</span>`;
+            if (descEl) descEl.innerText = m.desc || 'Описание отсутствует.';
+
+            // Если редактор активен, заполняем поля формы
+            if (isMapEditorActive) {
+                document.getElementById('edit-marker-name').value = m.name;
+                document.getElementById('edit-marker-icon').value = m.icon;
+                if (document.getElementById('edit-marker-x')) document.getElementById('edit-marker-x').value = m.x;
+                if (document.getElementById('edit-marker-y')) document.getElementById('edit-marker-y').value = m.y;
+                document.getElementById('edit-marker-desc').value = m.desc;
+            }
+        }
+        renderZoneMap();
+    }
+
+    function toggleMapEditor() {
+        isMapEditorActive = !isMapEditorActive;
+        let panel = document.getElementById('map-editor-panel');
+        let btn = document.getElementById('btn-toggle-map-editor');
+
+        if (panel) panel.style.display = isMapEditorActive ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = isMapEditorActive ? '❌ ЗАКРЫТЬ РЕДАКТОР МЕТОК' : '⚙️ ВКЛЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)';
+            btn.style.borderColor = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
+            btn.style.color = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
+        }
+
+        playSound('scan');
+        renderZoneMap();
+    }
+
+        function onIconInputUpdate() {
+        if (selectedMarkerId) {
+            let m = zoneMarkers.find(x => x.id === selectedMarkerId);
+            if (m) {
+                let iconVal = document.getElementById('edit-marker-icon').value.trim() || '📍';
+                m.icon = iconVal;
+                let node = document.getElementById(`map-node-${m.id}`);
+                if (node) node.innerHTML = iconVal;
+                document.getElementById('map-info-title').innerText = `${iconVal} ${m.name}`;
+            }
+        }
+    }
+
+    function saveSelectedMarker() {
+        if (!selectedMarkerId) {
+            // Если маркер не выбран, автоматически создаем новый с текущими настройками из полей формы!
+            addNewMapMarker();
+            return;
+        }
+        let m = zoneMarkers.find(x => x.id === selectedMarkerId);
+        if (m) {
+            m.name = document.getElementById('edit-marker-name').value.trim() || 'Без названия';
+            m.icon = document.getElementById('edit-marker-icon').value.trim() || '📍';
+            if (document.getElementById('edit-marker-color')) {
+                m.color = document.getElementById('edit-marker-color').value;
+            }
+            m.desc = document.getElementById('edit-marker-desc').value.trim();
+
+            saveMapMarkers();
+            playSound('sell');
+            showBanner("✅ МЕТКА КАРТЫ СОХРАНЕНА!", 'var(--term-green)');
+            selectMapMarker(m.id);
+            renderZoneMap();
+        } else {
+            addNewMapMarker();
+        }
+    }
+
+    function addNewMapMarker() {
+        let nameInput = document.getElementById('edit-marker-name');
+        let iconInput = document.getElementById('edit-marker-icon');
+        let colorInput = document.getElementById('edit-marker-color');
+        let descInput = document.getElementById('edit-marker-desc');
+
+        let markerName = (nameInput && nameInput.value.trim()) ? nameInput.value.trim() : 'НОВАЯ ТОЧКА';
+        let markerIcon = (iconInput && iconInput.value.trim()) ? iconInput.value.trim() : '📍';
+        let markerColor = colorInput ? colorInput.value : 'var(--trade-color)';
+        let markerDesc = descInput ? descInput.value.trim() : 'Описание новой локации.';
+
+        let newId = 'm_' + Date.now();
+        let newMarker = {
+            id: newId,
+            name: markerName,
+            icon: markerIcon,
+            x: 50,
+            y: 50,
+            desc: markerDesc,
+            color: markerColor
+        };
+        zoneMarkers.push(newMarker);
+        saveMapMarkers();
+
+        // Автоматически включаем режим редактора (перетаскивания), если он выключен
+        if (!isMapEditorActive) {
+            isMapEditorActive = true;
+            let panel = document.getElementById('map-editor-panel');
+            let btn = document.getElementById('btn-toggle-map-editor');
+            if (panel) panel.style.display = 'block';
+            if (btn) {
+                btn.innerText = '✅ РЕДАКТОР МЕТОК АКТИВЕН (ПЕРЕТАЩИТЕ МЕТКУ)';
+                btn.style.borderColor = 'var(--term-green)';
+                btn.style.color = 'var(--term-green)';
+            }
+        }
+
+        renderZoneMap();
+        selectMapMarker(newId);
+        playSound('karma');
+        showBanner("📍 МЕТКА ДОБАВЛЕНА В ЦЕНТР КАРТЫ!", markerColor);
+    }
+
+    function deleteSelectedMarker() {
+        if (!selectedMarkerId) return alert("Сначала выберите маркер для удаления!");
+        if (confirm("Удалить эту метку с карты?")) {
+            zoneMarkers = zoneMarkers.filter(x => x.id !== selectedMarkerId);
+            selectedMarkerId = null;
+            saveMapMarkers();
+            playSound('death');
+            showBanner("🗑 МЕТКА УДАЛЕНА С КАРТЫ!", 'var(--bandit-color)');
+            renderZoneMap();
+        }
+    }
+
+    function resetMapMarkersToDefault() {
+        if (confirm("Сбросить все метки на стандартную конфигурацию?")) {
+            zoneMarkers = [...DEFAULT_MAP_MARKERS];
+            saveMapMarkers();
+            selectedMarkerId = null;
+            playSound('use');
+            renderZoneMap();
+        }
+    }
+
+    function saveMapMarkers() {
+        localStorage.setItem('pda_zone_markers', JSON.stringify(zoneMarkers));
+    }
+
+    // Обработка перетаскивания (Drag & Drop)
+    function startDragMarker(e, id) {
+        draggedMarkerId = id;
+        selectMapMarker(id);
+
+        const mapContainer = document.getElementById('map-container');
+        const rect = mapContainer.getBoundingClientRect();
+
+        function onMouseMove(me) {
+            if (!draggedMarkerId) return;
+            let m = zoneMarkers.find(x => x.id === draggedMarkerId);
+            if (m) {
+                let relX = Math.round(((me.clientX - rect.left) / rect.width) * 100);
+                let relY = Math.round(((me.clientY - rect.top) / rect.height) * 100);
+                m.x = Math.max(5, Math.min(95, relX));
+                m.y = Math.max(5, Math.min(95, relY));
+
+                if (document.getElementById('edit-marker-x')) document.getElementById('edit-marker-x').value = m.x;
+                if (document.getElementById('edit-marker-y')) document.getElementById('edit-marker-y').value = m.y;
+                renderZoneMap();
+            }
+        }
+
+        function onMouseUp() {
+            draggedMarkerId = null;
+            window.removeEventListener('mousemove', onMouseMove);
+            window.removeEventListener('mouseup', onMouseUp);
+            saveMapMarkers();
+        }
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mouseup', onMouseUp);
+    }
+
+    function startDragMarkerTouch(e, id) {
+        draggedMarkerId = id;
+        selectMapMarker(id);
+
+        const mapContainer = document.getElementById('map-container');
+        const rect = mapContainer.getBoundingClientRect();
+
+        function onTouchMove(te) {
+            if (!draggedMarkerId || !te.touches[0]) return;
+            let touch = te.touches[0];
+            let m = zoneMarkers.find(x => x.id === draggedMarkerId);
+            if (m) {
+                let relX = Math.round(((touch.clientX - rect.left) / rect.width) * 100);
+                let relY = Math.round(((touch.clientY - rect.top) / rect.height) * 100);
+                m.x = Math.max(5, Math.min(95, relX));
+                m.y = Math.max(5, Math.min(95, relY));
+
+                if (document.getElementById('edit-marker-x')) document.getElementById('edit-marker-x').value = m.x;
+                if (document.getElementById('edit-marker-y')) document.getElementById('edit-marker-y').value = m.y;
+                renderZoneMap();
+            }
+        }
+
+        function onTouchEnd() {
+            draggedMarkerId = null;
+            window.removeEventListener('touchmove', onTouchMove);
+            window.removeEventListener('touchend', onTouchEnd);
+            saveMapMarkers();
+        }
+
+        window.addEventListener('touchmove', onTouchMove);
+        window.addEventListener('touchend', onTouchEnd);
+    }
+
+    // Инициализация карты в switchView
+    let old_switchView_map = switchView;
+    switchView = function(viewName) {
+        old_switchView_map(viewName);
+        if (viewName === 'map') {
+            if (zoneMarkers.length === 0) initMapSystem();
+            renderZoneMap();
+        }
+    };
+
+    initMapSystem();
 
     init();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
