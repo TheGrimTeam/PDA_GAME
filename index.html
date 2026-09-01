@@ -4147,6 +4147,60 @@ function handlePdaPhotoCaptured(event) {
 
     init();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+
+
+    function handleMapBackgroundUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            let img = new Image();
+            img.onload = function() {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+
+                let width = img.width;
+                let height = img.height;
+                let maxDim = 640;
+
+                if (width > maxDim || height > maxDim) {
+                    if (width > height) {
+                        height = Math.round((height * maxDim) / width);
+                        width = maxDim;
+                    } else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                let compressedDataUrl = canvas.toDataURL('image/jpeg', 0.55);
+
+                try {
+                    localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                    applyMapBackground();
+                    playSound('karma');
+                    alert("🗺️ Карта успешно сжата и сохранена!");
+                } catch(err) {
+                    try {
+                        localStorage.removeItem('wasteland_player_history');
+                        localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                        applyMapBackground();
+                        playSound('karma');
+                        alert("🗺️ Карта успешно сохранена!");
+                    } catch(err2) {
+                        alert("⚠️ Ошибка памяти браузера. Выберите файл меньшего объема.");
+                    }
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
 </script>
 <!-- МОДАЛЬНОЕ ОКНО ТОРГОВЛИ ИГРОКОВ -->
 <div id="trade-modal" class="modal-overlay">
@@ -4164,4 +4218,40 @@ function handlePdaPhotoCaptured(event) {
 
         </div>
 </body>
-</html>
+</html     else {
+                        width = Math.round((width * maxDim) / height);
+                        height = maxDim;
+                    }
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+                ctx.drawImage(img, 0, 0, width, height);
+
+                // Compress aggressively to JPEG quality 0.55 (~30-50KB)
+                let compressedDataUrl = canvas.toDataURL('image/jpeg', 0.55);
+
+                try {
+                    localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                    applyMapBackground();
+                    playSound('karma');
+                    alert("🗺️ Карта успешно сжата (до легкого формата ПДА) и сохранена!");
+                } catch(err) {
+                    // Fallback: If localStorage is full, try clearing player stats history or save in session memory
+                    try {
+                        localStorage.removeItem('wasteland_player_history');
+                        localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                        applyMapBackground();
+                        playSound('karma');
+                        alert("🗺️ Карта успешно сохранена после очистки кэша ПДА!");
+                    } catch(err2) {
+                        alert("⚠️ Ошибка памяти браузера. Пожалуйста, очистите кэш или выберите скриншот меньшего объема.");
+                    }
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    }
+
+    >
