@@ -89,8 +89,6 @@
             animation: noise-move 0.25s infinite steps(4);
         }
 
-
-
         @keyframes noise-move {
             0% { transform: translate(0, 0); }
             25% { transform: translate(-1px, 1px); }
@@ -98,8 +96,6 @@
             75% { transform: translate(-1px, -1px); }
             100% { transform: translate(0, 0); }
         }
-
-
 
         #hud { border-bottom: 2px dashed var(--term-green); padding-bottom: 5px; margin-bottom: 10px; font-weight: bold; }
         .hud-row { display: flex; justify-content: space-between; margin-bottom: 2px; align-items: center; font-size: 1.05rem;}
@@ -239,26 +235,12 @@
             </div>
             <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
 
-            
-
             <div class="profile-card" style="margin-bottom:15px;">
                 <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
                 <div style="display:flex; flex-direction:column; gap:8px;">
                     <input type="text" id="base-callsign-input" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
                     <button onclick="saveBaseCallsign()" style="width:100%;">СОХРАНИТЬ ПОЗЫВНОЙ</button>
                 </div>
-            </div>
-
-            <div class="profile-card" style="margin-bottom:20px;">
-                <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ЦВЕТОВОЙ ИНТЕРФЕЙС ПДА:</label>
-                <select id="base-theme-select" onchange="applyTheme(this.value)" style="width:100%; background:var(--term-dark); border:2px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.15rem; cursor:pointer;">
-                    <option value="green">🟢 Классический зеленый (Fallout 3)</option>
-                    <option value="amber">🟡 Янтарная Пустошь (New Vegas)</option>
-                    <option value="cyberpunk">🟣 Неоновый киберпанк</option>
-                    <option value="noir">⚪ Мрачный черно-белый нуар</option>
-                    <option value="rad">🔴 Радиационная угроза</option>
-                    <option value="vintage">🟫 Винтажный бумажный (Бежевый)</option>
-                </select>
             </div>
 
             <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
@@ -306,10 +288,6 @@
             <button id="btn-confirm-heal" onclick="confirmHeal()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)</button>
             <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
             <button onclick="switchView('profile')" style="width:100%; border-color:var(--term-green); color:var(--term-green); margin-bottom: 15px;">ПОСМОТРЕТЬ ПРОФИЛЬ</button>
-
-            
-
-                        
 
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <p style="text-align:center; color:var(--text-dim); font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
@@ -372,9 +350,6 @@
             <h3 class="quest-text">СЕТЬ КОНТРАКТОВ</h3>
             <div id="quests-container"></div>
 
-
-        
-            
         </div>
 
         <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
@@ -383,7 +358,7 @@
             <h3 style="color:var(--term-green); border-bottom: 1px dashed var(--term-green); padding-bottom: 5px; margin-bottom:10px; text-align:center;">🗺 ИНТЕРАКТИВНАЯ КАРТА ЗОНЫ</h3>
 
             <!-- Экран карты -->
-            <div id="map-container" style="position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
+            <div id="map-container" style="touch-action: none; position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
                 <!-- СЕТКА КООРДИНАТ 5x5 С СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
                 <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2;">
                     <!-- Ряд 1 -->
@@ -421,8 +396,6 @@
                     <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
                     <div style="padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E5</div>
                 </div>
-
-
 
                 <!-- Слои маркеров рендерится через JS -->
                 <div id="map-markers-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10;"></div>
@@ -477,7 +450,6 @@
         </div>
 
                 <!-- 3.6. КАМЕРА ПДА (ТАКТИЧЕСКОЕ ФОТО) -->
-        
 
         <div id="view-profile" class="view">
             <h3>ЛИЧНОЕ ДЕЛО</h3>
@@ -489,8 +461,6 @@
             </div>
 
             <!-- РЕПУТАЦИЯ И ПРИВИЛЕГИИ У НПС -->
-                        
-            
 
             <div class="profile-card" id="profile-reputation-card">
                 <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">🛡 РЕПУТАЦИЯ И ПРИВИЛЕГИИ</h4>
@@ -518,9 +488,7 @@
                 <div id="profile-weapons-list"></div>
             </div>
 
-            
             <p style="color:var(--text-dim); font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
-            
 
                         <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
             <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
@@ -983,7 +951,7 @@
     if (!player.processedTradeTxs) player.processedTradeTxs = {};
     if (!player.role) player.role = 'Безработный';
     if (player.shelterLevel === undefined) player.shelterLevel = 0;
-    if (player.theme === undefined) player.theme = 'green';
+    
     if (!player.stats) player.stats = { survivedSeconds: 0, questsDone: 0, corpsesRobbed: 0, itemsFound: 0, deaths: 0, foodEaten: 0, medsUsed: 0 };
     if (player.stats.survivedSeconds === undefined) player.stats.survivedSeconds = 0;
     if (player.stats.questsDone === undefined) player.stats.questsDone = player.completedQuestsCount || 0;
@@ -1043,7 +1011,6 @@
                 player.hp = Math.max(0, player.hp - (diffMinutes * hungerDmg));
             }
 
-
             saveState();
 
             if (diffMinutes >= 1) {
@@ -1060,8 +1027,6 @@
         let nowTime = Date.now();
         let prevHeartbeat = parseInt(localStorage.getItem('pda_heartbeat')) || nowTime;
         localStorage.setItem('pda_heartbeat', nowTime.toString());
-
-
 
         // Проверка ареста (10 минут блокировки)
         if (player.arrestedUntil && Date.now() < player.arrestedUntil) {
@@ -1120,7 +1085,7 @@
     const RADIO_MSGS = [ "[Помехи]... мы зажаты на складе... патроны на исходе...", "Внимание всем! Цена на жетоны мародеров повышена на Базе.", "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.", "📻 [ПОМЕХИ] Какой-то сталкер в баре бредил радиостанцией 'УВБ-76'. Рассказывал, что если быстро нажать 5 раз на надпись '📻 РАДИОЧАСТОТА FM-42' в сканере, поймаешь секретный эфир...", "Всем постам! Стая диких собак в секторе B-4.", "...я нашел тайник! Клянусь, там полно снаряжения.", "[Свист эфира] ...Михалыч опять просит хлам.", "Внимание. Зафиксирован всплеск радиации.", "📻 [ПОМЕХИ] Слышал легенду? Если быстро нажать 5 раз по надписи 'ГРИМ-СЕТЬ: БАЗА' на экране Базы, то получишь статус суперпользователя...", "...не доверяйте Бармену, он разбавляет Нюка-Колу.", "[Перехват] Отряд Альфа, продолжайте патрулирование.", "Кто-нибудь, помогите! У меня нет еды...", "...если соберете подсумок, вещи из него не заберут.", "Внимание! Группа бандитов производит отстрел одиночек.", "[Помехи] ...эти твари лезут из-под земли!!", "...Сидорович привез новые стволы.", "Говорит База Корпорации. Мы готовы принять ваш лут." ];
 
     function init() {
-        applyTheme(player.theme || 'green');
+        
         if (player.inBase === undefined) player.inBase = true;
         let hasPresetZona = false;
         try { hasPresetZona = player.quests.choices.some(q => q && q.id && typeof q.id === 'string' && q.id.startsWith('preset_zona')); } catch(e) {}
@@ -1639,9 +1604,6 @@
         }
     }
 
-    
-    
-    
     // === ГЛОБАЛЬНЫЙ МЕНЕДЖЕР КАМЕРЫ ПДА ===
     let pdaMediaStream = null;
 
@@ -2009,7 +1971,6 @@ function handlePdaPhotoCaptured(event) {
                 document.getElementById('rad-val').style.color = 'var(--hero-color)';
                 document.getElementById('rad-val').innerText = "ИММУН";
             }
-
 
         } catch (e) {
             console.error("updateHUD error:", e);
@@ -2834,7 +2795,6 @@ function handlePdaPhotoCaptured(event) {
                 checkDeathState(); 
             }
 
-
             saveState();
 
             if (Math.random() < 0.1 && player.hp > 0) {
@@ -2971,8 +2931,7 @@ function handlePdaPhotoCaptured(event) {
             karmaEl.innerText = k.name;
             karmaEl.className = k.class;
         }
-        let selectEl = document.getElementById('base-theme-select');
-        if (selectEl) selectEl.value = player.theme || 'green';
+        
     }
 
     function saveBaseCallsign() {
@@ -3407,90 +3366,7 @@ function handlePdaPhotoCaptured(event) {
         }
     }
 
-    // === СИСТЕМА ЦВЕТОВЫХ СХЕМ (ТЕМЫ ИНТЕРФЕЙСА) ===
-    const THEMES_DB = {
-        green: {
-            '--term-green': '#39ff14',
-            '--term-dark': '#051505',
-            '--metal-bg': '#2a2a2a',
-            '--metal-border': '#555',
-            '--quest-color': '#ffb700',
-            '--trade-color': '#00e5ff',
-            '--bandit-color': '#ff3333',
-            '--rad-color': '#ffcc00',
-            '--hero-color': '#ffd700'
-        },
-        amber: {
-            '--term-green': '#ffb000',
-            '--term-dark': '#1a0f00',
-            '--metal-bg': '#2d1c07',
-            '--metal-border': '#704400',
-            '--quest-color': '#ffd200',
-            '--trade-color': '#ffa200',
-            '--bandit-color': '#ff3333',
-            '--rad-color': '#ffcc00',
-            '--hero-color': '#ffd700'
-        },
-        cyberpunk: {
-            '--term-green': '#00ffcc',
-            '--term-dark': '#0f001b',
-            '--metal-bg': '#1b002f',
-            '--metal-border': '#9d00ff',
-            '--quest-color': '#ff007f',
-            '--trade-color': '#00ffcc',
-            '--bandit-color': '#ff0055',
-            '--rad-color': '#ffff00',
-            '--hero-color': '#00ffcc'
-        },
-        noir: {
-            '--term-green': '#ffffff',
-            '--term-dark': '#0a0a0a',
-            '--metal-bg': '#1a1a1a',
-            '--metal-border': '#444444',
-            '--quest-color': '#888888',
-            '--trade-color': '#cccccc',
-            '--bandit-color': '#555555',
-            '--rad-color': '#aaaaaa',
-            '--hero-color': '#ffffff'
-        },
-        vintage: {
-            '--term-green': '#4f311c',
-            '--term-dark': '#fcf4de',
-            '--metal-bg': '#917961',
-            '--metal-border': '#594433',
-            '--quest-color': '#a61c1c',
-            '--trade-color': '#3f632b',
-            '--bandit-color': '#9e3800',
-            '--rad-color': '#a36015',
-            '--hero-color': '#a61c1c'
-        },
-        rad: {
-            '--term-green': '#ff3333',
-            '--term-dark': '#150000',
-            '--metal-bg': '#2d0a0a',
-            '--metal-border': '#772222',
-            '--quest-color': '#ffaa00',
-            '--trade-color': '#ff5555',
-            '--bandit-color': '#ff0000',
-            '--rad-color': '#ffcc00',
-            '--hero-color': '#ffd700'
-        }
-    };
-
-    function applyTheme(themeName) {
-        let theme = THEMES_DB[themeName] || THEMES_DB.green;
-        for (let variable in theme) {
-            document.documentElement.style.setProperty(variable, theme[variable]);
-        }
-        player.theme = themeName;
-
-        // Синхронизируем значение выпадающего списка на базе
-        let selectEl = document.getElementById('base-theme-select');
-        if (selectEl) {
-            selectEl.value = themeName;
-        }
-        saveState();
-    }
+    
 
     // === СИСТЕМА АДМИНИСТРИРОВАНИЯ И РОЛЕЙ ===
     function adminLogout() {
@@ -3839,20 +3715,15 @@ function handlePdaPhotoCaptured(event) {
     function uploadCustomMapBg(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
-        if (file.size > 12 * 1024 * 1024) {
-            alert("Файл слишком большой! Пожалуйста, выберите картинку размером до 12 МБ.");
-            return;
-        }
         const reader = new FileReader();
         reader.onload = function(e) {
-            const dataUrl = e.target.result;
             try {
-                localStorage.setItem('pda_custom_map_bg', dataUrl);
+                localStorage.setItem('pda_custom_map_bg', e.target.result);
                 applyMapBackground();
                 playSound('karma');
-                alert("Изображение карты успешно загружено и сохранено в ПДА!");
+                showBanner("🗺️ Карта успешно загружена в исходном качестве!", 'var(--term-green)');
             } catch(err) {
-                alert("Не удалось сохранить карту (превышен лимит памяти браузера). Попробуйте сожать фото перед загрузкой.");
+                alert("⚠️ Ошибка: файл слишком велик для памяти браузера localStorage.");
             }
         };
         reader.readAsDataURL(file);
@@ -3877,6 +3748,49 @@ function handlePdaPhotoCaptured(event) {
             zoneMarkers = [...DEFAULT_MAP_MARKERS];
         }
         applyMapBackground();
+
+        // Настройка клика по карте: если редактор активен и выбрана метка, клик перемещает ее в это место!
+        const mapContainer = document.getElementById('map-container');
+        if (mapContainer && !mapContainer.hasPointerBound) {
+            mapContainer.hasPointerBound = true;
+
+            // Универсальная функция для перемещения выбранной метки по нажатию/тапу
+            const handleMapPointerMove = (clientX, clientY, target) => {
+                if (!isMapEditorActive || !selectedMarkerId) return false;
+                if (target && target.closest('.map-marker-node')) return false;
+
+                const rect = mapContainer.getBoundingClientRect();
+                let xPx = clientX - rect.left;
+                let yPx = clientY - rect.top;
+
+                if (xPx < 0 || xPx > rect.width || yPx < 0 || yPx > rect.height) return false;
+
+                let xPerc = Math.max(2, Math.min(98, (xPx / rect.width) * 100));
+                let yPerc = Math.max(2, Math.min(98, (yPx / rect.height) * 100));
+
+                let m = zoneMarkers.find(x => x.id === selectedMarkerId);
+                if (m) {
+                    m.x = Math.round(xPerc * 10) / 10;
+                    m.y = Math.round(yPerc * 10) / 10;
+
+                    if (document.getElementById('edit-marker-x')) document.getElementById('edit-marker-x').value = m.x;
+                    if (document.getElementById('edit-marker-y')) document.getElementById('edit-marker-y').value = m.y;
+
+                    saveMapMarkers();
+                    renderZoneMap();
+                    playSound('scan');
+                    showBanner("🎯 Метка перемещена [" + m.x + "%, " + m.y + "%]", 'var(--term-green)');
+                    return true;
+                }
+                return false;
+            };
+
+            // Поддержка pointerdown (идеально для телефонов и ПК)
+            mapContainer.addEventListener('pointerdown', (e) => {
+                // Если редактор активен и выбрана метка — перемещаем ее по тапу на карту
+                handleMapPointerMove(e.clientX, e.clientY, e.target);
+            });
+        }
     }
 
     function renderZoneMap() {
@@ -3907,13 +3821,6 @@ function handlePdaPhotoCaptured(event) {
                 e.stopPropagation();
                 selectMapMarker(m.id);
             };
-
-            // Если включен режим перетаскивания (Drag & Drop)
-            if (isMapEditorActive) {
-                el.style.cursor = 'grab';
-                el.onmousedown = (e) => startDragMarker(e, m.id);
-                el.ontouchstart = (e) => startDragMarkerTouch(e, m.id);
-            }
 
             layer.appendChild(el);
         });
@@ -4148,7 +4055,6 @@ function handlePdaPhotoCaptured(event) {
     init();
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
 
-
     function handleMapBackgroundUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -4213,8 +4119,6 @@ function handlePdaPhotoCaptured(event) {
     <div id="trade-qr-container" style="background:#fff; padding:15px; margin: 10px auto; width: 230px; display:none;"></div>
 
     <button onclick="closeTradeModal()" class="btn-danger" style="width:100%; margin-top:10px;">ЗАКРЫТЬ</button>
-
-
 
         </div>
 </body>
