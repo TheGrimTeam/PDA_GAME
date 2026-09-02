@@ -951,6 +951,7 @@
     if (!player.processedTradeTxs) player.processedTradeTxs = {};
     if (!player.role) player.role = 'Безработный';
     if (player.shelterLevel === undefined) player.shelterLevel = 0;
+    if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
     
     if (!player.stats) player.stats = { survivedSeconds: 0, questsDone: 0, corpsesRobbed: 0, itemsFound: 0, deaths: 0, foodEaten: 0, medsUsed: 0 };
     if (player.stats.survivedSeconds === undefined) player.stats.survivedSeconds = 0;
@@ -1900,12 +1901,10 @@ function handlePdaPhotoCaptured(event) {
             }
 
             // Динамический максимальный вес с учетом репутации Инженера Михалыча (+2 кг за каждый уровень, макс 35 кг на Ур. 10)
-            let engRep = (player.npcRep && player.npcRep['npc_eng']) || 0;
-            let engLvl = getNpcRepLevel(engRep);
-            player.maxSize = 15 + (engLvl * 2);
-            if (player.shelterLevel >= 5) {
-                player.maxSize += 3; // Убежище 5 ур: +3 кг веса
-            }
+            let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
+            if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
+            let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
+            player.maxSize = 15 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
 
             if (document.getElementById('inv-max')) document.getElementById('inv-max').innerText = player.maxSize; 
             if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
@@ -2632,8 +2631,66 @@ function handlePdaPhotoCaptured(event) {
         for (let id in rc) { let need = rc[id], have = ic[id] || 0; txt.push(`<span style="color:${have >= need ? 'var(--term-green)' : '#ccc'}">${ITEMS_DB[id].name} (${Math.min(have, need)}/${need})</span>`); if (have < need) hasAll = false; }
         document.getElementById(idReq).innerHTML = txt.join(", "); document.getElementById(idBtn).style.display = hasAll ? 'block' : 'none';
     }
-    function applyUpgrade() { playSound('use'); player.upgradeQuest.forEach(id => player.inventory.splice(player.inventory.indexOf(id), 1)); player.maxSize += 5; player.upgradeQuest = genQ(2, 3); saveState(); renderInventory(); alert("РЮКЗАК РАСШИРЕН!"); }
-    function applySafeBox() { playSound('use'); player.safeBoxQuest.forEach(id => player.inventory.splice(player.inventory.indexOf(id), 1)); player.safeBoxUnlocked = true; saveState(); renderInventory(); alert("ЗАЩИЩЕННЫЙ ПОДСУМОК СОЗДАН!"); }
+        function applyUpgrade() {
+        if (!player.upgradeQuest) {
+            alert("Квесты модуля еще не выполнены!");
+            return;
+        }
+        let rc = {};
+        player.upgradeQuest.forEach(id => rc[id] = (rc[id] || 0) + 1);
+        for (let id in rc) {
+            let need = rc[id], have = player.inventory.filter(x => x === id).length;
+            if (have < need) {
+                alert("Не все детали собраны в рюкзаке!");
+                return;
+            }
+        }
+        playSound('upgrade');
+        player.upgradeQuest.forEach(id => {
+            let idx = player.inventory.indexOf(id);
+            if (idx !== -1) player.inventory.splice(idx, 1);
+        });
+
+        if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
+        player.backpackUpgradesCount++;
+
+        let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
+        let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
+        player.maxSize = 15 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+
+        player.upgradeQuest = genQ(2, 3);
+        saveState();
+        renderInventory();
+        renderQuests();
+        updateHUD();
+        showBanner("🎒 Рюкзак расширен! Вместимость: " + player.maxSize + " слотов", 'var(--term-green)');
+    }
+    function applySafeBox() {
+        if (!player.safeBoxQuest) {
+            alert("Необходимые детали не собраны!");
+            return;
+        }
+        let rc = {};
+        player.safeBoxQuest.forEach(id => rc[id] = (rc[id] || 0) + 1);
+        for (let id in rc) {
+            let need = rc[id], have = player.inventory.filter(x => x === id).length;
+            if (have < need) {
+                alert("Не все детали для подсумка собраны!");
+                return;
+            }
+        }
+        playSound('use');
+        player.safeBoxQuest.forEach(id => {
+            let idx = player.inventory.indexOf(id);
+            if (idx !== -1) player.inventory.splice(idx, 1);
+        });
+        player.safeBoxUnlocked = true;
+        player.safeBoxQuest = genQ(3, 5);
+        saveState();
+        renderInventory();
+        renderQuests();
+        showBanner("🔒 Защищенный подсумок успешно создан!", 'var(--trade-color)');
+    }
 
     function renderInventory() {
         const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
