@@ -962,6 +962,7 @@
     if (player.stats.medsUsed === undefined) player.stats.medsUsed = 0;
 
     // Инициализация репутации для каждого NPC
+    if (!player.npcRep || typeof player.npcRep !== 'object') player.npcRep = {};
     ['npc_med', 'npc_eng', 'npc_trad', 'npc_bar'].forEach(npcId => {
         if (player.npcRep[npcId] === undefined) {
             player.npcRep[npcId] = 0;
@@ -1428,8 +1429,8 @@
         }, (e) => {}).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
     }
 
-    function renderProfile() {
-        if (!player.weapons) {
+        function renderProfile() {
+        if (!player.weapons || typeof player.weapons !== 'object') {
             player.weapons = {
                 "Нож": { active: false, durability: 100, cost: 20 },
                 "Пистолет": { active: false, durability: 100, cost: 50 },
@@ -1439,155 +1440,99 @@
                 "Пулемет": { active: false, durability: 100, cost: 250 },
                 "Винтовка": { active: false, durability: 100, cost: 200 }
             };
-            saveState();
+        }
+        if (!player.npcRep || typeof player.npcRep !== 'object') {
+            player.npcRep = {};
         }
 
-        document.getElementById('prof-callsign').innerText = player.callsign;
-        const roleEl = document.getElementById('prof-role');
+        let callsignEl = document.getElementById('prof-callsign');
+        if (callsignEl) callsignEl.innerText = player.callsign || 'СТАЛКЕР';
+
+        let roleEl = document.getElementById('prof-role');
         if (roleEl) {
             roleEl.innerText = player.role || 'Безработный';
-            if (player.role === 'ХАКЕР ПУСТОШЕЙ') {
-                roleEl.style.color = 'var(--term-green)';
-            } else {
-                roleEl.style.color = player.role === 'Военный' ? 'var(--quest-color)' : (player.role === 'Рабочий' ? 'var(--trade-color)' : '#aaa');
-            }
+            roleEl.style.color = player.role === 'ХАКЕР ПУСТОШЕЙ' ? 'var(--term-green)' : (player.role === 'Военный' ? 'var(--quest-color)' : (player.role === 'Рабочий' ? 'var(--trade-color)' : '#aaa'));
         }
 
-        // Показываем/скрываем служебные полномочия военного в профиле
-        const milCard = document.getElementById('military-actions-card');
-        if (milCard) {
-            if (player.role === 'Военный') {
-                milCard.style.display = 'block';
-            } else {
-                milCard.style.display = 'none';
-                // Скрываем контейнер QR если роль сняли
-                let qContainer = document.getElementById('arrest-qr-container');
-                if (qContainer) qContainer.style.display = 'none';
-            }
+        let karmaEl = document.getElementById('prof-karma');
+        if (karmaEl) {
+            let k = (typeof getKarmaStatus === 'function') ? getKarmaStatus() : { name: 'Выживший', class: 'survivor' };
+            karmaEl.innerText = k.name;
+            karmaEl.className = k.class;
         }
-        const karmaEl = document.getElementById('prof-karma');
-        const k = getKarmaStatus();
-        karmaEl.innerText = k.name;
-        karmaEl.className = k.class;
 
-        document.getElementById('prof-karma-score').innerText = (player.karma_score > 0 ? "+" : "") + player.karma_score;
-        document.getElementById('prof-score').innerText = player.score; 
-        document.getElementById('prof-tokens').innerText = player.tokens_collected;
+        let scoreEl = document.getElementById('prof-karma-score');
+        if (scoreEl) scoreEl.innerText = (player.karma_score > 0 ? "+" : "") + (player.karma_score || 0);
 
-        // Рендерим репутацию и привилегии NPC
+        let profScore = document.getElementById('prof-score');
+        if (profScore) profScore.innerText = player.score || 0;
+
+        let profTokens = document.getElementById('prof-tokens');
+        if (profTokens) profTokens.innerText = player.tokens_collected || 0;
+
+        // 1. Рендерим репутацию и привилегии NPC
         const repContent = document.getElementById('profile-reputation-content');
         if (repContent) {
             let repHtml = "";
-            let npcDisplayList = [
-                { id: 'npc_med', name: "Доктор Кроу (Медик)", icon: "🩺", desc: (lvl) => {
-                    let hpBonus = lvl * 10;
-                    if (lvl >= 10) return `Макс. здоровье: +${hpBonus}% | Бесплатное лечение Ур. 10!`;
-                    return `Макс. здоровье: +${hpBonus}% HP`;
-                }},
-                { id: 'npc_eng', name: "Инженер Михалыч", icon: "⚙️", desc: (lvl) => {
-                    let weightBonus = lvl * 2;
-                    let discount = lvl * 10;
-                    let totalWeight = 15 + weightBonus;
-                    return `Рюкзак: ${totalWeight} кг (+${weightBonus} кг) | Ремонт: -${discount}%`;
-                }},
-                { id: 'npc_trad', name: "Торговец Сидорович", icon: "🔫", desc: (lvl) => {
-                    let wearProtect = lvl * 10;
-                    return `Износ оружия в Пустоши: -${wearProtect}% медленнее`;
-                }},
-                { id: 'npc_bar', name: "Бармен Джо", icon: "🍺", desc: (lvl) => {
-                    let hungerBonus = lvl * 10;
-                    let maxHunger = 100 + hungerBonus;
-                    return `Максимальная сытость: ${maxHunger} (+${hungerBonus}%)`;
-                }}
+            let npcList = [
+                { id: 'npc_med', name: "Доктор Кроу (Медик)", icon: "🩺", desc: "Медицинская поддержка и здоровье" },
+                { id: 'npc_eng', name: "Инженер Михалыч", icon: "⚙️", desc: "Увеличение рюкзака и ремонт снаряжения" },
+                { id: 'npc_trad', name: "Торговец Сидорович", icon: "🔫", desc: "Защита оружия от износа в Пустоши" },
+                { id: 'npc_bar', name: "Бармен Джо", icon: "🍺", desc: "Увеличение максимальной сытости" }
             ];
 
-            npcDisplayList.forEach(npc => {
+            npcList.forEach(npc => {
                 let pts = player.npcRep[npc.id] || 0;
-                let lvl = getNpcRepLevel(pts);
+                let lvl = Math.floor(pts / 20);
                 repHtml += `
                     <div style="margin-bottom: 8px; border-bottom: 1px dashed #333; padding-bottom: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <b style="color: var(--term-green); font-size: 1.05rem;">${npc.icon} ${npc.name}</b>
-                            <span style="color: var(--quest-color); font-weight: bold;">Ур. ${lvl} <small style="color:var(--text-dim);">(${pts} очков)</small></span>
+                            <span style="color: var(--quest-color); font-weight: bold;">Ур. ${lvl} <small style="color:var(--text-dim);">(${pts} очк.)</small></span>
                         </div>
-                        <div style="font-size: 0.9rem; color:var(--text-dim); margin-top: 2px;">Привилегия: ${npc.desc(lvl)}</div>
+                        <div style="font-size: 0.9rem; color:var(--text-dim); margin-top: 2px;">${npc.desc}</div>
                     </div>
                 `;
             });
             repContent.innerHTML = repHtml;
         }
 
-        // Рендерим арсенал и износ оружия
+        // 2. Рендерим арсенал и износ оружия
         const wList = document.getElementById('profile-weapons-list');
         if (wList && player.weapons) {
             wList.innerHTML = "";
             for (let wName in player.weapons) {
                 let w = player.weapons[wName];
-                let statusColor = w.durability > 50 ? 'var(--term-green)' : (w.durability > 0 ? 'var(--rad-color)' : 'var(--bandit-color)');
-                let statusText = w.durability > 50 ? 'Исправно' : (w.durability > 0 ? 'Изношено' : 'НЕИСПРАВНО (НУЖЕН РЕМОНТ)');
+                let durability = (w && typeof w.durability === 'number') ? w.durability : 100;
+                let active = w && w.active;
+                let statusColor = durability > 50 ? 'var(--term-green)' : (durability > 0 ? 'var(--rad-color)' : 'var(--bandit-color)');
+                let statusText = durability > 50 ? 'Исправно' : (durability > 0 ? 'Изношено' : 'ТРЕБУЕТ РЕМОНТА');
 
                 let actionBtns = "";
-                if (w.active) {
-                    if (w.durability < 100) {
-                        actionBtns = `
-                            <div style="display: flex; gap: 5px; margin-top: 5px;">
-                                <button onclick="repairWeaponWithJunk('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--trade-color); color: var(--trade-color);">ПОЧИНИТЬ ХЛАМОМ</button>
-                                <button onclick="repairWeaponAtBase('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--quest-color); color: var(--quest-color);">РЕМОНТ НА БАЗЕ (${getRepairCost(wName)}💎)</button>
-                            </div>
-                        `;
-                    }
+                if (active && durability < 100) {
+                    actionBtns = `
+                        <div style="display: flex; gap: 5px; margin-top: 5px;">
+                            <button onclick="repairWeaponWithJunk('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--trade-color); color: var(--trade-color);">ПОЧИНИТЬ ХЛАМОМ</button>
+                            <button onclick="repairWeaponAtBase('${wName}')" style="flex: 1; font-size: 0.9rem; padding: 4px; border-color: var(--quest-color); color: var(--quest-color);">РЕМОНТ</button>
+                        </div>
+                    `;
                 }
 
                 wList.innerHTML += `
-                    <div style="border: 1px dashed ${w.active ? 'var(--term-green)' : '#444'}; padding: 6px; margin-bottom: 6px; background: rgba(0,0,0,0.3);">
+                    <div style="border: 1px dashed ${active ? 'var(--term-green)' : '#444'}; padding: 6px; margin-bottom: 6px; background: rgba(0,0,0,0.3);">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <label style="cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                                <input type="checkbox" ${w.active ? 'checked' : ''} onchange="toggleWeapon('${wName}')" style="width: 18px; height: 18px; accent-color: var(--term-green);">
-                                <b style="color: ${w.active ? '#fff' : '#888'}; font-size: 1.1rem;">${wName}</b>
+                                <input type="checkbox" ${active ? 'checked' : ''} onchange="toggleWeapon('${wName}')" style="width: 18px; height: 18px; accent-color: var(--term-green);">
+                                <b style="color: ${active ? '#fff' : '#888'}; font-size: 1.1rem;">${wName}</b>
                             </label>
-                            <span style="color: ${statusColor}; font-size: 0.95rem; font-weight: bold;">${w.durability}%</span>
+                            <span style="color: ${statusColor}; font-size: 0.95rem; font-weight: bold;">${durability}%</span>
                         </div>
-                        ${w.active ? `<div style="font-size: 0.85rem; color: ${statusColor}; margin-top: 2px;">Статус: ${statusText}</div>` : ''}
+                        ${active ? `<div style="font-size: 0.85rem; color: ${statusColor}; margin-top: 2px;">Статус: ${statusText}</div>` : ''}
                         ${actionBtns}
                     </div>
                 `;
             }
         }
-
-        // Рендерим ячейку снаряжения
-        const eqContent = document.getElementById('profile-equipment-content');
-        if (player.equipment && ITEMS_DB[player.equipment]) {
-            let item = ITEMS_DB[player.equipment];
-            let sellPrice = Math.floor(item.val / 2);
-            eqContent.innerHTML = `
-                <div style="font-weight: bold; color: var(--trade-color);">${item.name}</div>
-                <div style="font-size: 0.92rem; color:var(--text-dim); margin: 4px 0;">${item.desc}</div>
-                <button class="btn-danger" style="margin-top: 8px; width: 100%; padding: 4px; font-size: 1rem;" onclick="sellEquipment()">ПРОДАТЬ ЗА ${sellPrice} 💎</button>
-            `;
-        } else {
-            eqContent.innerHTML = `<div style="color:var(--text-dim); text-align:center;">Слот пуст. Купите снаряжение на Базе или в Лагере.</div>`;
-        }
-
-        // Рендерим лог истории
-        const histList = document.getElementById('prof-history-list');
-        if (histList) {
-            if (!player.history || player.history.length === 0) {
-                histList.innerHTML = "<p style='color:var(--text-dim); text-align:center;'>Активностей не зафиксировано</p>";
-            } else {
-                histList.innerHTML = player.history.map(h => {
-                    let time = new Date(h.date).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    if (h.type === 'heal') {
-                        return `<div style="color:var(--hero-color); margin-bottom: 2px;">[${time}] 🟢 Вылечил: ${h.name}</div>`;
-                    } else {
-                        return `<div style="color:var(--bandit-color); margin-bottom: 2px;">[${time}] 🔴 Ограбил: ${h.name}</div>`;
-                    }
-                }).join('');
-            }
-        }
-        let toDeadBtn = document.getElementById('btn-profile-to-dead');
-        let toBaseBtn = document.getElementById('btn-profile-to-base');
-        if (toDeadBtn) toDeadBtn.style.display = (player.hp <= 0) ? 'block' : 'none';
-        if (toBaseBtn) toBaseBtn.style.display = (player.hp <= 0) ? 'none' : 'block';
     }
 
     function sellEquipment() {
