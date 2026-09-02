@@ -359,41 +359,41 @@
 
             <!-- Экран карты -->
             <div id="map-container" style="touch-action: none; position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
-                <!-- СЕТКА КООРДИНАТ 5x5 С СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
-                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2;">
+                <!-- СЕТКА КООРДИНАТ 5x5 С ЯРКИМИ СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2; background: rgba(0,20,0,0.2);">
                     <!-- Ряд 1 -->
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A1</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B1</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C1</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D1</div>
-                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D1</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E1</div>
 
                     <!-- Ряд 2 -->
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A2</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B2</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C2</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D2</div>
-                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D2</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E2</div>
 
                     <!-- Ряд 3 -->
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A3</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B3</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C3</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D3</div>
-                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D3</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E3</div>
 
                     <!-- Ряд 4 -->
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A4</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B4</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C4</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D4</div>
-                    <div style="border-bottom:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D4</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E4</div>
 
                     <!-- Ряд 5 -->
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A5</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B5</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C5</div>
-                    <div style="border-right:1px solid rgba(57,255,20,0.4); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
                     <div style="padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E5</div>
                 </div>
 
