@@ -521,14 +521,30 @@
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
             <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
             <div id="admin-controls-box" style="display:none; margin-top:10px; border:1px dashed var(--trade-color); padding:8px; background:rgba(0,229,255,0.03);">
-                <h5 style="color:var(--trade-color); text-align:center; margin-bottom:6px;">ПАНЕЛЬ НАЙМА (АДМИН)</h5>
+                <h5 style="color:var(--trade-color); text-align:center; margin-bottom:6px;">ПАНЕЛЬ АДМИНИСТРАТОРА И НАЙМА</h5>
+
+                <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
+                <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами (За Квесты):</label>
+                    <div style="display:flex; gap:6px; margin-bottom:6px;">
+                        <input type="number" id="admin-credit-amount" placeholder="Сумма" style="flex:1; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:6px; border-radius:3px; font-size:0.95rem;">
+                        <button onclick="adminModifyCredits(true)" style="border-color:var(--term-green); color:var(--term-green); padding:4px 8px; font-weight:bold;">+ НАЧИСЛИТЬ</button>
+                        <button onclick="adminModifyCredits(false)" style="border-color:var(--bandit-color); color:var(--bandit-color); padding:4px 8px;">- СПИСАТЬ</button>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button onclick="adminQuickAddCredits(50)" style="flex:1; font-size:0.8rem; padding:2px;">+50</button>
+                        <button onclick="adminQuickAddCredits(100)" style="flex:1; font-size:0.8rem; padding:2px;">+100</button>
+                        <button onclick="adminQuickAddCredits(250)" style="flex:1; font-size:0.8rem; padding:2px;">+250</button>
+                        <button onclick="adminQuickAddCredits(500)" style="flex:1; font-size:0.8rem; padding:2px;">+500</button>
+                    </div>
+                </div>
+
                 <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
                 <div style="display:flex; gap:5px; margin-bottom:8px;">
                     <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
                     <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3💎/мин)</button>
                     <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5💎/мин)</button>
-</div>
-
+                </div>
                 <button onclick="factoryReset()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ПОЛНЫЙ СБРОС ПДА (ВАЙП)</button>
                 <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
             </div>
@@ -3379,7 +3395,36 @@ function handlePdaPhotoCaptured(event) {
         alert("Вы вышли из режима администратора.");
     }
 
-    function adminSetRole(role) {
+        function adminModifyCredits(isAdd) {
+        let input = document.getElementById('admin-credit-amount');
+        let amount = parseInt(input ? input.value : 0);
+        if (isNaN(amount) || amount <= 0) {
+            alert("Пожалуйста, введите корректное число кредитов!");
+            return;
+        }
+        if (!isAdd) {
+            if ((player.score || 0) < amount) {
+                if (!confirm(`У игрока всего ${player.score || 0}💎. Списать выбранную сумму в минус?`)) return;
+            }
+            player.score = Math.max(0, (player.score || 0) - amount);
+            playSound('sell');
+            showBanner(`💸 Администратор списал ${amount} 💎`, 'var(--bandit-color)');
+        } else {
+            player.score = (player.score || 0) + amount;
+            playSound('karma');
+            showBanner(`💎 Администратор начислил ${amount} 💎`, 'var(--term-green)');
+        }
+        saveState();
+        renderProfile();
+        updateHUD();
+    }
+
+    function adminQuickAddCredits(val) {
+        let input = document.getElementById('admin-credit-amount');
+        if (input) input.value = val;
+    }
+
+function adminSetRole(role) {
         player.role = role;
         saveState();
         updateAdminVisibility();
