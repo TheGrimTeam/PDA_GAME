@@ -1,9 +1,9 @@
 {
-  "name": "PDA Wasteland",
-  "short_name": "ПДА",
-  "start_url": "index.html",
+  "name": "Wasteland PDA",
+  "short_name": "WastelandPDA",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#051505",
-  "theme_color": "#051505",
-  "orientation": "portrait"
+  "background_color": "#020b02",
+  "theme_color": "#39ff14",
+  "icons": []
 }
