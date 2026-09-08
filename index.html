@@ -214,7 +214,20 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             100% { opacity: 0.8; }
         }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,21,5,0.98); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border: 4px solid var(--term-green); text-shadow: 0 0 5px var(--term-green); }
-    </style>
+    
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #051505;
+        }
+
+        
+</style>
 </head>
 <body>
     <!-- RETRO BOOT SEQUENCE OVERLAY -->
@@ -481,13 +494,13 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
             <!-- ЯЧЕЙКА СНАРЯЖЕНИЯ В ПРОФИЛЕ -->
             <div class="profile-card" id="profile-equipment-card">
-                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">СПЕЦ. СНАРЯЖЕНИЕ (МАКС 1)</h4>
+                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">ТАКТИЧЕСКАЯ ЭКИПИРОВКА (МАКС 1)</h4>
                 <div id="profile-equipment-content" style="font-size: 1rem; line-height: 1.3;"></div>
             </div>
 
-            <!-- АРСЕНАЛ И ИЗНОС ОРУЖИЯ -->
+            <!-- АРСЕНАЛ И ЭКИПИРОВКА -->
             <div class="profile-card">
-                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">АРСЕНАЛ И ИЗНОС ОРУЖИЯ</h4>
+                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">АРСЕНАЛ И ЭКИПИРОВКА</h4>
                 <p style="font-size: 0.9rem; color:var(--text-dim); margin-bottom: 8px; text-align: center;">Отметьте имеющееся оружие. Износ снижает прочность. Чините хламом или на Базе!</p>
                 <div id="profile-weapons-list"></div>
             </div>
@@ -659,12 +672,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     </div>
 
     <div id="nav-buttons">
-        <button onclick="switchView('scan')" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
-        <button onclick="switchView('inventory')" id="btn-nav-inventory">ИНВЕНТ</button>
-        <button onclick="switchView('quests')" id="btn-nav-quests">КВЕСТЫ</button>
-        <button onclick="switchView('shelter')" id="btn-nav-shelter">УБЕЖИЩЕ</button>
-        <button onclick="switchView('map')" id="btn-nav-map">КАРТА</button>
-        <button onclick="switchView('profile')" id="btn-nav-profile">ПРОФИЛЬ</button>
+        <button onclick="switchView('scan'); playSound('use');" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
+        <button onclick="switchView('inventory'); playSound('use');" id="btn-nav-inventory">ИНВЕНТ</button>
+        <button onclick="switchView('quests'); playSound('use');" id="btn-nav-quests">КВЕСТЫ</button>
+        <button onclick="switchView('shelter'); playSound('use');" id="btn-nav-shelter">УБЕЖИЩЕ</button>
+        <button onclick="switchView('map'); playSound('use');" id="btn-nav-map">КАРТА</button>
+        <button onclick="switchView('profile'); playSound('use');" id="btn-nav-profile">ПРОФИЛЬ</button>
         
     </div>
 </div> <!-- ends screen -->
@@ -907,6 +920,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     // СПЕЦИАЛЬНОЕ СНАРЯЖЕНИЕ
     ITEMS_DB['eq_rad'] = { name: "Свинцовый плащ", val: 300, size: 0, cat: 'eq', desc: "Защита от радиации: снижает облучение в 2 раза." };
+    ITEMS_DB['eq_gas'] = { name: "Противогаз ГП-5", val: 250, size: 0, cat: 'eq', desc: "Фильтрация воздуха: снижает накопление радиации на 60%." };
     ITEMS_DB['eq_hunger'] = { name: "Био-синтезатор питания", val: 300, size: 0, cat: 'eq', desc: "Защита от голода: снижает расход сытости в 3 раза." };
     ITEMS_DB['eq_storm'] = { name: "Плащ «Шторм»", val: 400, size: 0, cat: 'eq', desc: "Защита от стихий: иммунитет к бурям и спорам." };
     ITEMS_DB['eq_anom'] = { name: "Детектор «Велес»", val: 500, size: 0, cat: 'eq', desc: "Аномалии: повышает шанс успешного взятия аномалии." };
@@ -1022,7 +1036,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             // Радиация за оффлайн минуты
             let totalRadGain = 0;
             if (player.karma_score < 3) {
-                let radGainPerMin = (player.equipment === 'eq_rad') ? 1 : 2;
+                let radGainPerMin = Math.max(1, Math.round(2 * getRadMultiplier()));
                 totalRadGain = diffMinutes * radGainPerMin;
                 player.rads = Math.min(60, player.rads + totalRadGain);
             }
@@ -1455,17 +1469,34 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         }, (e) => {}).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
     }
 
-        function renderProfile() {
+        
+    function getRadMultiplier() {
+        if (player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0) {
+            return 0.4;
+        }
+        if (player.equipment === 'eq_gas') return 0.4;
+        if (player.equipment === 'eq_rad') return 0.5;
+        return 1.0;
+    }
+
+function renderProfile() {
         if (!player.weapons || typeof player.weapons !== 'object') {
-            player.weapons = {
-                "Нож": { active: false, durability: 100, cost: 20 },
-                "Пистолет": { active: false, durability: 100, cost: 50 },
-                "Дробовик": { active: false, durability: 100, cost: 80 },
-                "Пистолет-пулемет": { active: false, durability: 100, cost: 100 },
-                "Автомат": { active: false, durability: 100, cost: 150 },
-                "Пулемет": { active: false, durability: 100, cost: 250 },
-                "Винтовка": { active: false, durability: 100, cost: 200 }
-            };
+            player.weapons = {};
+        }
+        let defaultWeapons = {
+            "Противогаз ГП-5": { active: false, durability: 100, cost: 250 },
+            "Нож": { active: false, durability: 100, cost: 20 },
+            "Пистолет": { active: false, durability: 100, cost: 50 },
+            "Дробовик": { active: false, durability: 100, cost: 80 },
+            "Пистолет-пулемет": { active: false, durability: 100, cost: 100 },
+            "Автомат": { active: false, durability: 100, cost: 150 },
+            "Пулемет": { active: false, durability: 100, cost: 250 },
+            "Винтовка": { active: false, durability: 100, cost: 200 }
+        };
+        for (let wName in defaultWeapons) {
+            if (!player.weapons[wName]) {
+                player.weapons[wName] = defaultWeapons[wName];
+            }
         }
         if (!player.npcRep || typeof player.npcRep !== 'object') {
             player.npcRep = {};
@@ -2491,7 +2522,7 @@ function handlePdaPhotoCaptured(event) {
         buyList.innerHTML = "";
 
         if (npc.isBase) {
-            let eqToSell = ['eq_rad', 'eq_hunger', 'eq_storm', 'eq_anom', 'eq_trade'];
+            let eqToSell = ['eq_rad', 'eq_gas', 'eq_hunger', 'eq_storm', 'eq_anom', 'eq_trade'];
             if (currentTradeNpc === 'npc_base') {
                 eqToSell.push('eq_pass_camp'); 
             } else if (currentTradeNpc === 'npc_bandit_base') {
@@ -2801,8 +2832,7 @@ function handlePdaPhotoCaptured(event) {
             player.hunger = Math.max(0, player.hunger - hungerLoss); 
 
             if (player.karma_score < 3) {
-                let radGain = 2;
-                if (player.equipment === 'eq_rad') radGain = 1;
+                let radGain = Math.max(1, Math.round(2 * getRadMultiplier()));
                 // Убежище 2 ур: радиация накапливается на 10% медленнее (коэффициент 0.9)
                 if (player.shelterLevel >= 2) {
                     radGain = Math.max(1, Math.round(radGain * 0.9));
@@ -2833,7 +2863,7 @@ function handlePdaPhotoCaptured(event) {
                                 showBanner('🛡 ШТОРМОВОЙ КОМПЕНСАТОР ОТРАЗИЛ БУРЮ', 'var(--trade-color)');
                                 return;
                             }
-                            let radGain = (player.equipment === 'eq_rad') ? 7 : 15;
+                            let radGain = Math.max(2, Math.round(15 * getRadMultiplier()));
                             if(player.karma_score < 3) {
                                 player.rads = Math.min(60, player.rads + radGain); 
                             } else {
