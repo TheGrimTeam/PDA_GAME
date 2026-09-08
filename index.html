@@ -214,7 +214,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             100% { opacity: 0.8; }
         }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,21,5,0.98); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border: 4px solid var(--term-green); text-shadow: 0 0 5px var(--term-green); }
-    </style>
+    
+        /* Ландшафтная ориентация (горизонтальный режим) */
+        @media (orientation: landscape) {
+            body { font-size: 1.05rem; }
+            #device-casing { max-width: 950px; height: 100vh; height: 100dvh; padding: 5px 10px; }
+            #screen { display: flex; flex-direction: column; }
+            .view { overflow-y: auto; flex: 1; padding: 10px; }
+            #nav-buttons { display: flex; flex-direction: row; width: 100%; justify-content: space-around; background: rgba(5,21,5,0.98); padding: 6px; border-top: 1px solid var(--term-green); flex-shrink: 0; }
+            #nav-buttons button { font-size: 0.9rem; padding: 6px 12px; }
+        }
+
+</style>
 </head>
 <body>
     <!-- RETRO BOOT SEQUENCE OVERLAY -->
