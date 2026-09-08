@@ -214,40 +214,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             100% { opacity: 0.8; }
         }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,21,5,0.98); z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 20px; text-align: center; border: 4px solid var(--term-green); text-shadow: 0 0 5px var(--term-green); }
-    
-        /* Ландшафтная ориентация (горизонтальный режим 16:9 на весь экран) */
-        @media (orientation: landscape) {
-            body { font-size: 1.05rem; }
-            #device-casing { 
-                max-width: 100vw; 
-                width: 100vw; 
-                height: 100vh; 
-                height: 100dvh; 
-                padding: 4px env(safe-area-inset-right, 10px) 4px env(safe-area-inset-left, 10px); 
-                border-radius: 0;
-            }
-            #screen { 
-                display: flex; 
-                flex-direction: column; 
-                width: 100%; 
-                height: 100%; 
-                border-radius: 0;
-            }
-            .view { overflow-y: auto; flex: 1; padding: 12px 20px; }
-            #nav-buttons { 
-                display: flex; 
-                flex-direction: row; 
-                width: 100%; 
-                justify-content: space-around; 
-                background: rgba(5,21,5,0.99); 
-                padding: 6px; 
-                border-top: 1px solid var(--term-green); 
-                flex-shrink: 0; 
-            }
-            #nav-buttons button { font-size: 0.95rem; padding: 6px 16px; }
-        }
-
-</style>
+    </style>
 </head>
 <body>
     <!-- RETRO BOOT SEQUENCE OVERLAY -->
@@ -692,12 +659,12 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     </div>
 
     <div id="nav-buttons">
-        <button onclick="switchView('scan'); playSound('use');" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
-        <button onclick="switchView('inventory'); playSound('use');" id="btn-nav-inventory">ИНВЕНТ</button>
-        <button onclick="switchView('quests'); playSound('use');" id="btn-nav-quests">КВЕСТЫ</button>
-        <button onclick="switchView('shelter'); playSound('use');" id="btn-nav-shelter">УБЕЖИЩЕ</button>
-        <button onclick="switchView('map'); playSound('use');" id="btn-nav-map">КАРТА</button>
-        <button onclick="switchView('profile'); playSound('use');" id="btn-nav-profile">ПРОФИЛЬ</button>
+        <button onclick="switchView('scan')" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
+        <button onclick="switchView('inventory')" id="btn-nav-inventory">ИНВЕНТ</button>
+        <button onclick="switchView('quests')" id="btn-nav-quests">КВЕСТЫ</button>
+        <button onclick="switchView('shelter')" id="btn-nav-shelter">УБЕЖИЩЕ</button>
+        <button onclick="switchView('map')" id="btn-nav-map">КАРТА</button>
+        <button onclick="switchView('profile')" id="btn-nav-profile">ПРОФИЛЬ</button>
         
     </div>
 </div> <!-- ends screen -->
