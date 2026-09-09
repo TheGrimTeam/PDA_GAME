@@ -542,11 +542,11 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
                 <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
                 <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
-                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами (За Квесты):</label>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <input type="number" id="admin-credit-amount" placeholder="Сумма" style="flex:1; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:6px; border-radius:3px; font-size:0.95rem;">
-                        <button onclick="adminModifyCredits(true)" style="border-color:var(--term-green); color:var(--term-green); padding:4px 8px; font-weight:bold;">+ НАЧИСЛИТЬ</button>
-                        <button onclick="adminModifyCredits(false)" style="border-color:var(--bandit-color); color:var(--bandit-color); padding:4px 8px;">- СПИСАТЬ</button>
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами:</label>
+                    <div style="display:flex; gap:4px; margin-bottom:6px;">
+                        <input type="number" id="admin-credit-amount" placeholder="Сумма" style="width:75px; min-width:60px; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:6px 4px; border-radius:3px; font-size:0.95rem;">
+                        <button onclick="adminModifyCredits(true)" style="flex:1; border-color:var(--term-green); color:var(--term-green); padding:4px 4px; font-size:0.85rem; font-weight:bold; white-space:nowrap;">+ НАЧИСЛ.</button>
+                        <button onclick="adminModifyCredits(false)" style="flex:1; border-color:var(--bandit-color); color:var(--bandit-color); padding:4px 4px; font-size:0.85rem; white-space:nowrap;">- СПИСАТЬ</button>
                     </div>
                     <div style="display:flex; gap:4px;">
                         <button onclick="adminQuickAddCredits(50)" style="flex:1; font-size:0.8rem; padding:2px;">+50</button>
@@ -893,10 +893,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     const nGear = ["Рюкзак", "Противогаз", "Фонарь", "Рация", "Спальник", "Палатка", "Фильтр", "Дозиметр", "ПНВ", "Компас", "Карта", "Огниво", "Фляга", "Бинокль", "Зажигалка", "Лопата", "Топор", "Очки", "Плащ", "Берцы", "Разгрузка", "Кобура", "Броня", "Щитки", "Перчатки", "Респиратор"];
     const nMed = ["Стимулятор", "Антирадин", "Бинт", "Аптечка", "Мед-Х", "Рад-Х", "Обезбол", "Жгут", "Кровь", "Шприц", "Антибиотик", "Йод", "Спирт", "Таблетки", "Пластырь", "Мазь", "Снотворное", "Адреналин", "Гемостатик", "Скальпель", "Пинцет", "Витамины", "Антидот", "Морфий"];
     const nWpn = ["Труба", "Пистолет", "Лазер", "Дробовик", "Ружье", "Нож", "Мачете", "Бита", "Монтировка", "Кастет", "Плазмоган", "Винтовка", "Автомат", "ПП", "Револьвер", "Граната", "Мина", "Молотов", "Тесак", "Топорик", "Гвоздомет", "Арбалет", "Лук", "Копье"];
-    const nJunk = ["Изолента", "Провода", "Металлолом", "Шестерня", "Бечевка", "Болт", "Гвозди", "Клей", "Пластик", "Стекло", "Схема", "Батарейка", "Лампа", "Трубка", "Пружина", "Ткань", "Кожа", "Резина", "Магнит", "Вентилятор", "Бутылка", "Банка", "Карандаш", "Пепельница"];
+    const nJunk = ["Изолента", "Провода", "Металлолом", "Шестерня", "Бечевка", "Болт", "Гвозди", "Клей", "Пластик", "Стекло", "Схема", "Батарейка", "Лампа", "Трубка", "Пружина", "Ткань", "Кожа", "Резина", "Магнит", "Вентилятор", "Бутылка", "Банка", "Карандаш", "Пепельница", "Сахар", "Уголь"];
 
     function pDB(pref, cat, list, minV, maxV, minS, maxS, minH=0, maxH=0, minF=0, maxF=0) {
-        for(let i=0; i<24; i++) {
+        for(let i=0; i<list.length; i++) {
             let it = { name: list[i], val: Math.floor(Math.random()*(maxV-minV+1))+minV, size: Math.floor(Math.random()*(maxS-minS+1))+minS, cat: cat };
             if(cat==='med') it.heal = Math.floor(Math.random()*(maxH-minH+1))+minH;
             if(cat==='food') it.feed = Math.floor(Math.random()*(maxF-minF+1))+minF;
@@ -1471,12 +1471,18 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
         
     function getRadMultiplier() {
-        if (player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0) {
-            return 0.4;
+        let mult = 1.0;
+        let hasMask = player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0;
+        let hasCloak = (player.equipment === 'eq_rad');
+
+        if (hasCloak && hasMask) {
+            mult = 0.5 * 0.4; // 0.2 (суммарная защита: -80% радиации!)
+        } else if (hasMask) {
+            mult = 0.4; // -60% радиации
+        } else if (hasCloak) {
+            mult = 0.5; // -50% радиации
         }
-        if (player.equipment === 'eq_gas') return 0.4;
-        if (player.equipment === 'eq_rad') return 0.5;
-        return 1.0;
+        return Math.max(0.15, mult); // Полного абсолютного иммунитета без читов нет, но защита максимальная
     }
 
 function renderProfile() {
