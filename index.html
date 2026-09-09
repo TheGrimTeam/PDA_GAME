@@ -227,6 +227,25 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         }
 
         
+
+        /* Зеленый сканирующий лазерный луч */
+        @keyframes scan-laser {
+            0% { top: 0%; opacity: 0.7; }
+            50% { opacity: 1; box-shadow: 0 0 15px var(--term-green), 0 0 30px var(--term-green); }
+            100% { top: 100%; opacity: 0.7; }
+        }
+        .scanner-laser {
+            position: absolute;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--term-green);
+            box-shadow: 0 0 10px var(--term-green);
+            animation: scan-laser 2s infinite ease-in-out;
+            z-index: 20;
+            pointer-events: none;
+            display: none;
+        }
 </style>
 </head>
 <body>
@@ -319,7 +338,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         <!-- 1. СКАНЕР -->
         <div id="view-scan" class="view active">
             <h3>ПОИСК ЛУТА И NPC</h3>
-            <div id="qr-reader"></div>
+            <div id="qr-reader" style="position:relative; overflow:hidden;"><div id="pda-scan-laser" class="scanner-laser"></div></div>
             <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
 
             <div class="debug-input" id="admin-manual-scan-box" style="display:none;">
@@ -470,6 +489,15 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
         <div id="view-profile" class="view">
             <h3>ЛИЧНОЕ ДЕЛО</h3>
+            <!-- НАСТРОЙКИ ЭКРАНА ПДА (CRT / СКАНЛАЙНЫ) -->
+            <div class="profile-card" style="border-color:var(--trade-color); margin-top:15px;">
+                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">📺 НАСТРОЙКИ ЭКРАНА ПДА</h4>
+                <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.1rem;">
+                    <span>Эффект ЭЛТ (Сканлайны):</span>
+                    <button id="btn-toggle-crt" onclick="toggleCrtEffect()" style="padding:4px 12px; border-color:var(--trade-color); color:var(--trade-color); font-weight:bold;">ВКЛ</button>
+                </div>
+            </div>
+
             <div class="profile-card">
                 <p style="font-size: 1.5rem; margin-bottom:10px;">Позывной: <b id="prof-callsign" style="color:#fff; cursor:pointer; border-bottom:1px dashed #fff;" onclick="changeCallsign()"></b> ✏️</p>
                 <p style="font-size: 1.3rem;">Статус: <b id="prof-karma"></b></p>
@@ -1049,6 +1077,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
             saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
             if (diffMinutes >= 1) {
                 setTimeout(() => {
                     alert(`⏱ ОФЛАЙН-РЕЖИМ ПДА:\nПока телефон был заблокирован (~${diffMinutes} мин.), Пустошь не спала.\n• Голод: -${totalHungerLoss}\n• Радиация: +${(player.karma_score < 3) ? totalRadGain : 0}\n• Оружие износилось.`);
@@ -1087,6 +1149,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                     playSound('sell');
                     showBanner(`💼 ЖАЛОВАНИЕ (${player.role.toUpperCase()}): +${pay} 💎`, 'var(--trade-color)');
                     saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
                 }
             }
 
@@ -1173,11 +1269,79 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
     function changeCallsign() {
         let newName = prompt("Введите ваш новый позывной:", player.callsign);
-        if (newName && newName.trim() !== "") { player.callsign = newName.trim(); saveState(); renderProfile(); }
+        if (newName && newName.trim() !== "") { player.callsign = newName.trim(); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderProfile(); }
     }
 
     // === РАДИО ===
-    function toggleRadio() { player.radioOn = !player.radioOn; saveState(); updateRadioUI(); if (player.radioOn) startRadio(); else stopRadio(); }
+    function toggleRadio() { player.radioOn = !player.radioOn; saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ updateRadioUI(); if (player.radioOn) startRadio(); else stopRadio(); }
     function updateRadioUI() {
         const btn = document.getElementById('btn-radio-toggle'); const txt = document.getElementById('radio-text');
         if (player.radioOn) { 
@@ -1237,13 +1401,81 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                 player.radioMessages.shift(); // Оставляем только 3 последних
             }
             saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
             updateRadioUI();
             startRadio();
         }, uvbActive ? (Math.floor(Math.random() * 30000) + 30000) : (Math.floor(Math.random() * 40000) + 20000)); // Интервал приема 30-60 сек
     }
     function stopRadio() { if (radioTimer) clearTimeout(radioTimer); }
 
-    function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState(); checkDeathState(); } }
+    function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ checkDeathState(); } }
     function checkDeathState() {
         updateHUD();
         if (player.hp <= 0) {
@@ -1259,7 +1491,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.getElementById('view-dead').classList.add('active');
             document.getElementById('nav-buttons').style.display = 'none';
-            if(scanner) scanner.stop();
+            if(scanner) scanner.stop().catch(e=>{}); let laserEl = document.getElementById("pda-scan-laser"); if(laserEl) laserEl.style.display = "none";
         } else {
             document.getElementById('nav-buttons').style.display = 'grid'; 
             if(document.getElementById('view-dead').classList.contains('active')) switchView('scan');
@@ -1346,6 +1578,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         if (player.rads > 50) player.rads = 50; 
         player.hp = 20; 
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
         document.getElementById('btn-confirm-heal').style.display = "none";
@@ -1357,6 +1623,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     function confirmRob(corpseType = 'survivor') {
         player.inventory = []; 
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
         document.getElementById('btn-confirm-rob').style.display = "none";
@@ -1391,7 +1691,41 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             document.getElementById('btn-confirm-heal').style.display = "none";
             document.getElementById('btn-confirm-rob').style.display = "none";
             document.getElementById('qr-reader-dead').style.display = 'none'; document.getElementById('btn-dead-scan').style.display = 'block';
-            player.isCurrentlyDead = false; saveState(); checkDeathState(); alert("ВЫ ВОСКРЕШЕНЫ И ПОЛНОСТЬЮ ИЗЛЕЧЕНЫ!");
+            player.isCurrentlyDead = false; saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ checkDeathState(); alert("ВЫ ВОСКРЕШЕНЫ И ПОЛНОСТЬЮ ИЗЛЕЧЕНЫ!");
         } else {
             playSound('error'); 
             let targetHint = (k.name === 'БАНДИТ') ? 'Лагерь Бандитов' : 'База Корпорации';
@@ -1407,6 +1741,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         player.weapons[wName].active = !player.weapons[wName].active;
         playSound('use');
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderProfile();
     }
 
@@ -1423,6 +1791,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         player.weapons[wName].durability = 100;
         playSound('use');
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderProfile();
         alert(`Оружие (${wName}) успешно отремонтировано с помощью предмета: ${junkName}!`);
     }
@@ -1462,9 +1864,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         pendingRepairWeapon = wName;
         alert(`Для подтверждения ремонта отсканируйте QR-код вашей Базы.`);
         switchView('scan');
-        if (!scanner) scanner = new Html5Qrcode("qr-reader");
+        if (!scanner) scanner = new Html5Qrcode("qr-reader"); let laserEl = document.getElementById("pda-scan-laser"); if(laserEl) laserEl.style.display = "block";
         scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
-            scanner.stop(); 
+            scanner.stop().catch(e=>{}); let laserEl = document.getElementById("pda-scan-laser"); if(laserEl) laserEl.style.display = "none"; 
             handleScan(t); 
         }, (e) => {}).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
     }
@@ -1607,6 +2009,40 @@ function renderProfile() {
             player.score += sellPrice;
             player.equipment = null;
             saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
             renderProfile();
             alert(`Успешно продано за ${sellPrice} 💎!`);
         }
@@ -1824,6 +2260,40 @@ function handlePdaPhotoCaptured(event) {
                     player.photoBonusReceived = true;
                     player.score = (player.score || 0) + 100;
                     saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
                     renderProfile();
                     showBanner("📸 НАГРАДА! +100 💎 ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
                 } else {
@@ -1897,6 +2367,40 @@ function handlePdaPhotoCaptured(event) {
         if (hackClicks === 5) {
             player.role = "ХАКЕР ПУСТОШЕЙ";
             saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
             let roleEl = document.getElementById('prof-role');
             if (roleEl) {
                 roleEl.innerText = "ХАКЕР ПУСТОШЕЙ";
@@ -1998,6 +2502,40 @@ function handlePdaPhotoCaptured(event) {
 
         player.radioOn = true;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         updateRadioUI();
 
         // Сбрасываем старый таймер и запускаем радио-цикл немедленно
@@ -2093,6 +2631,40 @@ function handlePdaPhotoCaptured(event) {
 
             saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
             resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот экран спасенному.</span>`;
             return;
         }
@@ -2159,6 +2731,40 @@ function handlePdaPhotoCaptured(event) {
             player.stats.itemsFound = (player.stats.itemsFound || 0) + pickedUp.length;
 
             saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
 
             let karmaMsg = "";
             let titleColor = "var(--bandit-color)";
@@ -2239,7 +2845,41 @@ function handlePdaPhotoCaptured(event) {
                     resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
                 }
             }
-            saveState(); return;
+            saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ return;
         }
 
         if (NPC_DB[code]) { playSound('scan'); return openTrade(code); }
@@ -2252,6 +2892,40 @@ function handlePdaPhotoCaptured(event) {
         if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
 
         playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = now; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         resDiv.innerHTML = `ПОДОБРАНО: <b style="color:#fff">${item.name}</b><br><small>(Вес: ${item.size} | Цена: ${item.val})</small>`;
     }
 
@@ -2273,6 +2947,40 @@ function handlePdaPhotoCaptured(event) {
 
         player.quests.choices = pool.sort(() => 0.5 - Math.random());
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
     }
 
     function createRandomQuest() {
@@ -2386,7 +3094,41 @@ function handlePdaPhotoCaptured(event) {
         playSound('use'); 
         let quest = player.quests.choices.splice(index, 1)[0];
         player.quests.active.push(quest); 
-        saveState(); 
+        saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ 
         renderQuests(); 
     }
 
@@ -2399,7 +3141,41 @@ function handlePdaPhotoCaptured(event) {
                 generateQuestChoices(); 
             }
             renderQuests(); 
-            saveState(); 
+            saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ 
         } 
     }
 
@@ -2464,6 +3240,40 @@ function handlePdaPhotoCaptured(event) {
                             generateQuestChoices();
                         }
                         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
 
                         if (newLvl > oldLvl) {
                             alert(`🌟 ПОВЫШЕНИЕ РЕПУТАЦИИ!\nВы достигли Уровня ${newLvl} у ${npc.name}!\nПолучены новые привилегии.`);
@@ -2585,17 +3395,153 @@ function handlePdaPhotoCaptured(event) {
         player.score -= item.val;
         player.equipment = eqId;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderTradeView();
         alert(`Приобретено снаряжение: ${item.name}!`);
     }
 
-    function buyItem(i) { let s = currentTradeStock[i]; if(player.score < s.price) return alert("Мало кредитов!"); if(player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0) + ITEMS_DB[s.id].size > player.maxSize) return alert("Нет места в рюкзаке!"); playSound('sell'); player.score -= s.price; player.inventory.push(s.id); currentTradeStock.splice(i, 1); saveState(); renderTradeView(); }
-    function sellItem(i, price) { playSound('sell'); player.inventory.splice(i, 1); player.score += price; saveState(); renderTradeView(); }
+    function buyItem(i) { let s = currentTradeStock[i]; if(player.score < s.price) return alert("Мало кредитов!"); if(player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0) + ITEMS_DB[s.id].size > player.maxSize) return alert("Нет места в рюкзаке!"); playSound('sell'); player.score -= s.price; player.inventory.push(s.id); currentTradeStock.splice(i, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderTradeView(); }
+    function sellItem(i, price) { playSound('sell'); player.inventory.splice(i, 1); player.score += price; saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderTradeView(); }
 
     function sellAllToBase() {
         if(player.inventory.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
         let mult = NPC_DB[currentTradeNpc].mult; let total = player.inventory.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
-        player.score += total; player.inventory = []; alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+        player.score += total; player.inventory = []; alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderTradeView();
     }
 
     function buyHeal() { 
@@ -2618,13 +3564,81 @@ function handlePdaPhotoCaptured(event) {
         player.score -= healCost; 
         player.hp = currentMaxHp; 
         player.rads = 0; 
-        saveState(); 
+        saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ 
         renderTradeView(); 
         alert("Вылечен!"); 
     }
 
     // === ИНВЕНТАРЬ ===
-    function dropItem(index, isSafe=false) { if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
+    function dropItem(index, isSafe=false) { if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderInventory(); }
 
     function useMedkit(index, id, isSafe=false) { 
         let it = ITEMS_DB[id]; 
@@ -2633,7 +3647,41 @@ function handlePdaPhotoCaptured(event) {
         }
 
         let maxHp = getMaxHp() - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
-        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
+        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderInventory(); 
     }
 
     function quickUseItem(type) {
@@ -2682,11 +3730,113 @@ function handlePdaPhotoCaptured(event) {
         let barLvl = getNpcRepLevel(barRep);
         let maxHunger = 100 + (barLvl * 10);
         player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
-        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); 
+        playSound('use'); if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
     }
 
-    function moveToSafe(index) { let id = player.inventory[index]; if (player.safeBox.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > 5) return alert("Нет места!"); playSound('scan'); player.safeBox.push(id); player.inventory.splice(index, 1); saveState(); renderInventory(); }
-    function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[id].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderInventory(); 
+    }
+
+    function moveToSafe(index) { let id = player.inventory[index]; if (player.safeBox.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > 5) return alert("Нет места!"); playSound('scan'); player.safeBox.push(id); player.inventory.splice(index, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderInventory(); }
+    function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[id].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ renderInventory(); }
 
     function renderCraftBox(idReq, idBtn, questArr, callback) {
         let hasAll = true, txt = [], rc = {}, ic = {}; questArr.forEach(id => rc[id] = (rc[id]||0) + 1); player.inventory.forEach(id => ic[id] = (ic[id]||0) + 1);
@@ -2722,6 +3872,40 @@ function handlePdaPhotoCaptured(event) {
 
         player.upgradeQuest = genQ(2, 3);
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderInventory();
         renderQuests();
         updateHUD();
@@ -2749,6 +3933,40 @@ function handlePdaPhotoCaptured(event) {
         player.safeBoxUnlocked = true;
         player.safeBoxQuest = genQ(3, 5);
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderInventory();
         renderQuests();
         showBanner("🔒 Защищенный подсумок успешно создан!", 'var(--trade-color)');
@@ -2860,6 +4078,40 @@ function handlePdaPhotoCaptured(event) {
 
             saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
             if (Math.random() < 0.1 && player.hp > 0) {
                 let ev = [
                     { 
@@ -2932,7 +4184,41 @@ function handlePdaPhotoCaptured(event) {
                         }
                     }
                 ][Math.floor(Math.random() * 4)];
-                ev.a(); saveState(); playSound('hazard');
+                ev.a(); saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+ playSound('hazard');
                 if (player.equipment !== 'eq_storm') {
                     showBanner(ev.m, '#ffcc00');
                 }
@@ -2948,6 +4234,40 @@ function handlePdaPhotoCaptured(event) {
             if (pass === "Прайс админ") {
                 player.isAdmin = true;
                 saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
                 updateAdminVisibility();
                 alert("Доступ администратора активирован!");
                 return;
@@ -2978,9 +4298,9 @@ function handlePdaPhotoCaptured(event) {
             return;
         }
         try {
-            if (!scanner) scanner = new Html5Qrcode("qr-reader");
+            if (!scanner) scanner = new Html5Qrcode("qr-reader"); let laserEl = document.getElementById("pda-scan-laser"); if(laserEl) laserEl.style.display = "block";
             scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => { 
-                scanner.stop(); 
+                scanner.stop().catch(e=>{}); let laserEl = document.getElementById("pda-scan-laser"); if(laserEl) laserEl.style.display = "none"; 
                 handleScan(t); 
             }, (e) => {}).catch(err => {
                 alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
@@ -2996,6 +4316,40 @@ function handlePdaPhotoCaptured(event) {
     function renderBaseView() {
         player.inBase = true;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         let callsignInput = document.getElementById('base-callsign-input');
         if (callsignInput) callsignInput.value = player.callsign || "";
         let scoreEl = document.getElementById('base-score');
@@ -3014,6 +4368,40 @@ function handlePdaPhotoCaptured(event) {
         if (val) {
             player.callsign = val;
             saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
             alert("Позывной сохранен: " + val);
         }
     }
@@ -3021,6 +4409,40 @@ function handlePdaPhotoCaptured(event) {
     function startGameFromBase() {
         player.inBase = false;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         runBootSequence();
         setTimeout(() => {
             switchView('scan');
@@ -3142,6 +4564,40 @@ function handlePdaPhotoCaptured(event) {
         player.shelterLevel = nextLvl;
         playSound('use');
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderShelter();
         alert(`🎉 Поздравляем! Ваше убежище улучшено до уровня ${nextLvl} (${nextInfo.name})!`);
     }
@@ -3252,6 +4708,40 @@ function handlePdaPhotoCaptured(event) {
             player.scannedCodes[currentHackCode] = Date.now();
             saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
             consoleEl.innerHTML += `<div style="color:var(--term-green); margin-top:5px;">> Доступ разрешен! Ключ совпал.</div>
                                     <div style="color:var(--trade-color)">> Получено: ${creditsReward} 💎</div>
                                     ${gotItem ? `<div style="color:var(--quest-color)">> Извлечена деталь: ${itemName}</div>` : `<div style="color:var(--bandit-color)">> Извлечена деталь: ${itemName} (нет места в рюкзаке!)</div>`}`;
@@ -3279,6 +4769,40 @@ function handlePdaPhotoCaptured(event) {
                 playSound('error');
                 player.scannedCodes[currentHackCode] = Date.now(); // Блокируем на 2 часа
                 saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
 
                 consoleEl.innerHTML += `<div style="color:var(--bandit-color); font-weight:bold; margin-top:5px;">> СИСТЕМА ЗАБЛОКИРОВАНА. ИДЕТ СБРОС ДАННЫХ...</div>`;
                 document.getElementById('hack-words-grid').innerHTML = `<button onclick="switchView('scan')" class="btn-danger" style="grid-column: span 2; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ЗАБЛОКИРОВАНО)</button>`;
@@ -3401,6 +4925,40 @@ function handlePdaPhotoCaptured(event) {
                 playSound('sell');
                 saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
                 // Показываем покупателю код подтверждения
                 document.getElementById('trade-modal').style.display = 'flex';
                 document.getElementById('trade-qr-container').style.display = 'block';
@@ -3441,6 +4999,40 @@ function handlePdaPhotoCaptured(event) {
             playSound('sell');
             saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
             alert(`🤝 Сделка успешно подтверждена!
 Вы передали предмет и получили: ${price} 💎`);
         }
@@ -3452,6 +5044,40 @@ function handlePdaPhotoCaptured(event) {
     function adminLogout() {
         player.isAdmin = false;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         updateAdminVisibility();
         renderProfile();
         alert("Вы вышли из режима администратора.");
@@ -3477,6 +5103,40 @@ function handlePdaPhotoCaptured(event) {
             showBanner(`💎 Администратор начислил ${amount} 💎`, 'var(--term-green)');
         }
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         renderProfile();
         updateHUD();
     }
@@ -3489,6 +5149,40 @@ function handlePdaPhotoCaptured(event) {
 function adminSetRole(role) {
         player.role = role;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         updateAdminVisibility();
         renderProfile();
         alert(`Роль игрока успешно изменена на: ${role.toUpperCase()}`);
@@ -3515,6 +5209,40 @@ function adminSetRole(role) {
         player.arrestedUntil = Date.now() + 600000;
         playSound('death');
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         checkDeathState();
         alert(`⚖ ВЫ АРЕСТОВАНЫ ОФИЦЕРОМ ${officerName.toUpperCase()}!\nВаш ПДА заблокирован на 10 минут.`);
     }
@@ -3531,6 +5259,40 @@ function adminSetRole(role) {
         player.score += 100;
         playSound('sell');
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 💎</small>`;
     }
 
@@ -3538,6 +5300,40 @@ function adminSetRole(role) {
 
         player.inBase = true;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         switchView('base');
     }
 
@@ -3620,6 +5416,40 @@ function adminSetRole(role) {
         player.rads = Math.min(60, (player.rads || 0) + 35); // Радиация
         saveState();
 
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
+
         let scr = document.getElementById('screen');
         if (scr) {
             scr.style.filter = "invert(1) hue-rotate(0deg) contrast(3)";
@@ -3648,6 +5478,40 @@ function adminSetRole(role) {
                 showBanner("✅ УКРЫТИЕ В ЛАГЕРЕ БАНДИТОВ ПОДТВЕРЖДЕНО!", 'var(--term-green)');
                 player.score = (player.score || 0) + 200;
                 saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
                 return true;
             } else if (survivorCodes.includes(c)) {
                 playSound('error');
@@ -3665,6 +5529,40 @@ function adminSetRole(role) {
                 showBanner("✅ УКРЫТИЕ НА БАЗЕ ВЫЖИВШИХ ПОДТВЕРЖДЕНО!", 'var(--term-green)');
                 player.score = (player.score || 0) + 200;
                 saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
                 return true;
             } else if (banditCodes.includes(c)) {
                 playSound('error');
@@ -3732,6 +5630,40 @@ function adminSetRole(role) {
         isSlotSpinning = true;
         player.score -= currentSlotBet;
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         updateSlotUI();
 
         let log = document.getElementById('slot-result-log');
@@ -3794,6 +5726,40 @@ function adminSetRole(role) {
         }
 
         saveState();
+
+    // === НАСТРОЙКИ ЭЛТ (CRT) ЭКРАНА ===
+    function toggleCrtEffect() {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+        let currentStatus = localStorage.getItem('pda_crt_enabled') !== 'false';
+
+        let newStatus = !currentStatus;
+        localStorage.setItem('pda_crt_enabled', newStatus);
+
+        applyCrtState(newStatus);
+    }
+
+    function applyCrtState(enabled) {
+        let crtOverlay = document.querySelector('.crt-overlay');
+        let crtNoise = document.querySelector('.crt-noise');
+        let btn = document.getElementById('btn-toggle-crt');
+
+        if (crtOverlay) crtOverlay.style.display = enabled ? 'block' : 'none';
+        if (crtNoise) crtNoise.style.display = enabled ? 'block' : 'none';
+        if (btn) {
+            btn.innerText = enabled ? "ВКЛ" : "ВЫКЛ";
+            btn.style.borderColor = enabled ? "var(--trade-color)" : "#666";
+            btn.style.color = enabled ? "var(--trade-color)" : "#888";
+        }
+    }
+
+    // Initialize CRT state on load
+    window.addEventListener('DOMContentLoaded', () => {
+        let enabled = localStorage.getItem('pda_crt_enabled') !== 'false';
+        applyCrtState(enabled);
+    });
+
         updateSlotUI();
         isSlotSpinning = false;
     }
