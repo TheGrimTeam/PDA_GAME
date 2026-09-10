@@ -1,4 +1,6 @@
 <html lang="ru">
+!DOCTYPE html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -2244,8 +2246,23 @@ function handlePdaPhotoCaptured(event) {
         if (NPC_DB[code]) { playSound('scan'); return openTrade(code); }
         if (!ITEMS_DB[code]) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>ОШИБКА: Код не распознан</span>"; }
 
+        let item = ITEMS_DB[code];
         let now = Date.now();
-        if (player.scannedCodes[code]) { let diffSec = (now - player.scannedCodes[code]) / 1000; if (diffSec < 60) { playSound('error'); return resDiv.innerHTML = `<span style='color:yellow'>Предмет появится через ${Math.ceil(60 - diffSec)} сек.</span>`; } }
+        if (player.scannedCodes[code]) {
+            let diffSec = (now - player.scannedCodes[code]) / 1000;
+            let cooldownTime = 300; // 5 минут (300 сек) для food и junk
+            if (item.cat === 'weapon' || item.cat === 'med' || item.cat === 'gear') {
+                cooldownTime = 600; // 10 минут (600 сек) для оружия, медицины и снаряжения
+            }
+            if (diffSec < cooldownTime) {
+                playSound('error');
+                let rem = Math.ceil(cooldownTime - diffSec);
+                let mins = Math.floor(rem / 60);
+                let secs = rem % 60;
+                let timeStr = mins > 0 ? `${mins} мин. ${secs} сек.` : `${secs} сек.`;
+                return resDiv.innerHTML = `<span style='color:yellow'>Предмет появится через ${timeStr}</span>`;
+            }
+        }
 
         let item = ITEMS_DB[code]; let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
         if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
