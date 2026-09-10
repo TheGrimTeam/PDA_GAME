@@ -1,5 +1,4 @@
-<html lang="ru">
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -2264,7 +2263,7 @@ function handlePdaPhotoCaptured(event) {
             }
         }
 
-        let item = ITEMS_DB[code]; let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+        let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
         if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
 
         playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = now; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; saveState();
