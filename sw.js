@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wasteland-pda-v1';
+const CACHE_NAME = 'wasteland-pda-v7';
 const urlsToCache = [
   './',
   './index.html',
