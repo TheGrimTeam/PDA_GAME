@@ -1423,17 +1423,23 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         container.style.display = "flex";
         container.style.justifyContent = "center";
         container.style.alignItems = "center";
-        container.style.backgroundColor = "#ffffff";
-        container.style.padding = "0px";
-        container.style.margin = "0 auto";
-        container.style.width = "170px";
-        container.style.height = "170px";
+        container.style.background = "#ffffff";
         container.style.overflow = "hidden";
-        container.style.position = "relative";
+        container.style.boxSizing = "border-box";
 
         try {
             if (typeof QRCode !== 'undefined') {
-                new QRCode(container, {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = "flex";
+                wrapper.style.justifyContent = "center";
+                wrapper.style.alignItems = "center";
+                wrapper.style.margin = "0 auto";
+                wrapper.style.width = "170px";
+                wrapper.style.height = "170px";
+                wrapper.style.position = "relative";
+                container.appendChild(wrapper);
+
+                new QRCode(wrapper, {
                     text: unescape(encodeURIComponent(textVal)),
                     width: 170,
                     height: 170,
@@ -1443,50 +1449,33 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                 });
 
                 setTimeout(() => {
-                    let canvas = container.querySelector('canvas');
-                    let img = container.querySelector('img');
-                    let table = container.querySelector('table');
-
+                    let canvas = wrapper.querySelector('canvas');
+                    let img = wrapper.querySelector('img');
+                    let table = wrapper.querySelector('table');
                     if (canvas) {
                         canvas.style.width = "170px";
                         canvas.style.height = "170px";
                         canvas.style.display = "block";
                         canvas.style.margin = "0 auto";
-                        canvas.style.position = "absolute";
-                        canvas.style.left = "0";
-                        canvas.style.top = "0";
                     }
                     if (img) {
                         img.style.width = "170px";
                         img.style.height = "170px";
                         img.style.display = "block";
                         img.style.margin = "0 auto";
-                        img.style.position = "absolute";
-                        img.style.left = "0";
-                        img.style.top = "0";
                     }
                     if (table) {
                         table.style.margin = "0 auto";
                         table.style.borderCollapse = "collapse";
                         table.style.width = "170px";
                         table.style.height = "170px";
-                        table.style.position = "absolute";
-                        table.style.left = "0";
-                        table.style.top = "0";
                         table.querySelectorAll('td').forEach(td => {
                             td.style.padding = "0";
                             td.style.margin = "0";
                             td.style.border = "none";
-                            td.style.width = "auto";
-                            td.style.height = "auto";
-                        });
-                        table.querySelectorAll('tr').forEach(tr => {
-                            tr.style.padding = "0";
-                            tr.style.margin = "0";
-                            tr.style.border = "none";
                         });
                     }
-                }, 40);
+                }, 50);
             } else {
                 useAPIFallback(container, textVal);
             }
@@ -2290,9 +2279,9 @@ function handlePdaPhotoCaptured(event) {
 
         // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
         if (player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600)) {
-            if (code.startsWith("rob:") || code.startsWith("heal:") || code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_") || code.startsWith("junk_") || code.startsWith("item_") || code.includes("loot")) {
+            if (code.startsWith("rob:") || code.startsWith("heal:") || code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_") || code.startsWith("junk_") || code.startsWith("item_") || code.startsWith("food_") || code.startsWith("gear_") || code.startsWith("med_") || code.startsWith("wpn_") || code.startsWith("art_") || code.includes("loot")) {
                 playSound('error');
-                return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, лут или использовать человеческие терминалы. Охотьтесь на живых!</span>";
+                return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
             }
         }
 
