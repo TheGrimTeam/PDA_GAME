@@ -1392,7 +1392,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
                 // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 15%
                 if (!player.infectionTime && !player.zombieTime) {
-                    if (Math.random() < 0.15) {
+                    if (Math.random() < 0.33) {
                         player.infectionTime = Date.now();
                         playSound('hazard');
                         showBanner("ИНФЕЦИРОВАН ВИРУСОМ!", 'yellow');
