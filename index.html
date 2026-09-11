@@ -327,7 +327,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             </div>
 
             <!-- Место для генерации QR кода -->
-            <div id="corpse-qr-container" style="display:none; background:#fff; padding:15px; margin: 15px auto; width:220px; height:220px; text-align:center; border-radius:6px; box-shadow:0 0 10px rgba(0,0,0,0.5);"></div>
+            <div id="corpse-qr-container" style="display:none; background:#fff; padding:10px; margin: 15px auto; width:190px; height:190px; text-align:center; border-radius:6px; overflow:hidden; position:relative; box-sizing:border-box;"></div>
             <div id="corpse-qr-desc" style="text-align:center; font-size:0.95rem; color:#fff; margin-bottom:15px; display:none;"></div>
 
             <!-- Кнопки подтверждения -->
@@ -1419,31 +1419,61 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     function generateQR(containerId, textVal) {
         const container = document.getElementById(containerId);
         container.innerHTML = "";
+        container.style.display = "none"; // Temporarily hide during build to prevent layout shifts
+
         try {
             if (typeof QRCode !== 'undefined') {
                 new QRCode(container, {
                     text: unescape(encodeURIComponent(textVal)),
-                    width: 190,
-                    height: 190,
+                    width: 170,
+                    height: 170,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.L
+                    correctLevel : QRCode.CorrectLevel.M
                 });
-                // Center inner element if needed
+
                 setTimeout(() => {
-                    let child = container.querySelector('canvas, img, table');
-                    if (child) {
-                        child.style.margin = "0 auto";
-                        child.style.display = "block";
+                    let canvas = container.querySelector('canvas');
+                    let img = container.querySelector('img');
+                    let table = container.querySelector('table');
+
+                    if (canvas) {
+                        canvas.style.width = "170px";
+                        canvas.style.height = "170px";
+                        canvas.style.display = "block";
+                        canvas.style.margin = "0 auto";
                     }
-                }, 50);
+                    if (img) {
+                        img.style.width = "170px";
+                        img.style.height = "170px";
+                        img.style.display = "block";
+                        img.style.margin = "0 auto";
+                    }
+                    if (table) {
+                        table.style.margin = "0 auto";
+                        table.style.borderCollapse = "collapse";
+                        table.style.width = "170px";
+                        table.style.height = "170px";
+                        let cells = table.querySelectorAll('td');
+                        cells.forEach(td => {
+                            td.style.padding = "0";
+                            td.style.margin = "0";
+                            td.style.border = "none";
+                        });
+                    }
+                    container.style.display = "flex";
+                    container.style.justifyContent = "center";
+                    container.style.alignItems = "center";
+                }, 40);
             } else {
                 console.warn("QRCode library is not loaded. Using API fallback.");
                 useAPIFallback(container, textVal);
+                container.style.display = "flex";
             }
         } catch (e) {
             console.error("QRCode rendering error, using fallback API:", e);
             useAPIFallback(container, textVal);
+            container.style.display = "flex";
         }
     }
 
@@ -1532,6 +1562,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 function confirmHeal() {
         if (player.rads > 50) player.rads = 50; 
         player.hp = 20; 
+        player.infectionTime = 0; 
         saveState();
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
@@ -1573,6 +1604,7 @@ function confirmHeal() {
 
         if (allowedBase) {
             playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
+            player.infectionTime = 0; player.zombieTime = 0;
             document.getElementById('corpse-qr-container').style.display = "none"; 
             document.getElementById('corpse-qr-desc').style.display = "none";
             document.getElementById('btn-confirm-heal').style.display = "none";
@@ -2850,6 +2882,11 @@ function handlePdaPhotoCaptured(event) {
     function dropItem(index, isSafe=false) { if(isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
 
     function useMedkit(index, id, isSafe=false) { 
+        // Лечение медикаментом излечивает вирус инфицирования
+        if (player.infectionTime) {
+            player.infectionTime = 0;
+            showBanner("ВИРУС КУПИРОВАН МЕДИКАМЕНТОМ!", 'var(--quest-color)');
+        } 
         let it = ITEMS_DB[id]; 
         if (it.radCure && player.karma_score < 3) {
             player.rads = Math.max(0, player.rads - it.radCure);
