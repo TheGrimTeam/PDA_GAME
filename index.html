@@ -1418,25 +1418,40 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
     // --- Лечение и Мародерство по QR ---
     function generateQR(containerId, textVal) {
         const container = document.getElementById(containerId);
+        if (!container) return;
         container.innerHTML = "";
-        container.style.display = "none"; // Temporarily hide during build to prevent layout shifts
+        container.style.display = "flex";
+        container.style.justifyContent = "center";
+        container.style.alignItems = "center";
+        container.style.background = "#ffffff";
+        container.style.overflow = "hidden";
+        container.style.boxSizing = "border-box";
 
         try {
             if (typeof QRCode !== 'undefined') {
-                new QRCode(container, {
+                const wrapper = document.createElement('div');
+                wrapper.style.display = "flex";
+                wrapper.style.justifyContent = "center";
+                wrapper.style.alignItems = "center";
+                wrapper.style.margin = "0 auto";
+                wrapper.style.width = "170px";
+                wrapper.style.height = "170px";
+                wrapper.style.position = "relative";
+                container.appendChild(wrapper);
+
+                new QRCode(wrapper, {
                     text: unescape(encodeURIComponent(textVal)),
                     width: 170,
                     height: 170,
                     colorDark : "#000000",
                     colorLight : "#ffffff",
-                    correctLevel : QRCode.CorrectLevel.M
+                    correctLevel : QRCode.CorrectLevel.L
                 });
 
                 setTimeout(() => {
-                    let canvas = container.querySelector('canvas');
-                    let img = container.querySelector('img');
-                    let table = container.querySelector('table');
-
+                    let canvas = wrapper.querySelector('canvas');
+                    let img = wrapper.querySelector('img');
+                    let table = wrapper.querySelector('table');
                     if (canvas) {
                         canvas.style.width = "170px";
                         canvas.style.height = "170px";
@@ -1454,26 +1469,19 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                         table.style.borderCollapse = "collapse";
                         table.style.width = "170px";
                         table.style.height = "170px";
-                        let cells = table.querySelectorAll('td');
-                        cells.forEach(td => {
+                        table.querySelectorAll('td').forEach(td => {
                             td.style.padding = "0";
                             td.style.margin = "0";
                             td.style.border = "none";
                         });
                     }
-                    container.style.display = "flex";
-                    container.style.justifyContent = "center";
-                    container.style.alignItems = "center";
-                }, 40);
+                }, 60);
             } else {
-                console.warn("QRCode library is not loaded. Using API fallback.");
                 useAPIFallback(container, textVal);
-                container.style.display = "flex";
             }
         } catch (e) {
-            console.error("QRCode rendering error, using fallback API:", e);
+            console.error("QRCode rendering error:", e);
             useAPIFallback(container, textVal);
-            container.style.display = "flex";
         }
     }
 
@@ -4527,4 +4535,3 @@ function adminSetRole(role) {
         reader.readAsDataURL(file);
     }
 
-    >
