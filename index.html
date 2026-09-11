@@ -1423,23 +1423,17 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
         container.style.display = "flex";
         container.style.justifyContent = "center";
         container.style.alignItems = "center";
-        container.style.background = "#ffffff";
+        container.style.backgroundColor = "#ffffff";
+        container.style.padding = "0px";
+        container.style.margin = "0 auto";
+        container.style.width = "170px";
+        container.style.height = "170px";
         container.style.overflow = "hidden";
-        container.style.boxSizing = "border-box";
+        container.style.position = "relative";
 
         try {
             if (typeof QRCode !== 'undefined') {
-                const wrapper = document.createElement('div');
-                wrapper.style.display = "flex";
-                wrapper.style.justifyContent = "center";
-                wrapper.style.alignItems = "center";
-                wrapper.style.margin = "0 auto";
-                wrapper.style.width = "170px";
-                wrapper.style.height = "170px";
-                wrapper.style.position = "relative";
-                container.appendChild(wrapper);
-
-                new QRCode(wrapper, {
+                new QRCode(container, {
                     text: unescape(encodeURIComponent(textVal)),
                     width: 170,
                     height: 170,
@@ -1449,33 +1443,50 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                 });
 
                 setTimeout(() => {
-                    let canvas = wrapper.querySelector('canvas');
-                    let img = wrapper.querySelector('img');
-                    let table = wrapper.querySelector('table');
+                    let canvas = container.querySelector('canvas');
+                    let img = container.querySelector('img');
+                    let table = container.querySelector('table');
+
                     if (canvas) {
                         canvas.style.width = "170px";
                         canvas.style.height = "170px";
                         canvas.style.display = "block";
                         canvas.style.margin = "0 auto";
+                        canvas.style.position = "absolute";
+                        canvas.style.left = "0";
+                        canvas.style.top = "0";
                     }
                     if (img) {
                         img.style.width = "170px";
                         img.style.height = "170px";
                         img.style.display = "block";
                         img.style.margin = "0 auto";
+                        img.style.position = "absolute";
+                        img.style.left = "0";
+                        img.style.top = "0";
                     }
                     if (table) {
                         table.style.margin = "0 auto";
                         table.style.borderCollapse = "collapse";
                         table.style.width = "170px";
                         table.style.height = "170px";
+                        table.style.position = "absolute";
+                        table.style.left = "0";
+                        table.style.top = "0";
                         table.querySelectorAll('td').forEach(td => {
                             td.style.padding = "0";
                             td.style.margin = "0";
                             td.style.border = "none";
+                            td.style.width = "auto";
+                            td.style.height = "auto";
+                        });
+                        table.querySelectorAll('tr').forEach(tr => {
+                            tr.style.padding = "0";
+                            tr.style.margin = "0";
+                            tr.style.border = "none";
                         });
                     }
-                }, 60);
+                }, 40);
             } else {
                 useAPIFallback(container, textVal);
             }
@@ -1570,14 +1581,14 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 function confirmHeal() {
         if (player.rads > 50) player.rads = 50; 
         player.hp = 20; 
-        player.infectionTime = 0; 
+        // ВНИМАНИЕ: Лечение спасителем восстанавливает 20% HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
         saveState();
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
         document.getElementById('btn-confirm-heal').style.display = "none";
         player.inBase = false; player.isCurrentlyDead = false;
         checkDeathState();
-        alert("Вы были вылечены! Здоровье восстановлено до 20%.");
+        alert("Вы были подняты спасителем (20% HP). Внимание: Инфекция вируса не вылечена!");
     }
 
     function confirmRob(corpseType = 'survivor') {
@@ -4535,3 +4546,4 @@ function adminSetRole(role) {
         reader.readAsDataURL(file);
     }
 
+    >
