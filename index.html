@@ -587,10 +587,10 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
                 <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
                 <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
                     <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами (За Квесты):</label>
-                    <div style="display:flex; gap:6px; margin-bottom:6px;">
-                        <input type="number" id="admin-credit-amount" placeholder="Сумма" style="flex:1; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:6px; border-radius:3px; font-size:0.95rem;">
-                        <button onclick="adminModifyCredits(true)" style="border-color:var(--term-green); color:var(--term-green); padding:4px 8px; font-weight:bold;">+ НАЧИСЛИТЬ</button>
-                        <button onclick="adminModifyCredits(false)" style="border-color:var(--bandit-color); color:var(--bandit-color); padding:4px 8px;">- СПИСАТЬ</button>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:6px;">
+                        <input type="number" id="admin-credit-amount" placeholder="Сумма" style="flex:1 1 100%; min-width:120px; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:6px; border-radius:3px; font-size:0.95rem;">
+                        <button onclick="adminModifyCredits(true)" style="flex:1; white-space:nowrap; border-color:var(--term-green); color:var(--term-green); padding:6px 4px; font-size:0.85rem; font-weight:bold;">+ НАЧИСЛИТЬ</button>
+                        <button onclick="adminModifyCredits(false)" style="flex:1; white-space:nowrap; border-color:var(--bandit-color); color:var(--bandit-color); padding:6px 4px; font-size:0.85rem;">- СПИСАТЬ</button>
                     </div>
                     <div style="display:flex; gap:4px;">
                         <button onclick="adminQuickAddCredits(50)" style="flex:1; font-size:0.8rem; padding:2px;">+50</button>
@@ -3419,7 +3419,7 @@ function handlePdaPhotoCaptured(event) {
         if (typeof Html5Qrcode === 'undefined') {
             alert("⚠️ Офлайн-сканер: библиотека камеры не загружена (требуется разовый выход в интернет для кэширования). Используйте ручной ввод кодов ниже!");
             let manualBox = document.getElementById('admin-manual-scan-box');
-            if (manualBox) manualBox.style.display = 'flex';
+            if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
             return;
         }
         try {
@@ -3433,7 +3433,7 @@ function handlePdaPhotoCaptured(event) {
         } catch(err) {
             alert("Не удалось запустить камеру. Используйте ручной ввод ниже.");
             let manualBox = document.getElementById('admin-manual-scan-box');
-            if (manualBox) manualBox.style.display = 'flex';
+            if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
         }
     });
 
