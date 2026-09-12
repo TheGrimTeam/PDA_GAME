@@ -345,7 +345,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             <p style="text-align:center; color:var(--text-dim); font-size:0.9rem; margin-bottom:5px;">Или дойдите до точки возрождения (<span id="dead-respawn-hint">База</span>) и отсканируйте код:</p>
             <div id="qr-reader-dead" style="display:none;"></div>
             <button id="btn-dead-scan" onclick="startDeadScan()" style="width:100%; border-color:#ffcc00; color:#ffcc00;">ВКЛЮЧИТЬ СКАНЕР БАЗЫ</button>
-            <div class="debug-input" id="admin-manual-dead-box" style="display:flex; margin-top:15px;">
+            <div class="debug-input" id="admin-manual-dead-box" style="display:none; margin-top:15px;">
                 <input type="text" id="dead-manual-code" placeholder="npc_base / npc_bandit_base" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitDeadManualCode();}">
                 <button type="button" id="btn-dead-manual-enter" onclick="submitDeadManualCode()">ВВОД</button>
             </div>
@@ -365,7 +365,7 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
             <div id="qr-reader"></div>
             <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
 
-            <div class="debug-input" id="admin-manual-scan-box" style="display:flex; margin-top:10px;">
+            <div class="debug-input" id="admin-manual-scan-box" style="display:none; margin-top:10px;">
                 <input type="text" id="manual-code" placeholder="Код QR (junk_1, anom_1, npc_base)" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitManualCode();}">
                 <button type="button" id="btn-manual-enter" onclick="submitManualCode()">ВВОД</button>
             </div>
@@ -3407,8 +3407,8 @@ function handlePdaPhotoCaptured(event) {
         const adminCtrlBox = document.getElementById('admin-controls-box');
         const loginBtn = document.getElementById('btn-admin-login');
 
-        if (scanBox) scanBox.style.display = 'flex';
-        if (deadBox) deadBox.style.display = 'flex';
+        if (scanBox) scanBox.style.display = player.isAdmin ? 'flex' : 'none';
+        if (deadBox) deadBox.style.display = player.isAdmin ? 'flex' : 'none';
         if (adminCtrlBox) adminCtrlBox.style.display = player.isAdmin ? 'block' : 'none';
         if (loginBtn) loginBtn.style.display = player.isAdmin ? 'none' : 'block';
     }
