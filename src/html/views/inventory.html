@@ -1,0 +1,20 @@
+        <!-- 2. ИНВЕНТАРЬ И КРАФТ -->
+        <div id="view-inventory" class="view">
+            <h3>РЮКЗАК</h3>
+            <div id="inventory-list"></div>
+            <div id="safe-box-container" style="display:none; border: 2px solid var(--trade-color); padding: 10px; margin-top: 15px;">
+                <h4 style="color:var(--trade-color); text-align:center;">ЗАЩИЩЕННЫЙ ПОДСУМОК (<span id="safe-val">0</span>/5)</h4>
+                <p style="font-size: 0.9rem; color:var(--text-dim); text-align:center; margin-bottom:10px;">Лут здесь не сгорает при смерти</p>
+                <div id="safebox-list"></div>
+            </div>
+            <div id="safebox-quest-box" style="border: 1px dashed var(--trade-color); padding: 10px; margin-top: 20px;">
+                <h4 style="color:var(--trade-color); text-align:center;">КРАФТ: ЗАЩИЩЕННЫЙ ПОДСУМОК</h4>
+                <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-safe-items"></span></p>
+                <button id="btn-upgrade-safe" onclick="applySafeBox()" class="btn-safe" style="width:100%; display:none;">СОЗДАТЬ ПОДСУМОК</button>
+            </div>
+            <div id="upgrade-box" style="border: 1px dashed var(--term-green); padding: 10px; margin-top: 20px;">
+                <h4 style="color:var(--term-green); text-align:center;">МОДУЛЬ РАСШИРЕНИЯ (+5 МЕСТ)</h4>
+                <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-items"></span></p>
+                <button id="btn-upgrade" onclick="applyUpgrade()" style="width:100%; display:none;">УСТАНОВИТЬ МОДУЛЬ</button>
+            </div>
+        </div>

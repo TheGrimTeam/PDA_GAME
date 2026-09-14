@@ -1,0 +1,18 @@
+        <div id="hud">
+            <div class="hud-row" style="margin-bottom: 5px;">
+                <div>HP:<span id="hp-val">100</span><span id="hp-max-val" style="font-size:0.85em; color:var(--term-green);">/100</span></div>
+                <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
+                <div>ЕДА:<span id="hunger-val">100</span>%</div>
+                <div>ВЕС:<span id="inv-val">0</span>/<span id="inv-max">15</span></div>
+            </div>
+            <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
+            <div class="hud-row" style="margin-top: 5px; gap: 6px; justify-content: space-between; margin-bottom: 5px;">
+                <button onclick="quickUseItem('hp')" style="padding: 2px 4px; font-size: 0.75rem; border-color: #fff; color: #fff; flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">❤️ ЗДОРОВЬЕ</button>
+                <button onclick="quickUseItem('rad')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--rad-color); color: var(--rad-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">☢️ РАДИАЦИЯ</button>
+                <button onclick="quickUseItem('food')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--quest-color); color: var(--quest-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">🍖 ЕДА</button>
+            </div>
+            <div class="hud-row">
+                <div style="color:var(--trade-color)">КРЕДИТЫ: <span id="score-val">0</span> 💎</div>
+                <button onclick="declareDeath()" style="padding: 2px 10px; font-size: 1rem;" class="btn-danger">💀 УБИТ</button>
+            </div>
+        </div>

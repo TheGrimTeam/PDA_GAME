@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wasteland PDA [Alfa 0.2]</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#39ff14">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Wasteland PDA">
+    <style>
+{{CSS}}
+    </style>
+</head>
+<body>
+    <!-- RETRO BOOT SEQUENCE OVERLAY -->
+    <div id="bios-boot" style="position:fixed; top:0; left:0; width:100%; height:100%; background:var(--term-dark); color:var(--term-green); font-family:'VT323', monospace; padding:20px; z-index:999999; display:none; flex-direction:column; justify-content:flex-start; font-size: 1.35rem; line-height:1.2; text-shadow:0 0 4px var(--term-green);">
+        <div id="bios-text"></div>
+    </div>
+
+<div id="device-casing">
+
+    <div id="screen">
+        <div id="blowout-warning-banner" style="display:none; position:relative; width:100%; background:rgba(220,0,0,0.95); color:#fff; text-align:center; padding:10px 8px; font-family:monospace; font-weight:bold; z-index:99999; animation: pulse-led 0.4s infinite alternate; font-size:0.95rem; border-bottom:2px solid var(--rad-color);"></div>
+        <div class="crt-overlay"></div>
+        <div class="crt-noise"></div>
+        <div id="low-hp-overlay" class="low-hp-vignette"></div>
+        <div id="screen-content">
+{{VIEWS}}
+{{HUD}}
+{{EVENT_BANNER}}
+{{NAV}}
+        </div> <!-- ends screen-content -->
+    </div> <!-- ends screen -->
+</div> <!-- ends device-casing -->
+
+{{OVERLAYS}}
+
+    <script>
+{{JS}}
+    </script>
+</body>
+</html>

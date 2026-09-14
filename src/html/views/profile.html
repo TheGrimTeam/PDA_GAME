@@ -1,0 +1,105 @@
+        <!-- 4. ПРОФИЛЬ ПЕРСОНАЖА -->
+        <div id="view-profile" class="view">
+            <h3>ЛИЧНОЕ ДЕЛО</h3>
+
+            <div class="profile-card">
+                <p style="font-size: 1.5rem; margin-bottom:10px;">Позывной: <b id="prof-callsign" style="color:#fff; cursor:pointer; border-bottom:1px dashed #fff;" onclick="changeCallsign()"></b> ✏️</p>
+                <p style="font-size: 1.3rem;">Статус: <b id="prof-karma"></b></p>
+                <p style="font-size: 1.1rem; color:var(--text-dim); margin-top: 5px;">Очки Кармы: <b id="prof-karma-score">0</b></p>
+                <p style="font-size: 1.1rem; color:var(--trade-color); margin-top: 5px;">Должность / Роль: <b id="prof-role" style="color:var(--quest-color)">БЕЗРАБОТНЫЙ</b></p>
+            </div>
+
+            <!-- РЕПУТАЦИЯ И ПРИВИЛЕГИИ У НПС -->
+
+            <div class="profile-card" id="profile-reputation-card">
+                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">🛡 РЕПУТАЦИЯ И ПРИВИЛЕГИИ</h4>
+                <div id="profile-reputation-content" style="font-size: 1rem; line-height: 1.3;"></div>
+            </div>
+
+            <!-- СЛУЖЕБНЫЕ ПОЛНОМОЧИЯ ВОЕННОГО -->
+            <div class="profile-card" id="military-actions-card" style="display:none; border-color:var(--quest-color); background:rgba(255,183,0,0.03);">
+                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">⚔️ СЛУЖЕБНЫЕ ПОЛНОМОЧИЯ (ВОЕННЫЙ)</h4>
+                <p style="font-size:0.92rem; color:var(--text-dim); margin-bottom:8px; text-align:center;">Только для служащих Вооруженных Сил Базы. Позволяет оформлять ордера на арест нарушителей.</p>
+                <button onclick="generateArrestWarrantQR()" style="width:100%; border-color:var(--quest-color); color:var(--quest-color); font-size:1.1rem; padding:8px;">📜 ОФОРМИТЬ ОРДЕР НА АРЕСТ</button>
+                <div id="arrest-qr-container" style="background:#fff; padding:15px; margin: 10px auto; width: 200px; display:none;"></div>
+            </div>
+
+            <!-- ЯЧЕЙКА СНАРЯЖЕНИЯ В ПРОФИЛЕ -->
+            <div class="profile-card" id="profile-equipment-card">
+                <h4 style="border-bottom: 1px dashed var(--trade-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--trade-color); font-size: 1.15rem; text-align: center;">ТАКТИЧЕСКАЯ ЭКИПИРОВКА (МАКС 1)</h4>
+                <div id="profile-equipment-content" style="font-size: 1rem; line-height: 1.3;"></div>
+            </div>
+
+            <!-- АРСЕНАЛ И ЭКИПИРОВКА -->
+            <div class="profile-card">
+                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">АРСЕНАЛ И ЭКИПИРОВКА</h4>
+                <p style="font-size: 0.9rem; color:var(--text-dim); margin-bottom: 8px; text-align: center;">Отметьте имеющееся оружие. Износ снижает прочность. Чините хламом или на Базе!</p>
+                <div id="profile-weapons-list"></div>
+            </div>
+
+            <p style="color:var(--text-dim); font-size: 0.9rem; margin: 15px 0;">* Выжившие торгуют на Базе. Бандитам (Карма -3) вход на Базу запрещен, их точка — Лагерь Бандитов. Герои (Карма +3) имеют иммунитет к радиации.</p>
+
+                        <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
+            <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
+                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
+                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 💎 за первое фото!</b></p>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size:0.9rem; color:var(--term-green); display:block; margin-bottom:4px; text-align:center; font-weight:bold;">🎨 ВЫБЕРИТЕ РЕЖИМ ФИЛЬТРА ПДА:</label>
+                    <select id="pda-photo-filter-select" style="width:100%; background:#051105; color:var(--term-green); border:1px solid var(--term-green); padding:6px; font-weight:bold; border-radius:4px; font-size:0.95rem;">
+                        <option value="green">☢️ РАДИОАКТИВНЫЙ ФОСФОР (Изумрудный ПДА)</option>
+                        <option value="amber">☣️ ВЫБРОС ЗОНЫ (Янтарный ПНВ / Радиация)</option>
+                        <option value="mono">💀 МЕРТВАЯ ПУСТОШЬ (Чёрно-белый / Нуар выживания)</option>
+                    </select>
+                </div>
+
+                <input type="file" id="pda-native-camera-input" accept="image/*" capture="environment" onchange="handlePdaPhotoCaptured(event)" style="display:none;">
+                <canvas id="pda-photo-canvas" style="display:none;"></canvas>
+
+                <button onclick="document.getElementById('pda-native-camera-input').click()" style="width:100%; border-color:var(--term-green); color:var(--term-green); font-size:1.05rem; padding:10px;">📷 СДЕЛАТЬ ФОТО С ШТАМПОМ ПДА</button>
+
+                <div id="photo-preview-box" style="display:none; margin-top:12px; border-top:1px dashed var(--term-green); padding-top:8px; text-align:center;">
+                    <h5 style="color:var(--term-green); margin-bottom:6px;">ГОТОВЫЙ СНИМОК СТАТУСА ПДА:</h5>
+                    <p style="font-size:0.8rem; color:#888; margin-bottom:6px;">Нажмите кнопку ниже или зажмите изображение для сохранения в галерею:</p>
+                    <img id="photo-preview-img" style="width:100%; border:1px solid var(--term-green); border-radius:4px;" />
+                    <button id="photo-share-btn" onclick="saveOrSharePdaPhoto()" style="width:100%; margin-top:8px; padding:10px; background:var(--term-green); color:#000; font-weight:bold; border:none; border-radius:4px; font-size:1.05rem; cursor:pointer;">💾 СОХРАНИТЬ / ПОДЕЛИТЬСЯ ФОТО</button>
+                    <a id="photo-download-link" download="pda_photo.png" style="display:block; margin-top:6px; padding:6px; border:1px dashed var(--term-green); color:var(--term-green); text-decoration:none; font-size:0.9rem; border-radius:4px;">📥 ПРЯМАЯ ССЫЛКА ДЛЯ СКАЧИВАНИЯ</a>
+                </div>
+            </div>
+
+            <hr style="border-top:1px dashed #555; margin: 20px 0;">
+            <h4 style="color:var(--bandit-color); text-align:center;">НАСТРОЙКИ (ИГРОТЕХ)</h4>
+            <div id="admin-controls-box" style="display:none; margin-top:10px; border:1px dashed var(--trade-color); padding:8px; background:rgba(0,229,255,0.03);">
+                <h5 style="color:var(--trade-color); text-align:center; margin-bottom:6px;">ПАНЕЛЬ АДМИНИСТРАТОРА И НАЙМА</h5>
+
+                <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
+                <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами (За Квесты):</label>
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
+                        <input type="number" id="admin-credit-amount" placeholder="Сумма кредитов" style="width:100%; box-sizing:border-box; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:8px; border-radius:3px; font-size:1rem;">
+                        <div style="display:flex; gap:6px; width:100%;">
+                            <button onclick="adminModifyCredits(true)" style="flex:1; border-color:var(--term-green); color:var(--term-green); padding:8px 4px; font-size:0.85rem; font-weight:bold; cursor:pointer;">+ НАЧИСЛИТЬ</button>
+                            <button onclick="adminModifyCredits(false)" style="flex:1; border-color:var(--bandit-color); color:var(--bandit-color); padding:8px 4px; font-size:0.85rem; cursor:pointer;">- СПИСАТЬ</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; gap:4px;">
+                        <button onclick="adminQuickAddCredits(50)" style="flex:1; font-size:0.8rem; padding:2px;">+50</button>
+                        <button onclick="adminQuickAddCredits(100)" style="flex:1; font-size:0.8rem; padding:2px;">+100</button>
+                        <button onclick="adminQuickAddCredits(250)" style="flex:1; font-size:0.8rem; padding:2px;">+250</button>
+                        <button onclick="adminQuickAddCredits(500)" style="flex:1; font-size:0.8rem; padding:2px;">+500</button>
+                    </div>
+                </div>
+
+                <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
+                <div style="display:flex; gap:5px; margin-bottom:8px;">
+                    <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
+                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3💎/мин)</button>
+                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5💎/мин)</button>
+                </div>
+                <button onclick="factoryReset()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ПОЛНЫЙ СБРОС ПДА (ВАЙП)</button>
+                <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
+            </div>
+            <button id="btn-admin-login" onclick="adminLogin()" style="width:100%; margin-top:10px; border-color:var(--trade-color); color:var(--trade-color);">ВХОД ДЛЯ АДМИНИСТРАТОРА</button>
+            <button id="btn-profile-to-dead" onclick="checkDeathState()" style="width:100%; margin-top:10px; border-color:var(--bandit-color); color:var(--bandit-color); display:none;">ВЕРНУТЬСЯ НА ЭКРАН СМЕРТИ</button>
+            <button id="btn-profile-to-base" onclick="returnToBase()" style="width:100%; margin-top:10px; border-color:var(--trade-color); color:var(--trade-color);">ВЫЙТИ НА БАЗУ (ПАУЗА)</button>
+        </div>

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сборщик Wasteland PDA</title>
+<style>
+  :root {
+    --term-green: #39ff14;
+    --term-dark: #051505;
+    --metal-bg: #2a2a2a;
+    --metal-border: #555;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 24px;
+    background: #0a0a0a;
+    color: var(--term-green);
+    font-family: "Courier New", monospace;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 20px; margin: 0 0 4px; letter-spacing: 2px; }
+  .sub { color: #7a7a7a; margin-bottom: 20px; }
+  .panel {
+    background: #111;
+    border: 1px solid var(--metal-border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  button {
+    background: var(--metal-bg);
+    color: var(--term-green);
+    border: 1px solid var(--metal-border);
+    border-radius: 4px;
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    margin-right: 8px;
+    margin-bottom: 8px;
+  }
+  button:hover { border-color: var(--term-green); }
+  button:disabled { opacity: .4; cursor: not-allowed; }
+  #log {
+    background: #000;
+    border: 1px solid #222;
+    border-radius: 4px;
+    padding: 12px;
+    height: 320px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    font-size: 12px;
+  }
+  .ok { color: #39ff14; }
+  .err { color: #ff3333; }
+  .warn { color: #ffcc00; }
+  .info { color: #00e5ff; }
+  .stat { color: #7a7a7a; }
+  a.dl { display: none; }
+</style>
+</head>
+<body>
+
+<h1>СБОРЩИК WASELAND PDA</h1>
+<div class="sub">Склеивает исходники из <code>src/</code> в единый <code>index.html</code>. Без Node.js.</div>
+
+<div class="panel">
+  <button id="btn-build">СОБРАТЬ</button>
+  <button id="btn-download" disabled>СКАЧАТЬ index.html</button>
+  <button id="btn-preview" disabled>ПРЕДПРОСМОТР</button>
+  <a id="dl-link" class="dl"></a>
+</div>
+
+<div id="log">Готов к сборке. Нажмите «СОБРАТЬ».</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------------------------------------------------------------------------
+  // Порядок сборки. Меняйте здесь, если добавляете новые файлы.
+  // ---------------------------------------------------------------------------
+  var CSS_FILES = [
+    "src/css/01-base.css",
+    "src/css/02-layout.css",
+    "src/css/03-components.css",
+    "src/css/04-views.css",
+    "src/css/05-animations.css"
+  ];
+
+  var VIEW_FILES = [
+    "src/html/views/base.html",
+    "src/html/views/dead.html",
+    "src/html/views/scan.html",
+    "src/html/views/inventory.html",
+    "src/html/views/quests.html",
+    "src/html/views/map.html",
+    "src/html/views/profile.html",
+    "src/html/views/shelter.html",
+    "src/html/views/hacking.html",
+    "src/html/views/trade.html"
+  ];
+
+  // HUD — отдельный слой поверх вьюх
+  var HUD_FILES = [
+    "src/html/views/hud.html"
+  ];
+
+  // Баннер событий
+  var EVENT_BANNER_FILES = [
+    "src/html/views/event-banner.html"
+  ];
+
+  // Нижняя навигация
+  var NAV_FILES = [
+    "src/html/views/nav.html"
+  ];
+
+  // Оверлеи (модальные окна и т.п.), размещаются вне #screen-content
+  var OVERLAY_FILES = [
+    "src/html/overlays/trade-modal.html"
+  ];
+
+  var JS_FILES = [
+    // vendor
+    "src/js/vendor/html5-qrcode.js",
+    "src/js/vendor/qrcode.js",
+    // config
+    "src/js/config/constants.js",
+    "src/js/config/items.js",
+    "src/js/config/npc.js",
+    "src/js/config/upgrades.js",
+    // state
+    "src/js/state/player.js",
+    "src/js/state/globals.js",
+    // core
+    "src/js/core/audio.js",
+    "src/js/core/utils.js",
+    "src/js/core/qr.js",
+    // logic
+    "src/js/logic/scan.js",
+    "src/js/logic/inventory.js",
+    "src/js/logic/quests.js",
+    "src/js/logic/trade.js",
+    "src/js/logic/shelter.js",
+    "src/js/logic/hacking.js",
+    "src/js/logic/map.js",
+    "src/js/logic/events.js",
+    "src/js/logic/blowout.js",
+    "src/js/logic/slots.js",
+    "src/js/logic/p2p.js",
+    "src/js/logic/roles.js",
+    "src/js/logic/equipment.js",
+    "src/js/logic/admin.js",
+    // views
+    "src/js/views/navigation.js",
+    "src/js/views/base.js",
+    "src/js/views/dead.js",
+    "src/js/views/scan.js",
+    "src/js/views/inventory.js",
+    "src/js/views/quests.js",
+    "src/js/views/map.js",
+    "src/js/views/profile.js",
+    "src/js/views/shelter.js",
+    "src/js/views/hacking.js",
+    "src/js/views/trade.js",
+    // entry
+    "src/js/main.js"
+  ];
+
+  var TEMPLATE = "src/index.template.html";
+
+  var logEl = document.getElementById("log");
+  var btnBuild = document.getElementById("btn-build");
+  var btnDownload = document.getElementById("btn-download");
+  var btnPreview = document.getElementById("btn-preview");
+  var dlLink = document.getElementById("dl-link");
+
+  var builtHtml = null;
+
+  function log(msg, cls) {
+    var span = document.createElement("span");
+    span.className = cls || "";
+    span.textContent = msg + "\n";
+    logEl.appendChild(span);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function clearLog() { logEl.textContent = ""; }
+
+  function fetchText(path) {
+    return fetch(path, { cache: "no-store" }).then(function (res) {
+      if (!res.ok) throw new Error(path + " → HTTP " + res.status);
+      return res.text();
+    });
+  }
+
+  function fetchAll(paths) {
+    return Promise.all(paths.map(function (p) {
+      return fetchText(p).then(function (txt) {
+        log("  + " + p + " (" + txt.length + " симв.)", "stat");
+        return txt;
+      });
+    }));
+  }
+
+  function joinCss(parts) {
+    return parts.join("\n\n/* ===== next css file ===== */\n\n");
+  }
+
+  function joinViews(parts) {
+    return parts.join("\n\n<!-- ===== next view ===== -->\n\n");
+  }
+
+  function joinJs(parts) {
+    return parts.join("\n\n/* ===== next js file ===== */\n\n");
+  }
+
+  function build() {
+    clearLog();
+    builtHtml = null;
+    btnDownload.disabled = true;
+    btnPreview.disabled = true;
+    btnBuild.disabled = true;
+
+    log("Чтение шаблона: " + TEMPLATE, "info");
+
+    fetchText(TEMPLATE)
+      .then(function (template) {
+        log("Шаблон прочитан (" + template.length + " симв.)", "ok");
+        log("\nЧтение CSS:", "info");
+        return fetchAll(CSS_FILES).then(function (cssParts) {
+          log("\nЧтение HTML-вьюх:", "info");
+          return fetchAll(VIEW_FILES).then(function (viewParts) {
+            log("\nЧтение HUD:", "info");
+            return fetchAll(HUD_FILES).then(function (hudParts) {
+              log("\nЧтение баннера событий:", "info");
+              return fetchAll(EVENT_BANNER_FILES).then(function (bannerParts) {
+                log("\nЧтение навигации:", "info");
+                return fetchAll(NAV_FILES).then(function (navParts) {
+                  log("\nЧтение оверлеев:", "info");
+                  return fetchAll(OVERLAY_FILES).then(function (overlayParts) {
+                    log("\nЧтение JS:", "info");
+                    return fetchAll(JS_FILES).then(function (jsParts) {
+                      return {
+                        template: template,
+                        css: joinCss(cssParts),
+                        views: joinViews(viewParts),
+                        hud: joinViews(hudParts),
+                        banner: joinViews(bannerParts),
+                        nav: joinViews(navParts),
+                        overlays: joinViews(overlayParts),
+                        js: joinJs(jsParts)
+                      };
+                    });
+                  });
+                });
+              });
+            });
+          });
+        });
+      })
+      .then(function (bundle) {
+        var out = bundle.template
+          .replace("{{CSS}}", function () { return bundle.css; })
+          .replace("{{VIEWS}}", function () { return bundle.views; })
+          .replace("{{HUD}}", function () { return bundle.hud; })
+          .replace("{{EVENT_BANNER}}", function () { return bundle.banner; })
+          .replace("{{NAV}}", function () { return bundle.nav; })
+          .replace("{{OVERLAYS}}", function () { return bundle.overlays; })
+          .replace("{{JS}}", function () { return bundle.js; });
+
+        var leftovers = ["{{CSS}}", "{{VIEWS}}", "{{HUD}}", "{{EVENT_BANNER}}",
+                         "{{NAV}}", "{{OVERLAYS}}", "{{JS}}"].filter(function (ph) {
+          return out.indexOf(ph) !== -1;
+        });
+        if (leftovers.length) {
+          throw new Error("В шаблоне остались незаполненные плейсхолдеры: " + leftovers.join(", "));
+        }
+
+        builtHtml = out;
+        log("\nСборка завершена. Итоговый размер: " + out.length + " симв.", "ok");
+        btnDownload.disabled = false;
+        btnPreview.disabled = false;
+      })
+      .catch(function (err) {
+        log("\nОШИБКА: " + err.message, "err");
+        log("Если открываете build.html через file://, запустите локальный сервер:", "warn");
+        log("  python3 -m http.server 8000", "warn");
+        log("  затем откройте http://localhost:8000/build.html", "warn");
+      })
+      .then(function () {
+        btnBuild.disabled = false;
+      });
+  }
+
+  function download() {
+    if (!builtHtml) return;
+    var blob = new Blob([builtHtml], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    dlLink.href = url;
+    dlLink.download = "index.html";
+    dlLink.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 5000);
+    log("Файл index.html отправлен на скачивание.", "ok");
+  }
+
+  function preview() {
+    if (!builtHtml) return;
+    var blob = new Blob([builtHtml], { type: "text/html;charset=utf-8" });
+    var url = URL.createObjectURL(blob);
+    window.open(url, "_blank");
+    log("Открыт предпросмотр собранной игры в новой вкладке.", "ok");
+  }
+
+  btnBuild.addEventListener("click", build);
+  btnDownload.addEventListener("click", download);
+  btnPreview.addEventListener("click", preview);
+})();
+</script>
+
+</body>
+</html>

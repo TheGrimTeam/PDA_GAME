@@ -1,0 +1,24 @@
+        <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
+        <div id="view-base" class="view">
+            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.2]</span></h2>
+            <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color); background:rgba(255,0,0,0.05);">
+                <h4 style="color:var(--rad-color); margin-bottom:8px; border-bottom:1px dashed var(--rad-color); padding-bottom:4px; text-align:center;">⚠️ СИСТЕМА УКРЫТИЯ (ВЫБРОС)</h4>
+                <div id="blowout-status-text" style="font-size:0.9rem; color:#ccc; text-align:center;">Статус: Спокойно (Авто-выброс раз в час)</div>
+            </div>
+            <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
+
+            <div class="profile-card" style="margin-bottom:15px;">
+                <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                    <input type="text" id="base-callsign-input" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
+                    <button onclick="saveBaseCallsign()" style="width:100%;">СОХРАНИТЬ ПОЗЫВНОЙ</button>
+                </div>
+            </div>
+
+            <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
+                <div style="margin-bottom:5px;">Кредиты: <span id="base-score" style="color:var(--quest-color);">0</span> 💎</div>
+                <div>Статус / Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
+            </div>
+
+            <button onclick="startGameFromBase()" class="btn-hero" style="width:100%; font-size:1.3rem; padding:12px; border-color:var(--term-green); color:var(--term-green); background:rgba(57,255,20,0.1); margin-bottom:10px;">ВОЙТИ В ЗОНУ (СТАРТ)</button>
+        </div>

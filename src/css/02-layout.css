@@ -1,0 +1,127 @@
+/* ============================================================
+   02-layout.css — CRT-эффекты, HUD, вьюхи, навигация
+   ============================================================ */
+
+/* Эффект стеклянных линий кинескопа */
+.crt-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 999;
+    pointer-events: none;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.18) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.04), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.04));
+    background-size: 100% 4px, 6px 100%;
+}
+
+/* Динамические аналоговые помехи (белый шум) */
+.crt-noise {
+    position: absolute;
+    top: -20px; left: -20px; width: calc(100% + 40px); height: calc(100% + 40px);
+    z-index: 998;
+    pointer-events: none;
+    opacity: 0.035; /* Смягченный белый шум, не мешающий чтению */
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    animation: noise-move 0.25s infinite steps(4);
+}
+
+@keyframes noise-move {
+    0% { transform: translate(0, 0); }
+    25% { transform: translate(-1px, 1px); }
+    50% { transform: translate(1px, -1px); }
+    75% { transform: translate(-1px, -1px); }
+    100% { transform: translate(0, 0); }
+}
+
+#hud {
+    border-bottom: 2px dashed var(--term-green);
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.hud-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2px;
+    align-items: center;
+    font-size: 1.05rem;
+}
+
+.danger { color: var(--bandit-color); text-shadow: 0 0 5px var(--bandit-color); }
+.rad-warning { color: var(--rad-color); text-shadow: 0 0 5px var(--rad-color); }
+.quest-text { color: var(--quest-color); text-shadow: 0 0 5px var(--quest-color); }
+.trade-text { color: var(--trade-color); text-shadow: 0 0 5px var(--trade-color); }
+
+#event-banner {
+    background: var(--term-green);
+    color: var(--term-dark);
+    text-align: center;
+    padding: 5px;
+    margin-bottom: 10px;
+    display: none;
+    font-weight: bold;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink { 50% { opacity: 0.5; } }
+
+.view { display: none; z-index: 10; position: relative; }
+.view.active { display: block; }
+
+#nav-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-top: 12px;
+    background: rgba(0,0,0,0.6);
+    padding: 8px;
+    border-radius: 10px;
+    border: 2px solid var(--term-green);
+    box-shadow: 0 0 10px rgba(57, 255, 20, 0.15);
+}
+
+#nav-buttons button {
+    flex: 1;
+    font-size: 0.88rem;
+    font-weight: bold;
+    background: linear-gradient(to bottom, #444a44 0%, #252a25 100%);
+    border: 2px solid #555e55;
+    border-bottom: 5px solid #111;
+    border-radius: 6px;
+    color: var(--text-dim);
+    padding: 8px 2px;
+    text-align: center;
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.8);
+    transition: all 0.05s ease;
+}
+
+#nav-buttons button:active {
+    transform: translateY(3px);
+    border-bottom: 2px solid #111;
+}
+
+#nav-buttons button.active-nav {
+    background: linear-gradient(to bottom, #252a25 0%, #151815 100%);
+    border-color: var(--term-green);
+    color: var(--term-green);
+    border-bottom: 2px solid var(--term-green);
+    box-shadow: 0 0 10px rgba(57,255,20,0.3);
+    transform: translateY(3px);
+}
+
+#qr-reader, #qr-reader-dead {
+    width: 100%;
+    margin-bottom: 10px;
+    border: 2px solid var(--term-green);
+}
+
+.debug-input { display: flex; gap: 5px; margin-top: 10px; }
+.debug-input input {
+    background: #000;
+    color: var(--term-green);
+    border: 1px solid var(--term-green);
+    flex-grow: 1;
+    padding: 5px;
+    font-family: 'VT323';
+}

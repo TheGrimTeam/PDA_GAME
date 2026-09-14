@@ -1,0 +1,62 @@
+        <!-- 6. УБЕЖИЩЕ И ЗАЛ СЛАВЫ -->
+        <div id="view-shelter" class="view">
+            <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom:10px;">🏠 УБЕЖИЩЕ ВЫЖИВШЕГО</h3>
+
+            <div class="profile-card" style="text-align: center; border-color: var(--trade-color); background: rgba(0, 229, 255, 0.03);">
+                <h2 id="shelter-level-title" style="color:var(--trade-color); letter-spacing: 2px;">УРОВЕНЬ 0: УЛИЦА</h2>
+                <p id="shelter-bonus-desc" style="font-size: 0.95rem; color:var(--text-dim); margin-top: 5px; line-height: 1.3;">Нет бонусов. Постройте убежище, чтобы защититься от опасностей Пустоши.</p>
+            </div>
+
+            <div class="profile-card">
+                <h4 style="border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--quest-color); font-size: 1.15rem; text-align: center;">🏆 ЗАЛ СЛАВЫ</h4>
+                <div style="font-size: 1rem; line-height: 1.4;">
+                    <div style="display:flex; justify-content:space-between;"><span>⏱ Время в Зоне:</span><b style="color:#fff;" id="stat-survival-time">00:00:00</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>📦 Выполнено контрактов:</span><b style="color:#fff;" id="stat-quests">0</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>💀 Обыскано тел:</span><b style="color:#fff;" id="stat-corpses">0</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>🎒 Найдено предметов:</span><b style="color:#fff;" id="stat-items">0</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>💀 Смертей сталкера:</span><b style="color:var(--bandit-color);" id="stat-deaths">0</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>🍏 Съедено пищи:</span><b style="color:#fff;" id="stat-food">0</b></div>
+                    <div style="display:flex; justify-content:space-between;"><span>💉 Применено медикаментов:</span><b style="color:#fff;" id="stat-meds">0</b></div>
+                </div>
+            </div>
+
+            <div class="profile-card" id="shelter-upgrade-box" style="border-color: var(--term-green);">
+                <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">🔧 УЛУЧШЕНИЕ УБЕЖИЩА</h4>
+                <p id="shelter-next-level-name" style="font-weight: bold; margin-bottom: 5px; color:#fff;"></p>
+                <p id="shelter-req-list" style="font-size: 0.95rem; color:var(--text-dim); margin-bottom: 10px; line-height: 1.3;"></p>
+                <button id="btn-upgrade-shelter" onclick="upgradeShelter()" class="btn-safe" style="width: 100%; display: none;">УЛУЧШИТЬ УБЕЖИЩЕ</button>
+            </div>
+
+            <!-- СЛОТ-МАШИНА -->
+            <div class="profile-card" style="margin-top:20px; border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
+                <h4 style="color:var(--quest-color); margin-bottom:8px; border-bottom:1px dashed var(--quest-color); padding-bottom:4px; text-align:center;">🎰 ИГРОВОЙ АВТОМАТ «УДАЧА ПУСТОШЕЙ»</h4>
+
+                <!-- Экран слотов -->
+                <div style="display:flex; justify-content:center; gap:12px; margin:15px 0;">
+                    <div id="slot-reel-1" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                    <div id="slot-reel-2" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                    <div id="slot-reel-3" style="width:60px; height:60px; background:var(--term-dark); border:2px solid var(--quest-color); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:2rem; text-shadow:none;">🔋</div>
+                </div>
+
+                <!-- Информация об игре -->
+                <div style="display:flex; justify-content:space-between; font-size:0.95rem; color:#ccc; margin-bottom:10px;">
+                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> 💎</div>
+                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> 💎</div>
+                </div>
+
+                <!-- Панель управления ставками -->
+                <div style="display:flex; gap:8px; margin-bottom:10px;">
+                    <button onclick="adjustSlotBet(-5)" style="flex:1; padding:4px; background:rgba(0,229,255,0.05); border-color:var(--trade-color); color:var(--trade-color); font-size:0.9rem; cursor:pointer;">-5</button>
+                    <button onclick="adjustSlotBet(5)" style="flex:1; padding:4px; background:rgba(0,229,255,0.05); border-color:var(--trade-color); color:var(--trade-color); font-size:0.9rem; cursor:pointer;">+5</button>
+                    <button onclick="setSlotBetMax()" style="flex:1; padding:4px; background:rgba(255,183,0,0.1); border-color:var(--quest-color); color:var(--quest-color); font-size:0.9rem; font-weight:bold; cursor:pointer;">МАКС</button>
+                </div>
+
+                <!-- Главная кнопка -->
+                <button id="btn-spin-slots" onclick="spinSlots()" style="width:100%; padding:10px; background:rgba(255,183,0,0.2); border-color:var(--quest-color); color:var(--quest-color); font-weight:bold; font-size:1.1rem; letter-spacing:1px; cursor:pointer;">🎰 ДЕРНУТЬ РЫЧАГ</button>
+
+                <!-- Лог результата -->
+                <div id="slot-result-log" style="text-align:center; font-size:0.95rem; margin-top:8px; min-height:20px; color:#aaa;">Сделайте ставку и испытайте удачу!</div>
+            </div>
+
+            <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>
+        </div>

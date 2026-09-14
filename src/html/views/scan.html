@@ -1,0 +1,32 @@
+        <!-- 1. СКАНЕР -->
+        <div id="view-scan" class="view active">
+            <!-- СТАТУС ИНФЕКЦИИ / ЗОМБИ В МЕНЮ СКАНА -->
+            <div id="scan-virus-status-card" style="display:none; background:rgba(255,51,51,0.12); border:2px solid var(--bandit-color); padding:10px; margin-bottom:12px; border-radius:6px; text-align:center;">
+                <div id="scan-virus-title" style="font-size:1.2rem; font-weight:bold; color:var(--bandit-color); margin-bottom:4px;">🧟 СТАТУС: ЗОМБИ</div>
+                <div id="scan-virus-timer" style="font-size:1rem; color:#fff;">Осталось до конца мутации: 10:00</div>
+            </div>
+            <div id="scan-infection-status-card" style="display:none; background:rgba(255,204,0,0.12); border:2px solid var(--rad-color); padding:10px; margin-bottom:12px; border-radius:6px; text-align:center;">
+                <div style="font-size:1.2rem; font-weight:bold; color:var(--rad-color); margin-bottom:4px;">⚠️ СТАТУС: ИНФИЦИРОВАН</div>
+                <div id="scan-infection-timer" style="font-size:1rem; color:#fff;">Осталось времени на лечение: 05:00</div>
+            </div>
+            <div id="qr-reader"></div>
+            <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
+
+            <div class="debug-input" id="admin-manual-scan-box" style="display:none; margin-top:10px;">
+                <input type="text" id="manual-code" placeholder="Код QR (junk_1, anom_1, npc_base)" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitManualCode();}">
+                <button type="button" id="btn-manual-enter" onclick="submitManualCode()">ВВОД</button>
+            </div>
+            <div id="radio-panel">
+                <div id="radio-header">
+                    <span onclick="registerRadioSecretClick()" style="font-weight:bold; cursor:pointer; user-select:none;">📻 РАДИОЧАСТОТА FM-42</span>
+                    <button id="btn-radio-toggle" onclick="toggleRadio()" style="padding: 2px 6px; font-size: 0.9rem; border-color: var(--trade-color); color: var(--trade-color);">ВЫКЛ</button>
+                </div>
+                <div id="radio-text">Нажмите [ВКЛ], чтобы слушать перехват местных радиопередач...</div>
+            </div>
+            <div id="scan-result" style="margin-top:10px; text-align:center;"></div>
+
+            <div class="profile-card" style="margin-top:15px; padding: 10px;">
+                <h4 style="border-bottom:1px dashed var(--quest-color); padding-bottom:4px; margin-bottom:8px; color:var(--quest-color); font-size:1.1rem; text-align:center;">📔 БЛОКНОТ ВЫЖИВШЕГО</h4>
+                <textarea id="survival-notes" oninput="saveSurvivalNotes()" style="width:100%; height:110px; background:rgba(0,0,0,0.5); border:1px solid var(--term-green); color:var(--term-green); font-family:'VT323',monospace; font-size:1.15rem; padding:8px; resize:none;" placeholder="Сюда можно записать коды дверей, координаты тайников или список необходимых ресурсов..."></textarea>
+            </div>
+        </div>

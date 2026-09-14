@@ -1,0 +1,62 @@
+/* ============================================================
+   04-views.css — стили вьюх, состояния, зомби-режим
+   ============================================================ */
+
+/* Низкое здоровье - красное свечение */
+.low-hp-vignette {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 996;
+    pointer-events: none;
+    box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.0);
+    opacity: 0;
+    transition: opacity 0.5s ease, box-shadow 0.5s ease;
+}
+
+.low-hp-active {
+    opacity: 1;
+    box-shadow: inset 0 0 55px rgba(255, 0, 0, 0.65);
+    animation: pulse-vignette 1.8s infinite alternate ease-in-out;
+}
+
+@keyframes pulse-vignette {
+    0% { opacity: 0.2; box-shadow: inset 0 0 35px rgba(255, 0, 0, 0.4); }
+    100% { opacity: 0.9; box-shadow: inset 0 0 65px rgba(255, 0, 0, 0.75); }
+}
+
+.hero-glow {
+    color: var(--hero-color) !important;
+    text-shadow: 0 0 10px var(--hero-color), 0 0 20px var(--hero-color) !important;
+    animation: pulse-gold 2s infinite;
+}
+
+@keyframes pulse-gold {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+/* Красный интерфейс режима ЗОМБИ */
+body.zombie-interface {
+    --term-green: #ff3333 !important;
+    --term-dark: #1a0000 !important;
+    --metal-bg: #3a1515 !important;
+    --metal-border: #882222 !important;
+    background-color: #1a0000 !important;
+    text-shadow: 0 0 4px #ff3333 !important;
+}
+
+body.zombie-interface button {
+    background: #220000 !important;
+    color: #ff3333 !important;
+    border-color: #ff3333 !important;
+}
+
+body.zombie-interface button:active {
+    background: #ff3333 !important;
+    color: #220000 !important;
+}
+
+body.zombie-interface #hud {
+    border-bottom-color: #ff3333 !important;
+}

@@ -1,0 +1,97 @@
+        <!-- 3.5. КАРТА ЗОНЫ -->
+        <div id="view-map" class="view">
+            <h3 style="color:var(--term-green); border-bottom: 1px dashed var(--term-green); padding-bottom: 5px; margin-bottom:10px; text-align:center;">🗺 ИНТЕРАКТИВНАЯ КАРТА ЗОНЫ</h3>
+
+            <!-- Экран карты -->
+            <div id="map-container" style="touch-action: none; position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
+                <!-- СЕТКА КООРДИНАТ 5x5 С ЯРКИМИ СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
+                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2; background: rgba(0,20,0,0.2);">
+                    <!-- Ряд 1 -->
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C1</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D1</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E1</div>
+
+                    <!-- Ряд 2 -->
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C2</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D2</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E2</div>
+
+                    <!-- Ряд 3 -->
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C3</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D3</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E3</div>
+
+                    <!-- Ряд 4 -->
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C4</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D4</div>
+                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E4</div>
+
+                    <!-- Ряд 5 -->
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C5</div>
+                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
+                    <div style="padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E5</div>
+                </div>
+
+                <!-- Слои маркеров рендерится через JS -->
+                <div id="map-markers-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10;"></div>
+            </div>
+
+            <!-- Инфо-карточка локации -->
+            <div id="map-info-card" class="profile-card" style="margin-top:10px; padding:10px; min-height:65px; border-color:var(--term-green);">
+                <div id="map-info-title" style="font-weight:bold; color:var(--term-green); font-size:1.05rem;">Выберите маркер на карте...</div>
+                <div id="map-info-desc" style="font-size:0.9rem; color:#aaa; margin-top:4px;">Нажмите на любую метку, чтобы просмотреть сведения о локации или переместить её в режиме редактора.</div>
+            </div>
+
+            <!-- Переключатель Режима Редактора -->
+            <button id="btn-toggle-map-editor" onclick="toggleMapEditor()" style="width:100%; margin-top:8px; border-color:var(--quest-color); color:var(--quest-color); font-size:0.95rem;">⚙️ ВКТЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)</button>
+
+            <!-- Панель управления редактором (скрыта по умолчанию) -->
+            <div id="map-editor-panel" class="profile-card" style="display:none; margin-top:10px; border-color:var(--quest-color); background:rgba(255,183,0,0.03);">
+                <h4 style="color:var(--quest-color); border-bottom:1px dashed var(--quest-color); padding-bottom:4px; margin-bottom:8px; text-align:center;">🛠 НАСТРОЙКА ЛОКАЦИЙ ЗОНЫ</h4>
+
+                <div style="display:flex; flex-direction:column; gap:6px; font-size:0.9rem;">
+                    <div><label style="color:#ccc;">Название метки:</label><input type="text" id="edit-marker-name" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px;" placeholder="Название объекта..."></div>
+                    <div><label style="color:#ccc;">Иконка (Emoji):</label><input type="text" id="edit-marker-icon" oninput="onIconInputUpdate()" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px;" placeholder="🏰, 📻, ☣️, 💀, 📍..."></div>
+                    <div>
+                        <label style="color:#ccc;">Цвет обводки метки:</label>
+                        <select id="edit-marker-color" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px; font-family:'VT323',monospace; font-size:1.05rem;">
+                            <option value="var(--term-green)">🟢 Зеленый (База / Нейтралы)</option>
+                            <option value="var(--trade-color)">🔵 Голубой (Связь / Торговля)</option>
+                            <option value="var(--quest-color)">🟡 Оранжевый (Важный объект)</option>
+                            <option value="var(--bandit-color)">🔴 Красный (Опасность / Бандиты)</option>
+                            <option value="var(--rad-color)">⚠️ Желтый (Аномалия / Радиация)</option>
+                            <option value="#b026ff">🟣 Фиолетовый (Секретная зона)</option>
+                            <option value="#ffffff">⚪ Белый (Нейтральный)</option>
+                        </select>
+                    </div>
+                    <div><label style="color:#ccc;">Описание:</label><textarea id="edit-marker-desc" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:4px; height:50px;" placeholder="Описание объекта..."></textarea></div>
+                </div>
+
+                <div style="display:flex; gap:6px; margin-top:8px;">
+                    <button onclick="saveSelectedMarker()" style="flex:1; padding:6px; border-color:var(--term-green); color:var(--term-green);">💾 СОХРАНИТЬ</button>
+                    <button onclick="addNewMapMarker()" style="flex:1; padding:6px; border-color:var(--trade-color); color:var(--trade-color);">➕ СОЗДАТЬ</button>
+                    <button onclick="deleteSelectedMarker()" class="btn-danger" style="flex:1; padding:6px;">🗑 УДАЛИТЬ</button>
+                </div>
+                <button onclick="resetMapMarkersToDefault()" style="width:100%; margin-top:6px; font-size:0.8rem; padding:4px; border-color:#777; color:#aaa;">🔄 СБРОСИТЬ МЕТКИ ПО УМОЛЧАНИЮ</button>
+
+                <!-- ЗАГРУЗКА СОБСТВЕННОЙ КАРТЫ С ТЕЛЕФОНА -->
+                <div style="margin-top:12px; border-top:1px dashed var(--quest-color); padding-top:8px;">
+                    <label style="color:var(--trade-color); font-weight:bold; display:block; margin-bottom:4px; text-align:center;">🖼 ФОНОВЫЙ РИСУНОК КАРТЫ</label>
+                    <input type="file" id="map-bg-file-input" accept="image/*" onchange="uploadCustomMapBg(event)" style="display:none;">
+                    <button onclick="document.getElementById('map-bg-file-input').click()" style="width:100%; border-color:var(--trade-color); color:var(--trade-color); font-size:0.95rem;">📷 ВЫБРАТЬ КАРТЫ ИЗ ГАЛЕРЕИ ТЕЛЕФОНА</button>
+                    <button onclick="resetCustomMapBg()" style="width:100%; margin-top:4px; font-size:0.8rem; padding:3px; border-color:#666; color:#888;">🗑 УДАЛИТЬ ФОН КАРТЫ</button>
+                </div>
+            </div>
+        </div>
+
+                <!-- 3.6. КАМЕРА ПДА (ТАКТИЧЕСКОЕ ФОТО) -->

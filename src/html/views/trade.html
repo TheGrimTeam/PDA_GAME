@@ -1,0 +1,17 @@
+        <!-- 5. ТОРГОВЛЯ С NPC И БАЗОЙ -->
+        <div id="view-trade" class="view">
+            <h3 id="trade-npc-name" class="trade-text">ТОРГОВЕЦ</h3>
+            <div id="medic-heal-box" style="display:none; text-align:center; border:1px dashed #ff3333; padding:10px; margin-bottom:15px;">
+                <p style="margin-bottom:5px;">Медицинские услуги</p>
+                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ (50 💎)</button>
+            </div>
+            <div id="base-sell-all-box" style="display:none; text-align:center; border:1px dashed #ffcc00; padding:10px; margin-bottom:15px;">
+                <p style="margin-bottom:5px; color:#ffcc00;" id="base-sell-desc">Сдать весь лут Корпорации</p>
+                <button onclick="sellAllToBase()" style="border-color:#ffcc00; color:#ffcc00; width:100%;">ПРОДАТЬ ВЕСЬ РЮКЗАК</button>
+            </div>
+            <h4 id="title-trade-buy" style="border-bottom:1px dashed var(--trade-color);">В ПРОДАЖЕ</h4>
+            <div id="trade-buy-list" style="margin-bottom:15px;"></div>
+            <h4 id="title-trade-sell" style="border-bottom:1px dashed var(--trade-color);">СКУПАЕТ У ВАС</h4>
+            <div id="trade-sell-list"></div>
+            <button onclick="switchView('scan')" style="width:100%; margin-top:20px;">ЗАКОНЧИТЬ ТОРГОВЛЮ</button>
+        </div>
