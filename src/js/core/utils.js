@@ -105,7 +105,7 @@ function processOfflineTime() {
             if (player.karma_score < 3) {
                 let radGainPerMin = Math.max(1, Math.round(2 * getRadMultiplier()));
                 totalRadGain = diffMinutes * radGainPerMin;
-                player.rads = Math.min(60, player.rads + totalRadGain);
+                player.rads = Math.min(MAX_RADS, player.rads + totalRadGain);
             }
 
             // Урон от голода или радиации в офлайне

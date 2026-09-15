@@ -996,7 +996,7 @@ const QR_PREFIX_ZOMBIE_ID = 'zombie_id:';
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
 const MAX_HUNGER = 100;
-const MAX_RADS = 100;
+const MAX_RADS = 60;   // максимальный уровень радиации (потолок накопления)
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
@@ -1531,7 +1531,7 @@ function processOfflineTime() {
             if (player.karma_score < 3) {
                 let radGainPerMin = Math.max(1, Math.round(2 * getRadMultiplier()));
                 totalRadGain = diffMinutes * radGainPerMin;
-                player.rads = Math.min(60, player.rads + totalRadGain);
+                player.rads = Math.min(MAX_RADS, player.rads + totalRadGain);
             }
 
             // Урон от голода или радиации в офлайне
@@ -3529,7 +3529,7 @@ function startEventLoop() {
             if (player.shelterLevel >= 2) {
                 radGain = Math.max(1, Math.round(radGain * 0.9));
             }
-            player.rads = Math.min(60, player.rads + radGain);
+            player.rads = Math.min(MAX_RADS, player.rads + radGain);
         } else {
             player.rads = 0;
         }
@@ -3557,7 +3557,7 @@ function startEventLoop() {
                         }
                         let radGain = Math.max(2, Math.round(15 * getRadMultiplier()));
                         if (player.karma_score < 3) {
-                            player.rads = Math.min(60, player.rads + radGain);
+                            player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {
                             showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
                         }
@@ -3708,7 +3708,7 @@ function resolveBlowout() {
     // Игрок не успел отсканировать нужный QR-код во время Выброса
     playSound('death');
     player.hp = Math.max(1, Math.round(player.hp * 0.3)); // Снижает HP до 30%
-    player.rads = Math.min(60, (player.rads || 0) + 35); // Радиация
+    player.rads = Math.min(MAX_RADS, (player.rads || 0) + 35); // Радиация
     saveState();
 
     let scr = document.getElementById('screen');
@@ -3867,7 +3867,7 @@ function resolveSlots() {
             playSound('karma');
             if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
         } else {
-            player.rads = Math.min(60, (player.rads || 0) + 5);
+            player.rads = Math.min(MAX_RADS, (player.rads || 0) + 5);
             playSound('death');
             if (log) log.innerHTML = '<span style="color:var(--bandit-color); font-weight:bold;">ПРОКЛЯТЫЙ ДЖЕКПОТ 3x 💀! Получено +5 Рад!</span>';
         }
@@ -4310,7 +4310,7 @@ function switchView(viewName) {
 
 function updateHUD() {
     try {
-        if (player.rads > 60) player.rads = 60;
+        if (player.rads > MAX_RADS) player.rads = MAX_RADS;
         let baseMaxHp = getMaxHp();
         let maxHp = baseMaxHp - (player.rads || 0);
         if (player.hp > maxHp) player.hp = maxHp;
@@ -4331,7 +4331,7 @@ function updateHUD() {
         if (document.getElementById('hp-max-val')) document.getElementById('hp-max-val').innerText = '/' + baseMaxHp;
         if (document.getElementById('rad-val')) {
             document.getElementById('rad-val').innerText = player.rads;
-            document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
+            document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
         }
         if (document.getElementById('hunger-val')) {
             document.getElementById('hunger-val').innerText = player.hunger;

@@ -201,7 +201,7 @@ function startEventLoop() {
             if (player.shelterLevel >= 2) {
                 radGain = Math.max(1, Math.round(radGain * 0.9));
             }
-            player.rads = Math.min(60, player.rads + radGain);
+            player.rads = Math.min(MAX_RADS, player.rads + radGain);
         } else {
             player.rads = 0;
         }
@@ -229,7 +229,7 @@ function startEventLoop() {
                         }
                         let radGain = Math.max(2, Math.round(15 * getRadMultiplier()));
                         if (player.karma_score < 3) {
-                            player.rads = Math.min(60, player.rads + radGain);
+                            player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {
                             showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
                         }

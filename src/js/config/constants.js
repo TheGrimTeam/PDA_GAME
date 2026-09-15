@@ -34,7 +34,7 @@ const QR_PREFIX_ZOMBIE_ID = 'zombie_id:';
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
 const MAX_HUNGER = 100;
-const MAX_RADS = 100;
+const MAX_RADS = 60;   // максимальный уровень радиации (потолок накопления)
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби

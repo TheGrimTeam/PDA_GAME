@@ -33,7 +33,7 @@ function switchView(viewName) {
 
 function updateHUD() {
     try {
-        if (player.rads > 60) player.rads = 60;
+        if (player.rads > MAX_RADS) player.rads = MAX_RADS;
         let baseMaxHp = getMaxHp();
         let maxHp = baseMaxHp - (player.rads || 0);
         if (player.hp > maxHp) player.hp = maxHp;
@@ -54,7 +54,7 @@ function updateHUD() {
         if (document.getElementById('hp-max-val')) document.getElementById('hp-max-val').innerText = '/' + baseMaxHp;
         if (document.getElementById('rad-val')) {
             document.getElementById('rad-val').innerText = player.rads;
-            document.getElementById('rad-val').style.color = player.rads >= 50 ? '#ffcc00' : '';
+            document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
         }
         if (document.getElementById('hunger-val')) {
             document.getElementById('hunger-val').innerText = player.hunger;

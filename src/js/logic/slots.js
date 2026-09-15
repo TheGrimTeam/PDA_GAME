@@ -96,7 +96,7 @@ function resolveSlots() {
             playSound('karma');
             if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
         } else {
-            player.rads = Math.min(60, (player.rads || 0) + 5);
+            player.rads = Math.min(MAX_RADS, (player.rads || 0) + 5);
             playSound('death');
             if (log) log.innerHTML = '<span style="color:var(--bandit-color); font-weight:bold;">ПРОКЛЯТЫЙ ДЖЕКПОТ 3x 💀! Получено +5 Рад!</span>';
         }

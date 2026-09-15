@@ -77,7 +77,7 @@ function resolveBlowout() {
     // Игрок не успел отсканировать нужный QR-код во время Выброса
     playSound('death');
     player.hp = Math.max(1, Math.round(player.hp * 0.3)); // Снижает HP до 30%
-    player.rads = Math.min(60, (player.rads || 0) + 35); // Радиация
+    player.rads = Math.min(MAX_RADS, (player.rads || 0) + 35); // Радиация
     saveState();
 
     let scr = document.getElementById('screen');
