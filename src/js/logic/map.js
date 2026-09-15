@@ -12,7 +12,7 @@ let draggedMarkerId = null;
 function applyMapBackground() {
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) return;
-    const savedBg = localStorage.getItem('pda_custom_map_bg');
+    const savedBg = localStorage.getItem(STORAGE_KEY_MAP_BG);
     if (savedBg) {
         mapContainer.style.backgroundImage = `url(${savedBg})`;
         mapContainer.style.backgroundSize = 'cover';
@@ -30,7 +30,7 @@ function uploadCustomMapBg(event) {
     const reader = new FileReader();
     reader.onload = function (e) {
         try {
-            localStorage.setItem('pda_custom_map_bg', e.target.result);
+            localStorage.setItem(STORAGE_KEY_MAP_BG, e.target.result);
             applyMapBackground();
             playSound('karma');
             showBanner("🗺️ Карта успешно загружена в исходном качестве!", 'var(--term-green)');
@@ -42,14 +42,14 @@ function uploadCustomMapBg(event) {
 }
 
 function resetCustomMapBg() {
-    localStorage.removeItem('pda_custom_map_bg');
+    localStorage.removeItem(STORAGE_KEY_MAP_BG);
     applyMapBackground();
     playSound('use');
     alert("Фон карты сброшен к стандартному виду.");
 }
 
 function initMapSystem() {
-    let saved = localStorage.getItem('pda_zone_markers');
+    let saved = localStorage.getItem(STORAGE_KEY_MAP_MARKERS);
     if (saved) {
         try {
             zoneMarkers = JSON.parse(saved);
@@ -281,7 +281,7 @@ function resetMapMarkersToDefault() {
 }
 
 function saveMapMarkers() {
-    localStorage.setItem('pda_zone_markers', JSON.stringify(zoneMarkers));
+    localStorage.setItem(STORAGE_KEY_MAP_MARKERS, JSON.stringify(zoneMarkers));
 }
 
 // Обработка перетаскивания (Drag & Drop)
@@ -383,14 +383,14 @@ function handleMapBackgroundUpload(event) {
             let compressedDataUrl = canvas.toDataURL('image/jpeg', 0.55);
 
             try {
-                localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                localStorage.setItem(STORAGE_KEY_MAP_BG, compressedDataUrl);
                 applyMapBackground();
                 playSound('karma');
                 alert("🗺️ Карта успешно сжата и сохранена!");
             } catch (err) {
                 try {
                     localStorage.removeItem('wasteland_player_history');
-                    localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                    localStorage.setItem(STORAGE_KEY_MAP_BG, compressedDataUrl);
                     applyMapBackground();
                     playSound('karma');
                     alert("🗺️ Карта успешно сохранена!");

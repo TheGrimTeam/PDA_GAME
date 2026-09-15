@@ -68,7 +68,7 @@ function renderShelter() {
             let isMet = have >= need;
             if (!isMet) hasAll = false;
 
-            textReq.push(`<span style="color:${isMet ? 'var(--term-green)' : '#ff3333'}">${itemName}: ${have}/${need}</span>`);
+            textReq.push(`<span style="color:${isMet ? 'var(--term-green)' : COLOR_BANDIT}">${itemName}: ${have}/${need}</span>`);
         }
 
         document.getElementById('shelter-req-list').innerHTML = "<b>Требуется:</b><br>" + textReq.join("<br>") + `<br><br><span style="color:var(--trade-color)">Бонус: ${nextInfo.bonus}</span>`;

@@ -12,7 +12,7 @@ let pendingRepairWeapon = null;
 
 let player = savedPlayer || {
     callsign: defaultCallsign, karma_score: 0, tokens_collected: 0,
-    hp: 100, rads: 0, hunger: 100, maxSize: 30, score: 0,
+    hp: MAX_HP_BASE, rads: 0, hunger: MAX_HUNGER, maxSize: MAX_BACKPACK_SIZE, score: 0,
     inventory: [], safeBox: [], safeBoxUnlocked: false,
     scannedCodes: {}, quests: { active: [], choices: [] }, upgradeQuest: genQ(1, 2), safeBoxQuest: genQ(3, 5), radioOn: false,
     equipment: null, completedQuestsCount: 0, npcRep: {},
@@ -26,7 +26,7 @@ if (player.karma_score === undefined) {
 }
 if (player.rads === undefined) player.rads = 0;
 if (player.tokens_collected === undefined) player.tokens_collected = 0;
-if (player.hunger === undefined) player.hunger = 100;
+if (player.hunger === undefined) player.hunger = MAX_HUNGER;
 if (player.radioOn === undefined) player.radioOn = false;
 if (!player.quests) player.quests = { active: null, choices: [] };
 if (!player.safeBox) player.safeBox = [];

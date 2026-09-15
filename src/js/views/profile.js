@@ -52,8 +52,8 @@ function renderProfile() {
 
     let karmaEl = document.getElementById('prof-karma');
     if (karmaEl) {
-        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-        let isInf = player.infectionTime && ((Date.now() - player.infectionTime)/1000 < 300);
+        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+        let isInf = player.infectionTime && ((Date.now() - player.infectionTime) < INFECTION_TIME_MS);
         if (isZomb) {
             karmaEl.innerText = '🧟 ЗОМБИ';
             karmaEl.className = 'danger';
@@ -227,7 +227,7 @@ function handlePdaPhotoCaptured(event) {
             // 2. Атмосферная пиксельная обработка фото под 3 уникальных фильтра Выживания
             let selectedFilter = document.getElementById('pda-photo-filter-select') ? document.getElementById('pda-photo-filter-select').value : 'green';
 
-            let themeColor = '#39ff14';
+            let themeColor = COLOR_TERM_GREEN;
             let bgDark = 'rgba(2, 11, 2, 0.88)';
 
             let imgData = ctx.getImageData(0, 0, width, height);
@@ -258,7 +258,7 @@ function handlePdaPhotoCaptured(event) {
 
             } else if (selectedFilter === 'mono') {
                 // 💀 МЕРТВАЯ ПУСТОШЬ (ЧЁРНО-БЕЛЫЙ ХОЛОДНЫЙ НУАР ВЫЖИВАНИЯ)
-                themeColor = '#00e5ff'; // Холодный неоново-голубой стальной интерфейс
+                themeColor = COLOR_TRADE; // Холодный неоново-голубой стальной интерфейс
                 bgDark = 'rgba(10, 15, 20, 0.90)';
 
                 for (let i = 0; i < data.length; i += 4) {
@@ -283,7 +283,7 @@ function handlePdaPhotoCaptured(event) {
 
             } else {
                 // ☢️ РАДИОАКТИВНЫЙ ФОСФОР (КЛАССИЧЕСКИЙ ИЗУМРУДНЫЙ ПДА)
-                themeColor = '#39ff14';
+                themeColor = COLOR_TERM_GREEN;
                 bgDark = 'rgba(2, 12, 2, 0.90)';
 
                 for (let i = 0; i < data.length; i += 4) {

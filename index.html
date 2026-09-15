@@ -969,7 +969,6 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 
 // --- Цвета интерфейса (используются в JS-логике) ---
 const COLOR_TERM_GREEN = '#39ff14';
-const COLOR_QUEST = '#ffb700';
 const COLOR_TRADE = '#00e5ff';
 const COLOR_BANDIT = '#ff3333';
 const COLOR_RAD = '#ffcc00';
@@ -1000,12 +999,12 @@ const MAX_RADS = 60;   // максимальный уровень радиаци
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
-const BLOWOUT_INTERVAL_MS = 15 * 60 * 1000; // период выброса
+const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
 // --- Ключи localStorage ---
 const STORAGE_KEY_PLAYER = 'wasteland_player';
-const STORAGE_KEY_MAP_MARKERS = 'wasteland_map_markers';
-const STORAGE_KEY_MAP_BG = 'wasteland_map_bg';
+const STORAGE_KEY_MAP_MARKERS = 'pda_zone_markers';
+const STORAGE_KEY_MAP_BG = 'pda_custom_map_bg';
 
 
 /* ===== next js file ===== */
@@ -1123,7 +1122,7 @@ let pendingRepairWeapon = null;
 
 let player = savedPlayer || {
     callsign: defaultCallsign, karma_score: 0, tokens_collected: 0,
-    hp: 100, rads: 0, hunger: 100, maxSize: 30, score: 0,
+    hp: MAX_HP_BASE, rads: 0, hunger: MAX_HUNGER, maxSize: MAX_BACKPACK_SIZE, score: 0,
     inventory: [], safeBox: [], safeBoxUnlocked: false,
     scannedCodes: {}, quests: { active: [], choices: [] }, upgradeQuest: genQ(1, 2), safeBoxQuest: genQ(3, 5), radioOn: false,
     equipment: null, completedQuestsCount: 0, npcRep: {},
@@ -1137,7 +1136,7 @@ if (player.karma_score === undefined) {
 }
 if (player.rads === undefined) player.rads = 0;
 if (player.tokens_collected === undefined) player.tokens_collected = 0;
-if (player.hunger === undefined) player.hunger = 100;
+if (player.hunger === undefined) player.hunger = MAX_HUNGER;
 if (player.radioOn === undefined) player.radioOn = false;
 if (!player.quests) player.quests = { active: null, choices: [] };
 if (!player.safeBox) player.safeBox = [];
@@ -1438,7 +1437,7 @@ function getKarmaStatus() {
 function getMaxHp() {
     let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
     let crowLvl = getNpcRepLevel(crowRep);
-    let baseMaxHp = Math.round(100 * (1 + crowLvl * 0.1));
+    let baseMaxHp = Math.round(MAX_HP_BASE * (1 + crowLvl * 0.1));
     if (player.shelterLevel >= 4) {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }
@@ -1729,8 +1728,8 @@ function handleScan(qrCode) {
     if (player.hp <= 0) return;
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
-    if (player.zombieTime && ((Date.now() - player.zombieTime) / 1000 < 600)) {
-        if (code.startsWith("rob:") || code.startsWith("heal:") || code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_") || code.startsWith("junk_") || code.startsWith("item_") || code.startsWith("food_") || code.startsWith("gear_") || code.startsWith("med_") || code.startsWith("wpn_") || code.startsWith("art_") || code.includes("loot")) {
+    if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT)) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -1749,7 +1748,7 @@ function handleScan(qrCode) {
     }
 
     // Взлом терминалов и флешек
-    if (code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_")) {
+    if (code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM)) {
         startHacking(code);
         return;
     }
@@ -1761,17 +1760,17 @@ function handleScan(qrCode) {
     }
 
     // Арест военным (arrest:...) или сканирование бандита (bandit_id:...)
-    if (code.startsWith("arrest:")) {
+    if (code.startsWith(QR_PREFIX_ARREST)) {
         handleArrestScan(code);
         return;
     }
-    if (code.startsWith("bandit_id:")) {
+    if (code.startsWith(QR_PREFIX_BANDIT_ID)) {
         handleBanditScan(code);
         return;
     }
 
     // 1. Помощь умирающему (Спасение)
-    if (code.startsWith("heal:")) {
+    if (code.startsWith(QR_PREFIX_HEAL)) {
         let parts = code.split(":"); let corpseId = parts[1]; let targetName = parts[2];
 
         let consumableIdx = player.inventory.findIndex(id => ITEMS_DB[id].cat === 'food' || ITEMS_DB[id].cat === 'med');
@@ -1797,7 +1796,7 @@ function handleScan(qrCode) {
     }
 
     // 2. Мародерство (Грабеж)
-    if (code.startsWith("rob:")) {
+    if (code.startsWith(QR_PREFIX_ROB)) {
         let parts = code.split(":");
         let corpseType = 'survivor';
         let corpseId = '';
@@ -2000,7 +1999,7 @@ function handleDeadScan(qrCode) {
     }
 
     if (allowedBase) {
-        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
+        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = MAX_HUNGER; player.inventory = []; player.quests.active = null;
         player.infectionTime = 0; player.zombieTime = 0;
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
@@ -2085,7 +2084,7 @@ function useFood(index, id, isSafe = false) {
     }
     let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
     let barLvl = getNpcRepLevel(barRep);
-    let maxHunger = 100 + (barLvl * 10);
+    let maxHunger = MAX_HUNGER + (barLvl * 10);
     player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
@@ -2124,7 +2123,7 @@ function applyUpgrade() {
 
     let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
     let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-    player.maxSize = 30 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
 
     player.upgradeQuest = genQ(1, 2);
     saveState();
@@ -2720,7 +2719,7 @@ function renderShelter() {
             let isMet = have >= need;
             if (!isMet) hasAll = false;
 
-            textReq.push(`<span style="color:${isMet ? 'var(--term-green)' : '#ff3333'}">${itemName}: ${have}/${need}</span>`);
+            textReq.push(`<span style="color:${isMet ? 'var(--term-green)' : COLOR_BANDIT}">${itemName}: ${have}/${need}</span>`);
         }
 
         document.getElementById('shelter-req-list').innerHTML = "<b>Требуется:</b><br>" + textReq.join("<br>") + `<br><br><span style="color:var(--trade-color)">Бонус: ${nextInfo.bonus}</span>`;
@@ -2851,8 +2850,8 @@ function submitHackWord(word) {
         playSound('sell');
 
         // Начисление случайной награды
-        let minC = currentHackCode.startsWith("safe_") ? 300 : 100;
-        let maxC = currentHackCode.startsWith("safe_") ? 600 : 300;
+        let minC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 300 : 100;
+        let maxC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 600 : 300;
         let creditsReward = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
 
         player.score += creditsReward;
@@ -2931,7 +2930,7 @@ let draggedMarkerId = null;
 function applyMapBackground() {
     const mapContainer = document.getElementById('map-container');
     if (!mapContainer) return;
-    const savedBg = localStorage.getItem('pda_custom_map_bg');
+    const savedBg = localStorage.getItem(STORAGE_KEY_MAP_BG);
     if (savedBg) {
         mapContainer.style.backgroundImage = `url(${savedBg})`;
         mapContainer.style.backgroundSize = 'cover';
@@ -2949,7 +2948,7 @@ function uploadCustomMapBg(event) {
     const reader = new FileReader();
     reader.onload = function (e) {
         try {
-            localStorage.setItem('pda_custom_map_bg', e.target.result);
+            localStorage.setItem(STORAGE_KEY_MAP_BG, e.target.result);
             applyMapBackground();
             playSound('karma');
             showBanner("🗺️ Карта успешно загружена в исходном качестве!", 'var(--term-green)');
@@ -2961,14 +2960,14 @@ function uploadCustomMapBg(event) {
 }
 
 function resetCustomMapBg() {
-    localStorage.removeItem('pda_custom_map_bg');
+    localStorage.removeItem(STORAGE_KEY_MAP_BG);
     applyMapBackground();
     playSound('use');
     alert("Фон карты сброшен к стандартному виду.");
 }
 
 function initMapSystem() {
-    let saved = localStorage.getItem('pda_zone_markers');
+    let saved = localStorage.getItem(STORAGE_KEY_MAP_MARKERS);
     if (saved) {
         try {
             zoneMarkers = JSON.parse(saved);
@@ -3200,7 +3199,7 @@ function resetMapMarkersToDefault() {
 }
 
 function saveMapMarkers() {
-    localStorage.setItem('pda_zone_markers', JSON.stringify(zoneMarkers));
+    localStorage.setItem(STORAGE_KEY_MAP_MARKERS, JSON.stringify(zoneMarkers));
 }
 
 // Обработка перетаскивания (Drag & Drop)
@@ -3302,14 +3301,14 @@ function handleMapBackgroundUpload(event) {
             let compressedDataUrl = canvas.toDataURL('image/jpeg', 0.55);
 
             try {
-                localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                localStorage.setItem(STORAGE_KEY_MAP_BG, compressedDataUrl);
                 applyMapBackground();
                 playSound('karma');
                 alert("🗺️ Карта успешно сжата и сохранена!");
             } catch (err) {
                 try {
                     localStorage.removeItem('wasteland_player_history');
-                    localStorage.setItem('pda_custom_map_bg', compressedDataUrl);
+                    localStorage.setItem(STORAGE_KEY_MAP_BG, compressedDataUrl);
                     applyMapBackground();
                     playSound('karma');
                     alert("🗺️ Карта успешно сохранена!");
@@ -3335,8 +3334,8 @@ function startInfectionLoop() {
     setInterval(() => {
 
         // Обновление таймеров и статусов инфицирования / зомби в UI и сканере
-        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-        let isInf = player.infectionTime && ((Date.now() - player.infectionTime)/1000 < 300);
+        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+        let isInf = player.infectionTime && ((Date.now() - player.infectionTime) < INFECTION_TIME_MS);
 
         // Применение красного интерфейса в режиме ЗОМБИ
         if (isZomb) {
@@ -3352,7 +3351,7 @@ function startInfectionLoop() {
         if (scanInfCard && scanZombCard) {
             if (isInf) {
                 scanInfCard.style.display = 'block';
-                let infRem = Math.max(0, Math.ceil(300 - ((Date.now() - player.infectionTime)/1000)));
+                let infRem = Math.max(0, Math.ceil((INFECTION_TIME_MS - (Date.now() - player.infectionTime))/1000));
                 let m = Math.floor(infRem / 60);
                 let s = infRem % 60;
                 let timerEl = document.getElementById('scan-infection-timer');
@@ -3363,7 +3362,7 @@ function startInfectionLoop() {
 
             if (isZomb) {
                 scanZombCard.style.display = 'block';
-                let zomRem = Math.max(0, Math.ceil(600 - ((Date.now() - player.zombieTime)/1000)));
+                let zomRem = Math.max(0, Math.ceil((ZOMBIE_TIME_MS - (Date.now() - player.zombieTime))/1000));
                 let m = Math.floor(zomRem / 60);
                 let s = zomRem % 60;
                 let timerEl = document.getElementById('scan-virus-timer');
@@ -3387,10 +3386,10 @@ function startInfectionLoop() {
 
         let now = Date.now();
 
-        // Фаза 1: Инфицирован (5 минут = 300 секунд)
+        // Фаза 1: Инфицирован (INFECTION_TIME_MS)
         if (player.infectionTime) {
             let infElapsed = (now - player.infectionTime) / 1000;
-            let remSec = Math.max(0, Math.ceil(300 - infElapsed));
+            let remSec = Math.max(0, Math.ceil((INFECTION_TIME_MS - (now - player.infectionTime)) / 1000));
 
             let deadBanner = document.getElementById('dead-infection-banner');
             let deadTimerEl = document.getElementById('dead-infection-timer');
@@ -3405,8 +3404,8 @@ function startInfectionLoop() {
                 }
             }
 
-            if (infElapsed >= 300) {
-                // Время вышло, не вылечился -> становимся ЗОМБИ (Фаза 2 на 10 минут = 600 секунд)
+            if ((now - player.infectionTime) >= INFECTION_TIME_MS) {
+                // Время вышло, не вылечился -> становимся ЗОМБИ (Фаза 2)
                 player.infectionTime = 0;
                 player.zombieTime = now;
                 playSound('hazard');
@@ -3418,10 +3417,9 @@ function startInfectionLoop() {
             if (deadBanner) deadBanner.style.display = 'none';
         }
 
-        // Фаза 2: Зомби (10 минут = 600 секунд)
+        // Фаза 2: Зомби (ZOMBIE_TIME_MS)
         if (player.zombieTime) {
-            let zomElapsed = (now - player.zombieTime) / 1000;
-            if (zomElapsed >= 600) {
+            if ((now - player.zombieTime) >= ZOMBIE_TIME_MS) {
                 // Время зомби вышло -> вирус выгорел сам, возвращаемся в норму
                 player.zombieTime = 0;
                 playSound('heal');
@@ -3540,7 +3538,7 @@ function startEventLoop() {
             let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
             player.hp = Math.max(0, player.hp - hungerDmg);
             playSound('hazard');
-            showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', '#ff3333');
+            showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', COLOR_BANDIT);
             checkDeathState();
         }
 
@@ -3559,7 +3557,7 @@ function startEventLoop() {
                         if (player.karma_score < 3) {
                             player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {
-                            showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
+                            showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', COLOR_HERO);
                         }
                         checkDeathState();
                     }
@@ -3620,7 +3618,7 @@ function startEventLoop() {
             ][Math.floor(Math.random() * 4)];
             ev.a(); saveState(); playSound('hazard');
             if (player.equipment !== 'eq_storm') {
-                showBanner(ev.m, '#ffcc00');
+                showBanner(ev.m, COLOR_RAD);
             }
         }
     }, 60000);
@@ -3640,10 +3638,10 @@ let isBlowoutIncoming = false;
 
 function startBlowoutSchedule() {
     if (blowoutTimer) clearInterval(blowoutTimer);
-    // Каждый 1 час (3600000 мс)
+    // Период выброса задаётся константой BLOWOUT_INTERVAL_MS
     blowoutTimer = setInterval(() => {
         triggerBlowoutSequence();
-    }, 3600000);
+    }, BLOWOUT_INTERVAL_MS);
 }
 
 function triggerTestBlowout() {
@@ -4114,7 +4112,7 @@ function generateArrestWarrantQR() {
     let container = document.getElementById('arrest-qr-container');
     container.style.display = 'block';
     let warrantId = "arrest_" + player.callsign + "_" + Date.now();
-    generateQR('arrest-qr-container', `arrest:${player.callsign}:${warrantId}`);
+    generateQR('arrest-qr-container', `${QR_PREFIX_ARREST}${player.callsign}:${warrantId}`);
     alert("Ордер на арест сгенерирован! Покажите этот QR-код бандиту для сканирования его ПДА.");
 }
 
@@ -4270,7 +4268,7 @@ function updateAdminVisibility() {
     if (loginBtn) loginBtn.style.display = player.isAdmin ? 'none' : 'block';
 }
 
-function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem('wasteland_player'); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
+function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem(STORAGE_KEY_PLAYER); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
 
 
 /* ===== next js file ===== */
@@ -4352,7 +4350,7 @@ function updateHUD() {
         let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
         if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
         let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-        player.maxSize = 30 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+        player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
 
         if (document.getElementById('inv-max')) document.getElementById('inv-max').innerText = player.maxSize;
         if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
@@ -4457,7 +4455,7 @@ function checkDeathState() {
 function showHealQR() {
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "help_" + Date.now();
-    generateQR('corpse-qr-container', "heal:" + cId + ":" + player.callsign);
+    generateQR('corpse-qr-container', QR_PREFIX_HEAL + cId + ":" + player.callsign);
 
     document.getElementById('corpse-qr-desc').style.display = "block";
     document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы, а вы встанете с 20% здоровья.</span>";
@@ -4478,7 +4476,7 @@ function showRobQR() {
 
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "rob_" + corpseType + "_" + Date.now();
-    generateQR('corpse-qr-container', "rob:" + corpseType + ":" + cId + ":" + player.callsign + ":" + player.inventory.join(","));
+    generateQR('corpse-qr-container', QR_PREFIX_ROB + corpseType + ":" + cId + ":" + player.callsign + ":" + player.inventory.join(","));
 
     document.getElementById('corpse-qr-desc').style.display = "block";
     if (corpseType === 'military') {
@@ -4508,8 +4506,8 @@ function showSurvivorQRModal() {
     corpseCont.style.borderRadius = "4px";
     corpseCont.style.overflow = "hidden";
 
-    let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-    let qrPayload = isZomb ? ("zombie_id:" + (player.id || player.callsign) + ":" + player.callsign) : ("player_id:" + (player.id || player.callsign) + ":" + player.callsign);
+    let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+    let qrPayload = isZomb ? (QR_PREFIX_ZOMBIE_ID + (player.id || player.callsign) + ":" + player.callsign) : (QR_PREFIX_PLAYER_ID + (player.id || player.callsign) + ":" + player.callsign);
 
     generateQR('corpse-qr-container', qrPayload);
 
@@ -4671,7 +4669,7 @@ function triggerRadioEasterEgg() {
     playSound('error');
 
     let radioText = document.getElementById('radio-text');
-    const alertMsg = `<div style="margin-bottom:8px; border-bottom:1px dashed #ff3333; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: #ff3333; line-height: 1.3; animation: pulse-led 0.5s infinite alternate;">⚠️ ОБНАРУЖЕНА АВАРИЙНАЯ ЧАСТОТА УВБ-76 ⚠️</div><div style="font-size:0.9rem; color:#aaa;">[ЖУЖЖАНИЕ СЕТИ] МДЖБ 76 49 21 82... ВЫЖИВШИЙ, ТЫ СЛЫШИШЬ НАС?</div>`;
+    const alertMsg = `<div style="margin-bottom:8px; border-bottom:1px dashed ${COLOR_BANDIT}; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: ${COLOR_BANDIT}; line-height: 1.3; animation: pulse-led 0.5s infinite alternate;">⚠️ ОБНАРУЖЕНА АВАРИЙНАЯ ЧАСТОТА УВБ-76 ⚠️</div><div style="font-size:0.9rem; color:#aaa;">[ЖУЖЖАНИЕ СЕТИ] МДЖБ 76 49 21 82... ВЫЖИВШИЙ, ТЫ СЛЫШИШЬ НАС?</div>`;
 
     player.radioMessages = player.radioMessages || [];
     player.radioMessages.push(alertMsg);
@@ -4802,8 +4800,8 @@ function renderProfile() {
 
     let karmaEl = document.getElementById('prof-karma');
     if (karmaEl) {
-        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-        let isInf = player.infectionTime && ((Date.now() - player.infectionTime)/1000 < 300);
+        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+        let isInf = player.infectionTime && ((Date.now() - player.infectionTime) < INFECTION_TIME_MS);
         if (isZomb) {
             karmaEl.innerText = '🧟 ЗОМБИ';
             karmaEl.className = 'danger';
@@ -4977,7 +4975,7 @@ function handlePdaPhotoCaptured(event) {
             // 2. Атмосферная пиксельная обработка фото под 3 уникальных фильтра Выживания
             let selectedFilter = document.getElementById('pda-photo-filter-select') ? document.getElementById('pda-photo-filter-select').value : 'green';
 
-            let themeColor = '#39ff14';
+            let themeColor = COLOR_TERM_GREEN;
             let bgDark = 'rgba(2, 11, 2, 0.88)';
 
             let imgData = ctx.getImageData(0, 0, width, height);
@@ -5008,7 +5006,7 @@ function handlePdaPhotoCaptured(event) {
 
             } else if (selectedFilter === 'mono') {
                 // 💀 МЕРТВАЯ ПУСТОШЬ (ЧЁРНО-БЕЛЫЙ ХОЛОДНЫЙ НУАР ВЫЖИВАНИЯ)
-                themeColor = '#00e5ff'; // Холодный неоново-голубой стальной интерфейс
+                themeColor = COLOR_TRADE; // Холодный неоново-голубой стальной интерфейс
                 bgDark = 'rgba(10, 15, 20, 0.90)';
 
                 for (let i = 0; i < data.length; i += 4) {
@@ -5033,7 +5031,7 @@ function handlePdaPhotoCaptured(event) {
 
             } else {
                 // ☢️ РАДИОАКТИВНЫЙ ФОСФОР (КЛАССИЧЕСКИЙ ИЗУМРУДНЫЙ ПДА)
-                themeColor = '#39ff14';
+                themeColor = COLOR_TERM_GREEN;
                 bgDark = 'rgba(2, 12, 2, 0.90)';
 
                 for (let i = 0; i < data.length; i += 4) {

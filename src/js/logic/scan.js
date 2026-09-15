@@ -75,8 +75,8 @@ function handleScan(qrCode) {
     if (player.hp <= 0) return;
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
-    if (player.zombieTime && ((Date.now() - player.zombieTime) / 1000 < 600)) {
-        if (code.startsWith("rob:") || code.startsWith("heal:") || code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_") || code.startsWith("junk_") || code.startsWith("item_") || code.startsWith("food_") || code.startsWith("gear_") || code.startsWith("med_") || code.startsWith("wpn_") || code.startsWith("art_") || code.includes("loot")) {
+    if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT)) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -95,7 +95,7 @@ function handleScan(qrCode) {
     }
 
     // Взлом терминалов и флешек
-    if (code.startsWith("safe_") || code.startsWith("usb_") || code.startsWith("term_")) {
+    if (code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM)) {
         startHacking(code);
         return;
     }
@@ -107,17 +107,17 @@ function handleScan(qrCode) {
     }
 
     // Арест военным (arrest:...) или сканирование бандита (bandit_id:...)
-    if (code.startsWith("arrest:")) {
+    if (code.startsWith(QR_PREFIX_ARREST)) {
         handleArrestScan(code);
         return;
     }
-    if (code.startsWith("bandit_id:")) {
+    if (code.startsWith(QR_PREFIX_BANDIT_ID)) {
         handleBanditScan(code);
         return;
     }
 
     // 1. Помощь умирающему (Спасение)
-    if (code.startsWith("heal:")) {
+    if (code.startsWith(QR_PREFIX_HEAL)) {
         let parts = code.split(":"); let corpseId = parts[1]; let targetName = parts[2];
 
         let consumableIdx = player.inventory.findIndex(id => ITEMS_DB[id].cat === 'food' || ITEMS_DB[id].cat === 'med');
@@ -143,7 +143,7 @@ function handleScan(qrCode) {
     }
 
     // 2. Мародерство (Грабеж)
-    if (code.startsWith("rob:")) {
+    if (code.startsWith(QR_PREFIX_ROB)) {
         let parts = code.split(":");
         let corpseType = 'survivor';
         let corpseId = '';
@@ -346,7 +346,7 @@ function handleDeadScan(qrCode) {
     }
 
     if (allowedBase) {
-        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = 100; player.inventory = []; player.quests.active = null;
+        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = MAX_HUNGER; player.inventory = []; player.quests.active = null;
         player.infectionTime = 0; player.zombieTime = 0;
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";

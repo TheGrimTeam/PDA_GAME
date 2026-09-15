@@ -40,7 +40,7 @@ function checkDeathState() {
 function showHealQR() {
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "help_" + Date.now();
-    generateQR('corpse-qr-container', "heal:" + cId + ":" + player.callsign);
+    generateQR('corpse-qr-container', QR_PREFIX_HEAL + cId + ":" + player.callsign);
 
     document.getElementById('corpse-qr-desc').style.display = "block";
     document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы, а вы встанете с 20% здоровья.</span>";
@@ -61,7 +61,7 @@ function showRobQR() {
 
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "rob_" + corpseType + "_" + Date.now();
-    generateQR('corpse-qr-container', "rob:" + corpseType + ":" + cId + ":" + player.callsign + ":" + player.inventory.join(","));
+    generateQR('corpse-qr-container', QR_PREFIX_ROB + corpseType + ":" + cId + ":" + player.callsign + ":" + player.inventory.join(","));
 
     document.getElementById('corpse-qr-desc').style.display = "block";
     if (corpseType === 'military') {
@@ -91,8 +91,8 @@ function showSurvivorQRModal() {
     corpseCont.style.borderRadius = "4px";
     corpseCont.style.overflow = "hidden";
 
-    let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-    let qrPayload = isZomb ? ("zombie_id:" + (player.id || player.callsign) + ":" + player.callsign) : ("player_id:" + (player.id || player.callsign) + ":" + player.callsign);
+    let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+    let qrPayload = isZomb ? (QR_PREFIX_ZOMBIE_ID + (player.id || player.callsign) + ":" + player.callsign) : (QR_PREFIX_PLAYER_ID + (player.id || player.callsign) + ":" + player.callsign);
 
     generateQR('corpse-qr-container', qrPayload);
 

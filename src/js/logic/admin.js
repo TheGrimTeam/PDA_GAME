@@ -29,4 +29,4 @@ function updateAdminVisibility() {
     if (loginBtn) loginBtn.style.display = player.isAdmin ? 'none' : 'block';
 }
 
-function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem('wasteland_player'); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
+function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem(STORAGE_KEY_PLAYER); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }

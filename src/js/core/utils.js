@@ -12,7 +12,7 @@ function getKarmaStatus() {
 function getMaxHp() {
     let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
     let crowLvl = getNpcRepLevel(crowRep);
-    let baseMaxHp = Math.round(100 * (1 + crowLvl * 0.1));
+    let baseMaxHp = Math.round(MAX_HP_BASE * (1 + crowLvl * 0.1));
     if (player.shelterLevel >= 4) {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }

@@ -120,7 +120,7 @@ function triggerRadioEasterEgg() {
     playSound('error');
 
     let radioText = document.getElementById('radio-text');
-    const alertMsg = `<div style="margin-bottom:8px; border-bottom:1px dashed #ff3333; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: #ff3333; line-height: 1.3; animation: pulse-led 0.5s infinite alternate;">⚠️ ОБНАРУЖЕНА АВАРИЙНАЯ ЧАСТОТА УВБ-76 ⚠️</div><div style="font-size:0.9rem; color:#aaa;">[ЖУЖЖАНИЕ СЕТИ] МДЖБ 76 49 21 82... ВЫЖИВШИЙ, ТЫ СЛЫШИШЬ НАС?</div>`;
+    const alertMsg = `<div style="margin-bottom:8px; border-bottom:1px dashed ${COLOR_BANDIT}; padding-bottom:4px; font-family: monospace; font-size: 0.95rem; color: ${COLOR_BANDIT}; line-height: 1.3; animation: pulse-led 0.5s infinite alternate;">⚠️ ОБНАРУЖЕНА АВАРИЙНАЯ ЧАСТОТА УВБ-76 ⚠️</div><div style="font-size:0.9rem; color:#aaa;">[ЖУЖЖАНИЕ СЕТИ] МДЖБ 76 49 21 82... ВЫЖИВШИЙ, ТЫ СЛЫШИШЬ НАС?</div>`;
 
     player.radioMessages = player.radioMessages || [];
     player.radioMessages.push(alertMsg);

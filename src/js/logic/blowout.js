@@ -9,10 +9,10 @@ let isBlowoutIncoming = false;
 
 function startBlowoutSchedule() {
     if (blowoutTimer) clearInterval(blowoutTimer);
-    // Каждый 1 час (3600000 мс)
+    // Период выброса задаётся константой BLOWOUT_INTERVAL_MS
     blowoutTimer = setInterval(() => {
         triggerBlowoutSequence();
-    }, 3600000);
+    }, BLOWOUT_INTERVAL_MS);
 }
 
 function triggerTestBlowout() {

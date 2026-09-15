@@ -54,7 +54,7 @@ function generateArrestWarrantQR() {
     let container = document.getElementById('arrest-qr-container');
     container.style.display = 'block';
     let warrantId = "arrest_" + player.callsign + "_" + Date.now();
-    generateQR('arrest-qr-container', `arrest:${player.callsign}:${warrantId}`);
+    generateQR('arrest-qr-container', `${QR_PREFIX_ARREST}${player.callsign}:${warrantId}`);
     alert("Ордер на арест сгенерирован! Покажите этот QR-код бандиту для сканирования его ПДА.");
 }
 

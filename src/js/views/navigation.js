@@ -75,7 +75,7 @@ function updateHUD() {
         let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
         if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
         let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-        player.maxSize = 30 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+        player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
 
         if (document.getElementById('inv-max')) document.getElementById('inv-max').innerText = player.maxSize;
         if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;

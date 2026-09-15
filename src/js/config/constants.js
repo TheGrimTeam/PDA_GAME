@@ -7,7 +7,6 @@
 
 // --- Цвета интерфейса (используются в JS-логике) ---
 const COLOR_TERM_GREEN = '#39ff14';
-const COLOR_QUEST = '#ffb700';
 const COLOR_TRADE = '#00e5ff';
 const COLOR_BANDIT = '#ff3333';
 const COLOR_RAD = '#ffcc00';
@@ -38,9 +37,9 @@ const MAX_RADS = 60;   // максимальный уровень радиаци
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
-const BLOWOUT_INTERVAL_MS = 15 * 60 * 1000; // период выброса
+const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
 // --- Ключи localStorage ---
 const STORAGE_KEY_PLAYER = 'wasteland_player';
-const STORAGE_KEY_MAP_MARKERS = 'wasteland_map_markers';
-const STORAGE_KEY_MAP_BG = 'wasteland_map_bg';
+const STORAGE_KEY_MAP_MARKERS = 'pda_zone_markers';
+const STORAGE_KEY_MAP_BG = 'pda_custom_map_bg';

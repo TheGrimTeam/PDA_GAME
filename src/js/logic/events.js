@@ -7,8 +7,8 @@ function startInfectionLoop() {
     setInterval(() => {
 
         // Обновление таймеров и статусов инфицирования / зомби в UI и сканере
-        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime)/1000 < 600);
-        let isInf = player.infectionTime && ((Date.now() - player.infectionTime)/1000 < 300);
+        let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
+        let isInf = player.infectionTime && ((Date.now() - player.infectionTime) < INFECTION_TIME_MS);
 
         // Применение красного интерфейса в режиме ЗОМБИ
         if (isZomb) {
@@ -24,7 +24,7 @@ function startInfectionLoop() {
         if (scanInfCard && scanZombCard) {
             if (isInf) {
                 scanInfCard.style.display = 'block';
-                let infRem = Math.max(0, Math.ceil(300 - ((Date.now() - player.infectionTime)/1000)));
+                let infRem = Math.max(0, Math.ceil((INFECTION_TIME_MS - (Date.now() - player.infectionTime))/1000));
                 let m = Math.floor(infRem / 60);
                 let s = infRem % 60;
                 let timerEl = document.getElementById('scan-infection-timer');
@@ -35,7 +35,7 @@ function startInfectionLoop() {
 
             if (isZomb) {
                 scanZombCard.style.display = 'block';
-                let zomRem = Math.max(0, Math.ceil(600 - ((Date.now() - player.zombieTime)/1000)));
+                let zomRem = Math.max(0, Math.ceil((ZOMBIE_TIME_MS - (Date.now() - player.zombieTime))/1000));
                 let m = Math.floor(zomRem / 60);
                 let s = zomRem % 60;
                 let timerEl = document.getElementById('scan-virus-timer');
@@ -59,10 +59,10 @@ function startInfectionLoop() {
 
         let now = Date.now();
 
-        // Фаза 1: Инфицирован (5 минут = 300 секунд)
+        // Фаза 1: Инфицирован (INFECTION_TIME_MS)
         if (player.infectionTime) {
-            let infElapsed = (now - player.infectionTime) / 1000;
-            let remSec = Math.max(0, Math.ceil(300 - infElapsed));
+
+            let remSec = Math.max(0, Math.ceil((INFECTION_TIME_MS - (now - player.infectionTime)) / 1000));
 
             let deadBanner = document.getElementById('dead-infection-banner');
             let deadTimerEl = document.getElementById('dead-infection-timer');
@@ -77,8 +77,8 @@ function startInfectionLoop() {
                 }
             }
 
-            if (infElapsed >= 300) {
-                // Время вышло, не вылечился -> становимся ЗОМБИ (Фаза 2 на 10 минут = 600 секунд)
+            if ((now - player.infectionTime) >= INFECTION_TIME_MS) {
+                // Время вышло, не вылечился -> становимся ЗОМБИ (Фаза 2)
                 player.infectionTime = 0;
                 player.zombieTime = now;
                 playSound('hazard');
@@ -90,10 +90,9 @@ function startInfectionLoop() {
             if (deadBanner) deadBanner.style.display = 'none';
         }
 
-        // Фаза 2: Зомби (10 минут = 600 секунд)
+        // Фаза 2: Зомби (ZOMBIE_TIME_MS)
         if (player.zombieTime) {
-            let zomElapsed = (now - player.zombieTime) / 1000;
-            if (zomElapsed >= 600) {
+            if ((now - player.zombieTime) >= ZOMBIE_TIME_MS) {
                 // Время зомби вышло -> вирус выгорел сам, возвращаемся в норму
                 player.zombieTime = 0;
                 playSound('heal');
@@ -212,7 +211,7 @@ function startEventLoop() {
             let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
             player.hp = Math.max(0, player.hp - hungerDmg);
             playSound('hazard');
-            showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', '#ff3333');
+            showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', COLOR_BANDIT);
             checkDeathState();
         }
 
@@ -231,7 +230,7 @@ function startEventLoop() {
                         if (player.karma_score < 3) {
                             player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {
-                            showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', '#ffd700');
+                            showBanner('☣ РАДИАЦИОННЫЙ ИММУНИТЕТ ГЕРОЯ ЗАЩИТИЛ ВАС', COLOR_HERO);
                         }
                         checkDeathState();
                     }
@@ -292,7 +291,7 @@ function startEventLoop() {
             ][Math.floor(Math.random() * 4)];
             ev.a(); saveState(); playSound('hazard');
             if (player.equipment !== 'eq_storm') {
-                showBanner(ev.m, '#ffcc00');
+                showBanner(ev.m, COLOR_RAD);
             }
         }
     }, 60000);

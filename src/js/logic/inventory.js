@@ -64,7 +64,7 @@ function useFood(index, id, isSafe = false) {
     }
     let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
     let barLvl = getNpcRepLevel(barRep);
-    let maxHunger = 100 + (barLvl * 10);
+    let maxHunger = MAX_HUNGER + (barLvl * 10);
     player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
@@ -103,7 +103,7 @@ function applyUpgrade() {
 
     let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
     let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-    player.maxSize = 30 + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
 
     player.upgradeQuest = genQ(1, 2);
     saveState();

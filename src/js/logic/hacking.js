@@ -84,8 +84,8 @@ function submitHackWord(word) {
         playSound('sell');
 
         // Начисление случайной награды
-        let minC = currentHackCode.startsWith("safe_") ? 300 : 100;
-        let maxC = currentHackCode.startsWith("safe_") ? 600 : 300;
+        let minC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 300 : 100;
+        let maxC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 600 : 300;
         let creditsReward = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
 
         player.score += creditsReward;
