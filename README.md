@@ -27,13 +27,13 @@
 
 | API | Где используется | Обязательность |
 |---|---|---|
-| `localStorage` | Сохранение прогресса ([`saveState()`](src/js/core/utils.js:54)) | Обязательно |
-| `Web Audio API` | Процедурный звук: гейгер, сердцебиение, сирена ([`playSound()`](src/js/core/audio.js:145)) | Обязательно |
-| `Canvas 2D` | Генерация QR ([`generateQR()`](src/js/core/qr.js:1)), фото-модуль | Обязательно |
-| `Pointer / Touch Events` | Drag & drop меток на карте ([`map.js`](src/js/logic/map.js:1)) | Обязательно |
-| `Service Worker` | Офлайн-кэш ([`sw.js`](sw.js:1)) | Обязательно для PWA |
-| `getUserMedia` | QR-сканер камерой ([`Html5Qrcode`](src/js/vendor/html5-qrcode.js:1)) | Обязательно для сканирования |
-| `Web Share API` | Отправка фото из фото-модуля ([`profile.js`](src/js/views/profile.js:1)) | Опционально |
+| `localStorage` | Сохранение прогресса ([`saveState()`](src/js/core/utils.js)) | Обязательно |
+| `Web Audio API` | Процедурный звук: гейгер, сердцебиение, сирена ([`playSound()`](src/js/core/audio.js)) | Обязательно |
+| `Canvas 2D` | Генерация QR ([`generateQR()`](src/js/core/qr.js)), фото-модуль | Обязательно |
+| `Pointer / Touch Events` | Drag & drop меток на карте ([`map.js`](src/js/logic/map.js)) | Обязательно |
+| `Service Worker` | Офлайн-кэш ([`sw.js`](sw.js)) | Обязательно для PWA |
+| `getUserMedia` | QR-сканер камерой ([`Html5Qrcode`](src/js/vendor/html5-qrcode.js)) | Обязательно для сканирования |
+| `Web Share API` | Отправка фото из фото-модуля ([`profile.js`](src/js/views/profile.js)) | Опционально |
 
 > **Офлайн-сканер.** Библиотека камеры кэшируется Service Worker'ом. При первом
 > запуске без интернета камера недоступна — предусмотрен **ручной ввод кодов**.
@@ -48,28 +48,28 @@
 
 | Параметр | Значение | Источник |
 |---|---|---|
-| Базовое здоровье | 100 HP | [`constants.js`](src/js/config/constants.js:1) |
-| Максимальный голод | 100 | [`constants.js`](src/js/config/constants.js:1) |
-| Максимальная радиация | 100 | [`constants.js`](src/js/config/constants.js:1) |
-| Размер рюкзака | 30 | [`constants.js`](src/js/config/constants.js:1) |
-| Активных квестов одновременно | не более 2 | [`acceptQuest()`](src/js/logic/quests.js:146) |
-| Слотов обычных квестов | 5 | [`renderQuests()`](src/js/logic/quests.js:1) |
-| Особые контракты | открываются после 5 выполненных | [`quests.js`](src/js/logic/quests.js:110) |
-| Время инфицирования | 5 минут | [`constants.js`](src/js/config/constants.js:1) |
-| Время зомби | 10 минут | [`constants.js`](src/js/config/constants.js:1) |
-| Интервал пси-выброса | раз в час | [`constants.js`](src/js/config/constants.js:1) |
-| Время на укрытие при выбросе | 4 минуты | [`blowout.js`](src/js/logic/blowout.js:1) |
-| Кулдаун повторного сканирования QR | 5 / 10 минут | [`scan.js`](src/js/logic/scan.js:1) |
-| Блокировка взлома после провала | 2 часа | [`hacking.js`](src/js/logic/hacking.js:135) |
-| Блокировка ПДА при аресте | 10 минут | [`handleArrestScan()`](src/js/logic/roles.js:61) |
-| Ставки слот-машины | 5–100 | [`slots.js`](src/js/logic/slots.js:1) |
-| Цикл случайных событий Зоны | 60 секунд | [`events.js`](src/js/logic/events.js:298) |
+| Базовое здоровье | 100 HP | [`constants.js`](src/js/config/constants.js) |
+| Максимальный голод | 100 | [`constants.js`](src/js/config/constants.js) |
+| Максимальная радиация | 100 | [`constants.js`](src/js/config/constants.js) |
+| Размер рюкзака | 30 | [`constants.js`](src/js/config/constants.js) |
+| Активных квестов одновременно | не более 2 | [`acceptQuest()`](src/js/logic/quests.js) |
+| Слотов обычных квестов | 5 | [`renderQuests()`](src/js/logic/quests.js) |
+| Особые контракты | открываются после 5 выполненных | [`quests.js`](src/js/logic/quests.js) |
+| Время инфицирования | 5 минут | [`constants.js`](src/js/config/constants.js) |
+| Время зомби | 10 минут | [`constants.js`](src/js/config/constants.js) |
+| Интервал пси-выброса | раз в час | [`constants.js`](src/js/config/constants.js) |
+| Время на укрытие при выбросе | 4 минуты | [`blowout.js`](src/js/logic/blowout.js) |
+| Кулдаун повторного сканирования QR | 5 / 10 минут | [`scan.js`](src/js/logic/scan.js) |
+| Блокировка взлома после провала | 2 часа | [`hacking.js`](src/js/logic/hacking.js) |
+| Блокировка ПДА при аресте | 10 минут | [`handleArrestScan()`](src/js/logic/roles.js) |
+| Ставки слот-машины | 5–100 | [`slots.js`](src/js/logic/slots.js) |
+| Цикл случайных событий Зоны | 60 секунд | [`events.js`](src/js/logic/events.js) |
 
 ## Игровые механики
 
 ### Карма
 
-Определяется функцией [`getKarmaStatus()`](src/js/core/utils.js:6):
+Определяется функцией [`getKarmaStatus()`](src/js/core/utils.js):
 
 | Диапазон `karma_score` | Статус | Эффекты |
 |---|---|---|
@@ -81,9 +81,9 @@
 
 ### Репутация NPC
 
-Уровень считается функцией [`getNpcRepLevel()`](src/js/config/npc.js:15): **20 очков = 1 уровень**, максимум **Ур. 10**.
+Уровень считается функцией [`getNpcRepLevel()`](src/js/config/npc.js): **20 очков = 1 уровень**, максимум **Ур. 10**.
 
-- **Доктор Кроу** — каждый уровень даёт **+10% к максимальному HP** ([`getMaxHp()`](src/js/core/utils.js:12)) и **скидку 10% на лечение**; на Ур. 10 лечение бесплатно ([`buyHeal()`](src/js/logic/trade.js:228)).
+- **Доктор Кроу** — каждый уровень даёт **+10% к максимальному HP** ([`getMaxHp()`](src/js/core/utils.js)) и **скидку 10% на лечение**; на Ур. 10 лечение бесплатно ([`buyHeal()`](src/js/logic/trade.js)).
 
 ### Роли игрока
 
@@ -92,11 +92,11 @@
 | **Безработный** | По умолчанию | Нет бонусов |
 | **Рабочий** | Назначается администратором | Жалование **+3 💎/мин** в Зоне |
 | **Военный** | Назначается администратором | Жалование **+5 💎/мин**, ордер на арест, премия **+100 💎** за фиксацию бандита |
-| **Хакер Пустошей** | Пасхалка: 5 кликов по заголовку Базы | Секретный доступ ([`registerHackClick()`](src/js/views/scan.js:92)) |
+| **Хакер Пустошей** | Пасхалка: 5 кликов по заголовку Базы | Секретный доступ ([`registerHackClick()`](src/js/views/scan.js)) |
 
 ### Убежище
 
-Пять уровней улучшения ([`SHELTER_UPGRADES`](src/js/config/upgrades.js:8)):
+Пять уровней улучшения ([`SHELTER_UPGRADES`](src/js/config/upgrades.js)):
 
 | Ур. | Название | Бонус |
 |---|---|---|
@@ -108,7 +108,7 @@
 
 ### NPC и торговые точки
 
-Из [`NPC_DB`](src/js/config/npc.js:5):
+Из [`NPC_DB`](src/js/config/npc.js):
 
 | Ключ | Имя | Покупает | Продаёт | Особенности |
 |---|---|---|---|---|
@@ -121,7 +121,7 @@
 
 ## Предметы и их характеристики
 
-База предметов строится процедурно в [`items.js`](src/js/config/items.js:8). У каждого предмета есть `name`, `val` (стоимость в 💎), `size` (вес) и `cat` (категория).
+База предметов строится процедурно в [`items.js`](src/js/config/items.js). У каждого предмета есть `name`, `val` (стоимость в 💎), `size` (вес) и `cat` (категория).
 
 ### Категории предметов
 
@@ -283,17 +283,17 @@ PDA_GAME/
 
 ## Порядок конкатенации
 
-Сборщик склеивает файлы строго в порядке из [`build.html`](build.html:86):
+Сборщик склеивает файлы строго в порядке из [`build.html`](build.html):
 
-1. **CSS** — [`01-base.css`](src/css/01-base.css:1) → [`02-layout.css`](src/css/02-layout.css:1) →
-   [`03-components.css`](src/css/03-components.css:1) → [`04-views.css`](src/css/04-views.css:1) →
-   [`05-animations.css`](src/css/05-animations.css:1).
+1. **CSS** — [`01-base.css`](src/css/01-base.css) → [`02-layout.css`](src/css/02-layout.css) →
+   [`03-components.css`](src/css/03-components.css) → [`04-views.css`](src/css/04-views.css) →
+   [`05-animations.css`](src/css/05-animations.css).
 2. **HTML-вьюхи** — base → dead → scan → inventory → quests → map → profile →
    shelter → hacking → trade.
-3. **HUD** — [`hud.html`](src/html/views/hud.html:1).
-4. **Баннер событий** — [`event-banner.html`](src/html/views/event-banner.html:1).
-5. **Навигация** — [`nav.html`](src/html/views/nav.html:1).
-6. **Оверлеи** — [`trade-modal.html`](src/html/overlays/trade-modal.html:1).
+3. **HUD** — [`hud.html`](src/html/views/hud.html).
+4. **Баннер событий** — [`event-banner.html`](src/html/views/event-banner.html).
+5. **Навигация** — [`nav.html`](src/html/views/nav.html).
+6. **Оверлеи** — [`trade-modal.html`](src/html/overlays/trade-modal.html).
 7. **JS** — vendor → config → state → core → logic → views → main.
 
 Порядок JS критичен: код использует глобальные функции и объекты (без ES-модулей),
@@ -308,17 +308,17 @@ PDA_GAME/
 
 ### 1. Первый запуск и вход в Зону
 
-1. При открытии проигрывается **BIOS-загрузка** ([`runBootSequence()`](src/js/core/audio.js:98)).
-2. Открывается экран **Базы** — ввод позывного ([`saveBaseCallsign()`](src/js/views/base.js:1)).
-3. Нажатие «ВОЙТИ В ЗОНУ» → [`startGameFromBase()`](src/js/views/base.js:1) → `player.inBase = false`.
+1. При открытии проигрывается **BIOS-загрузка** ([`runBootSequence()`](src/js/core/audio.js)).
+2. Открывается экран **Базы** — ввод позывного ([`saveBaseCallsign()`](src/js/views/base.js)).
+3. Нажатие «ВОЙТИ В ЗОНУ» → [`startGameFromBase()`](src/js/views/base.js) → `player.inBase = false`.
 4. Запускаются игровые циклы: голод, радиация, сердцебиение, события Зоны.
 
 **Пример:** игрок вводит позывной `СТАЛКЕР-01`, нажимает «ВОЙТИ В ЗОНУ» и попадает на экран Сканера.
 
 ### 2. Сканирование QR-кода
 
-1. На экране **Сканера** нажать «НАЧАТЬ СКАНИРОВАНИЕ» ([`main.js`](src/js/main.js:41)).
-2. Камера распознаёт QR → [`handleScan()`](src/js/logic/scan.js:1) разбирает префикс.
+1. На экране **Сканера** нажать «НАЧАТЬ СКАНИРОВАНИЕ» ([`main.js`](src/js/main.js)).
+2. Камера распознаёт QR → [`handleScan()`](src/js/logic/scan.js) разбирает префикс.
 3. Результат выводится в блок `scan-result`, применяются эффекты.
 
 **Пример:** скан `item_wpn_10` → в рюкзак добавляется оружие; скан `med_2` → антирадин;
@@ -326,35 +326,35 @@ PDA_GAME/
 
 ### 3. Инвентарь и крафт
 
-1. Экран **Инвентаря** ([`renderInventory()`](src/js/logic/inventory.js:1)).
-2. Быстрое использование расходников ([`quickUseItem()`](src/js/logic/inventory.js:1)).
-3. Перенос предметов в сейф ([`moveToSafe()`](src/js/logic/inventory.js:1)).
-4. Крафт из хлама ([`renderCraftBox()`](src/js/logic/inventory.js:1)).
+1. Экран **Инвентаря** ([`renderInventory()`](src/js/logic/inventory.js)).
+2. Быстрое использование расходников ([`quickUseItem()`](src/js/logic/inventory.js)).
+3. Перенос предметов в сейф ([`moveToSafe()`](src/js/logic/inventory.js)).
+4. Крафт из хлама ([`renderCraftBox()`](src/js/logic/inventory.js)).
 
 **Пример:** игрок использует аптечку при HP 40 → HP восстанавливается; переносит
 артефакты в сейф, чтобы не потерять при смерти.
 
 ### 4. Квесты
 
-1. Экран **Квестов** ([`renderQuests()`](src/js/logic/quests.js:1)).
-2. Доступно 5 обычных контрактов; принять можно не более 2 ([`acceptQuest()`](src/js/logic/quests.js:146)).
-3. После 5 выполненных открываются **особые контракты** ([`acceptSpecialQuest()`](src/js/logic/quests.js:160)).
-4. Отмена контракта стоит 10 💎 ([`abandonQuest()`](src/js/logic/quests.js:171)).
+1. Экран **Квестов** ([`renderQuests()`](src/js/logic/quests.js)).
+2. Доступно 5 обычных контрактов; принять можно не более 2 ([`acceptQuest()`](src/js/logic/quests.js)).
+3. После 5 выполненных открываются **особые контракты** ([`acceptSpecialQuest()`](src/js/logic/quests.js)).
+4. Отмена контракта стоит 10 💎 ([`abandonQuest()`](src/js/logic/quests.js)).
 
 **Пример:** контракт «Собрать 10 жетонов мародёров» → награда 5850 💎.
 
 ### 5. Торговля с NPC
 
-1. Скан QR торговца → [`openTrade()`](src/js/logic/trade.js:1).
-2. Покупка/продажа ([`buyItem()`](src/js/logic/trade.js:1), [`sellItem()`](src/js/logic/trade.js:220)).
-3. Продажа всего ([`sellAllToBase()`](src/js/logic/trade.js:222)).
-4. Лечение ([`buyHeal()`](src/js/logic/trade.js:228)) — 50 💎, со скидкой по репутации.
+1. Скан QR торговца → [`openTrade()`](src/js/logic/trade.js).
+2. Покупка/продажа ([`buyItem()`](src/js/logic/trade.js), [`sellItem()`](src/js/logic/trade.js)).
+3. Продажа всего ([`sellAllToBase()`](src/js/logic/trade.js)).
+4. Лечение ([`buyHeal()`](src/js/logic/trade.js)) — 50 💎, со скидкой по репутации.
 
 **Пример:** у Доктора Кроу с репутацией Ур. 5 лечение стоит 25 💎 вместо 50.
 
 ### 6. P2P-обмен между игроками
 
-1. Игрок А формирует предложение → QR `p2ptrade:sell:...` ([`p2p.js`](src/js/logic/p2p.js:1)).
+1. Игрок А формирует предложение → QR `p2ptrade:sell:...` ([`p2p.js`](src/js/logic/p2p.js)).
 2. Игрок Б сканирует → подтверждение `p2ptrade:confirm:...`.
 3. Обмен фиксируется в `player.processedTradeTxs`.
 
@@ -363,29 +363,29 @@ PDA_GAME/
 ### 7. Выживание
 
 - **Голод** падает со временем; при 0 — потеря HP.
-- **Радиация** растёт в Зоне; снижается антирадинами и снаряжением ([`getRadMultiplier()`](src/js/core/utils.js:22)).
-- **Пси-выброс** ([`blowout.js`](src/js/logic/blowout.js:1)) — нужно успеть в укрытие за 4 минуты.
+- **Радиация** растёт в Зоне; снижается антирадинами и снаряжением ([`getRadMultiplier()`](src/js/core/utils.js)).
+- **Пси-выброс** ([`blowout.js`](src/js/logic/blowout.js)) — нужно успеть в укрытие за 4 минуты.
 - **Инфекция** — 5 минут до превращения в зомби.
 - **Случайные события** каждые 60 секунд: радиационная буря, токсичные споры,
-  нападение мутантов, пылевая буря ([`events.js`](src/js/logic/events.js:298)).
+  нападение мутантов, пылевая буря ([`events.js`](src/js/logic/events.js)).
 
 **Пример:** во время пылевой бури оружие теряет 10% прочности; Плащ «Шторм» даёт иммунитет.
 
 ### 8. Смерть и возрождение
 
-1. При HP 0 → [`declareDeath()`](src/js/views/dead.js:1) → экран **Смерти**.
+1. При HP 0 → [`declareDeath()`](src/js/views/dead.js) → экран **Смерти**.
 2. Генерируется QR трупа: `player_id:...` или `zombie_id:...`.
-3. Спаситель сканирует → [`confirmHeal()`](src/js/views/dead.js:110) → 20% HP, инфекция сохраняется.
-4. Мародёр сканирует → [`confirmRob()`](src/js/views/dead.js:123) → рюкзак очищается.
+3. Спаситель сканирует → [`confirmHeal()`](src/js/views/dead.js) → 20% HP, инфекция сохраняется.
+4. Мародёр сканирует → [`confirmRob()`](src/js/views/dead.js) → рюкзак очищается.
 
 **Пример:** игрок погибает, показывает QR; другой игрок сканирует и поднимает его с 20 HP.
 
 ### 9. Админ-режим
 
-1. Вход: логин `админ`, пароль `Прайс админ` ([`adminLogin()`](src/js/logic/admin.js:1)).
-2. Начисление/списание кредитов ([`adminModifyCredits()`](src/js/logic/roles.js:13)).
-3. Смена роли ([`adminSetRole()`](src/js/logic/roles.js:42)).
-4. Полный сброс ([`factoryReset()`](src/js/logic/admin.js:1)).
+1. Вход: логин `админ`, пароль `Прайс админ` ([`adminLogin()`](src/js/logic/admin.js)).
+2. Начисление/списание кредитов ([`adminModifyCredits()`](src/js/logic/roles.js)).
+3. Смена роли ([`adminSetRole()`](src/js/logic/roles.js)).
+4. Полный сброс ([`factoryReset()`](src/js/logic/admin.js)).
 
 **Пример:** администратор выдаёт роль «Военный» и 1000 💎 для тестирования.
 
@@ -395,26 +395,26 @@ PDA_GAME/
 
 | № | Экран | Файл разметки | Схематичное описание |
 |---|---|---|---|
-| 1 | **База** | [`base.html`](src/html/views/base.html:1) | Лобби/пауза. Поле ввода позывного, кнопка «ВОЙТИ В ЗОНУ», доступ к терминалу Базы |
-| 2 | **Сканер** | [`scan.html`](src/html/views/scan.html:1) | Окно камеры `#qr-reader`, кнопка старта, поле ручного ввода кода, блок результата `scan-result`, радио |
-| 3 | **Инвентарь** | [`inventory.html`](src/html/views/inventory.html:1) | Сетка предметов, блок крафта, кнопки «Использовать», «В сейф», индикатор веса |
-| 4 | **Квесты** | [`quests.html`](src/html/views/quests.html:1) | Список активных контрактов, 5 доступных, блок особых контрактов (после 5 выполненных) |
-| 5 | **Карта Зоны** | [`map.html`](src/html/views/map.html:1) | Изображение `zone_map.jpg`, метки с drag & drop, редактор меток, загрузка фона |
-| 6 | **Профиль** | [`profile.html`](src/html/views/profile.html:1) | Позывной, роль, карма, статистика, арсенал, репутация NPC, фото-модуль с фильтрами |
-| 7 | **Убежище** | [`shelter.html`](src/html/views/shelter.html:1) | Текущий уровень, требования апгрейда, кнопка улучшения, Зал Славы |
-| 8 | **Взлом** | [`hacking.html`](src/html/views/hacking.html:1) | Консоль `hack-console`, сетка слов `hack-words-grid`, счётчик попыток |
-| 9 | **Торговля** | [`trade.html`](src/html/views/trade.html:1) | Список товаров NPC, кнопки «Купить»/«Продать», «Продать всё», «Лечить» |
-| 10 | **Смерть / Труп** | [`dead.html`](src/html/views/dead.html:1) | QR трупа, описание статуса, кнопки подтверждения лечения/облутования |
+| 1 | **База** | [`base.html`](src/html/views/base.html) | Лобби/пауза. Поле ввода позывного, кнопка «ВОЙТИ В ЗОНУ», доступ к терминалу Базы |
+| 2 | **Сканер** | [`scan.html`](src/html/views/scan.html) | Окно камеры `#qr-reader`, кнопка старта, поле ручного ввода кода, блок результата `scan-result`, радио |
+| 3 | **Инвентарь** | [`inventory.html`](src/html/views/inventory.html) | Сетка предметов, блок крафта, кнопки «Использовать», «В сейф», индикатор веса |
+| 4 | **Квесты** | [`quests.html`](src/html/views/quests.html) | Список активных контрактов, 5 доступных, блок особых контрактов (после 5 выполненных) |
+| 5 | **Карта Зоны** | [`map.html`](src/html/views/map.html) | Изображение `zone_map.jpg`, метки с drag & drop, редактор меток, загрузка фона |
+| 6 | **Профиль** | [`profile.html`](src/html/views/profile.html) | Позывной, роль, карма, статистика, арсенал, репутация NPC, фото-модуль с фильтрами |
+| 7 | **Убежище** | [`shelter.html`](src/html/views/shelter.html) | Текущий уровень, требования апгрейда, кнопка улучшения, Зал Славы |
+| 8 | **Взлом** | [`hacking.html`](src/html/views/hacking.html) | Консоль `hack-console`, сетка слов `hack-words-grid`, счётчик попыток |
+| 9 | **Торговля** | [`trade.html`](src/html/views/trade.html) | Список товаров NPC, кнопки «Купить»/«Продать», «Продать всё», «Лечить» |
+| 10 | **Смерть / Труп** | [`dead.html`](src/html/views/dead.html) | QR трупа, описание статуса, кнопки подтверждения лечения/облутования |
 
 ### Служебные слои
 
 | Слой | Файл | Описание |
 |---|---|---|
-| **HUD** | [`hud.html`](src/html/views/hud.html:1) | Верхняя панель: HP, голод, радиация, кредиты, время выживания |
-| **Навигация** | [`nav.html`](src/html/views/nav.html:1) | Нижнее меню переключения вьюх |
-| **Баннер событий** | [`event-banner.html`](src/html/views/event-banner.html:1) | Всплывающее уведомление о событиях Зоны |
-| **Модалка P2P** | [`trade-modal.html`](src/html/overlays/trade-modal.html:1) | Окно обмена между игроками со встроенным сканером |
-| **BIOS-загрузка** | внутри [`index.template.html`](src/index.template.html:1) | Экран `#bios-boot` с текстом `#bios-text` |
+| **HUD** | [`hud.html`](src/html/views/hud.html) | Верхняя панель: HP, голод, радиация, кредиты, время выживания |
+| **Навигация** | [`nav.html`](src/html/views/nav.html) | Нижнее меню переключения вьюх |
+| **Баннер событий** | [`event-banner.html`](src/html/views/event-banner.html) | Всплывающее уведомление о событиях Зоны |
+| **Модалка P2P** | [`trade-modal.html`](src/html/overlays/trade-modal.html) | Окно обмена между игроками со встроенным сканером |
+| **BIOS-загрузка** | внутри [`index.template.html`](src/index.template.html) | Экран `#bios-boot` с текстом `#bios-text` |
 
 ## Карта экранов
 
