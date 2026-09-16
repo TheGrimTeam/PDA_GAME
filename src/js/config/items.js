@@ -22,8 +22,11 @@ function pDB(pref, cat, list, minV, maxV, minS, maxS, minH = 0, maxH = 0, minF =
     }
 }
 
-pDB('food', 'food', nFood, 5, 25, 1, 2, 0, 0, 15, 35); pDB('gear', 'gear', nGear, 20, 100, 2, 4);
-pDB('med', 'med', nMed, 30, 150, 1, 2, 20, 80); pDB('wpn', 'weapon', nWpn, 50, 250, 2, 5); pDB('junk', 'junk', nJunk, 2, 15, 1, 2);
+pDB('food', 'food', nFood, 5, 25, 1, 2, 0, 0, 15, 35);
+pDB('gear', 'gear', nGear, 20, 100, 2, 4);
+pDB('med', 'med', nMed, 30, 150, 1, 2, 20, 80);
+pDB('wpn', 'weapon', nWpn, 50, 250, 2, 5);
+pDB('junk', 'junk', nJunk, 2, 15, 1, 2);
 
 ITEMS_DB['med_2'].radCure = 50; ITEMS_DB['med_2'].heal = 0;
 ITEMS_DB['med_6'].radCure = 25; ITEMS_DB['med_6'].heal = 0;
