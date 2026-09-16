@@ -59,12 +59,18 @@
 .quest-text { color: var(--quest-color); text-shadow: 0 0 5px var(--quest-color); }
 .trade-text { color: var(--trade-color); text-shadow: 0 0 5px var(--trade-color); }
 
+/* Баннер событий — расположен вне #screen-content, сразу под HUD.
+   flex-shrink: 0 не даёт сжаться в flex-колонке #screen.
+   z-index ниже #hud (20), чтобы не перекрывать шапку. */
 #event-banner {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 15;
     background: var(--term-green);
     color: var(--term-dark);
     text-align: center;
     padding: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     display: none;
     font-weight: bold;
     animation: blink 1s infinite;
