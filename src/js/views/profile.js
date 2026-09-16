@@ -315,7 +315,7 @@ function handlePdaPhotoCaptured(event) {
             let now = new Date();
             let dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
             let callsign = player.callsign || 'СТАЛКЕР';
-            let maxHp = getMaxHp();
+            let maxHp = getEffectiveMaxHp();
 
             let headerH = Math.max(50, Math.floor(height * 0.07));
             let footerH = Math.max(60, Math.floor(height * 0.08));

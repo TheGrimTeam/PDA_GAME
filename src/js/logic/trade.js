@@ -243,8 +243,8 @@ function buyHeal() {
     if (player.score < healCost) return alert("Мало кредитов!");
     playSound('use');
     player.score -= healCost;
-    player.hp = currentMaxHp;
     player.rads = 0;
+    player.hp = getEffectiveMaxHp();
     saveState();
     renderTradeView();
     alert("Вылечен!");

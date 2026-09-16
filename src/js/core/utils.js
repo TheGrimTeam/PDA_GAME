@@ -19,6 +19,12 @@ function getMaxHp() {
     return baseMaxHp;
 }
 
+// Реальный потолок HP с учётом радиации (радиация съедает максимум здоровья).
+// Единая точка правды — не дублировать вычитание player.rads в других местах.
+function getEffectiveMaxHp() {
+    return getMaxHp() - (player.rads || 0);
+}
+
 function getRadMultiplier() {
     let mult = 1.0;
     let hasMask = player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0;

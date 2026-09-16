@@ -144,9 +144,9 @@ function startHeartbeatLoop() {
                 if (player.shelterLevel >= 5) {
                     player.regenTimer = (player.regenTimer || 0) + diffSec;
                     if (player.regenTimer >= 60) {
-                        let maxHp = getMaxHp();
-                        if (player.hp < maxHp - player.rads) {
-                            player.hp = Math.min(maxHp - player.rads, player.hp + 1);
+                        let maxHp = getEffectiveMaxHp();
+                        if (player.hp < maxHp) {
+                            player.hp = Math.min(maxHp, player.hp + 1);
                             updateHUD();
                         }
                         player.regenTimer = 0;
@@ -205,7 +205,8 @@ function startEventLoop() {
             player.rads = 0;
         }
 
-        let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+        let maxHp = getEffectiveMaxHp();
+        if (player.hp > maxHp) player.hp = maxHp;
 
         if (player.hunger === 0 && player.hp > 0) {
             let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;

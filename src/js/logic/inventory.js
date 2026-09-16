@@ -15,7 +15,9 @@ function useMedkit(index, id, isSafe = false) {
         player.rads = Math.max(0, player.rads - it.radCure);
     }
 
-    let maxHp = getMaxHp() - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
+    let maxHp = getEffectiveMaxHp();
+    player.hp = Math.min(maxHp, player.hp + (it.heal || 0));
+    player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
 
@@ -65,7 +67,9 @@ function useFood(index, id, isSafe = false) {
     let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
     let barLvl = getNpcRepLevel(barRep);
     let maxHunger = MAX_HUNGER + (barLvl * 10);
-    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0));
+    let maxHp = getEffectiveMaxHp();
+    if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
 

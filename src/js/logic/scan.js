@@ -346,7 +346,13 @@ function handleDeadScan(qrCode) {
     }
 
     if (allowedBase) {
-        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = MAX_HUNGER; player.inventory = []; player.quests.active = null;
+        playSound('use');
+        player.rads = 0;
+        player.hp = getEffectiveMaxHp();
+
+        player.hunger = MAX_HUNGER;
+        player.inventory = [];
+        player.quests.active = null;
         player.infectionTime = 0; player.zombieTime = 0;
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
