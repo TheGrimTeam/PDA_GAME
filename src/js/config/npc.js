@@ -4,7 +4,7 @@
 
 const NPC_DB = {
     "npc_eng": { name: "Инженер Михалыч", buys: ["junk", "gear"], sells: ["junk", "gear"] },
-    "npc_med": { name: "Доктор Кроу", buys: ["med"], sells: ["med"], canHeal: true, healCost: 50 },
+    "npc_med": { name: "Доктор Кроу", buys: ["med"], sells: ["med"], canHeal: true, healCost: 300 },
     "npc_trad": { name: "Торговец Сидорович", buys: ["weapon", "gear", "artifact"], sells: ["weapon", "gear"] },
     "npc_bar": { name: "Бармен Джо", buys: ["food"], sells: ["food"] },
     "npc_base": { name: "ТЕРМИНАЛ БАЗЫ", isBase: true, reqKarma: "survivor", mult: 1.0 },

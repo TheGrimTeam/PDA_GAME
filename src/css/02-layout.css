@@ -32,10 +32,17 @@
     100% { transform: translate(0, 0); }
 }
 
+/* HUD — закреплённая шапка экрана.
+   Находится вне #screen-content (см. index.template.html), поэтому не скроллится.
+   flex-shrink: 0 не даёт сжаться при нехватке высоты. */
 #hud {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    background: var(--term-dark);
     border-bottom: 2px dashed var(--term-green);
-    padding-bottom: 5px;
-    margin-bottom: 10px;
+    padding: 12px 12px 5px;
+    margin-bottom: 0;
     font-weight: bold;
 }
 

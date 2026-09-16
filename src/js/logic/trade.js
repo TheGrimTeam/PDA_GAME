@@ -99,22 +99,32 @@ function openTrade(npcCode) {
     renderTradeView(); switchView('trade');
 }
 
+// Единый расчёт стоимости лечения у NPC (базовая цена берётся из npc.healCost)
+function getHealCost(npcCode) {
+    let npc = NPC_DB[npcCode];
+    let healCost = (npc && npc.healCost) || 500;
+
+    // Скидка от Торгового чипа
+    if (player.equipment === 'eq_trade') healCost = Math.round(healCost * 0.7);
+
+    // Скидка по репутации (10% за уровень, на Ур. 10 — бесплатно)
+    let rep = (player.npcRep && player.npcRep[npcCode]) || 0;
+    let lvl = getNpcRepLevel(rep);
+    if (lvl >= 10) {
+        healCost = 0;
+    } else {
+        let discountMult = Math.max(0, 1 - (lvl * 0.1));
+        healCost = Math.round(healCost * discountMult);
+    }
+
+    return healCost;
+}
+
 function renderTradeView() {
     let npc = NPC_DB[currentTradeNpc]; document.getElementById('trade-npc-name').innerText = npc.name;
 
     let isMed = (currentTradeNpc === 'npc_med');
-    let healCost = 50;
-    if (player.equipment === 'eq_trade') healCost = 35;
-
-    // Скидка Доктора Кроу по репутации (Ур. 2: скидка 50%, Ур. 3: бесплатно)
-    let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
-    let crowLvl = getNpcRepLevel(crowRep);
-    if (crowLvl >= 10) {
-        healCost = 0;
-    } else {
-        let discountMult = Math.max(0, 1 - (crowLvl * 0.1));
-        healCost = Math.round(healCost * discountMult);
-    }
+    let healCost = getHealCost(currentTradeNpc);
 
     let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} 💎)`;
     document.getElementById('btn-medic-heal-action').innerText = healBtnText;
@@ -226,17 +236,7 @@ function sellAllToBase() {
 }
 
 function buyHeal() {
-    let healCost = 50;
-    if (player.equipment === 'eq_trade') healCost = 35;
-
-    let crowRep = (player.npcRep && player.npcRep['npc_med']) || 0;
-    let crowLvl = getNpcRepLevel(crowRep);
-    if (crowLvl >= 10) {
-        healCost = 0;
-    } else {
-        let discountMult = Math.max(0, 1 - (crowLvl * 0.1));
-        healCost = Math.round(healCost * discountMult);
-    }
+    let healCost = getHealCost(currentTradeNpc);
 
     let currentMaxHp = getMaxHp();
     if (player.hp >= currentMaxHp && player.rads === 0) return alert("Здоров!");
