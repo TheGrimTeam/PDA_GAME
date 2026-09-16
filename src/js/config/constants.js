@@ -29,6 +29,7 @@ const QR_PREFIX_ARREST = 'arrest:';
 const QR_PREFIX_BANDIT_ID = 'bandit_id:';
 const QR_PREFIX_PLAYER_ID = 'player_id:';
 const QR_PREFIX_ZOMBIE_ID = 'zombie_id:';
+const QR_PREFIX_ANOM = 'anom_';
 
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
@@ -38,6 +39,11 @@ const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
+
+// --- Кулдауны повторного сканирования (в секундах) ---
+const SCAN_COOLDOWN_DEFAULT_SEC = 300;  // 5 минут — food, junk
+const SCAN_COOLDOWN_GEAR_SEC = 600;     // 10 минут — weapon, med, gear
+const ANOMALY_COOLDOWN_SEC = 7200;      // 2 часа — аномалии
 
 // --- Ключи localStorage ---
 const STORAGE_KEY_PLAYER = 'wasteland_player';

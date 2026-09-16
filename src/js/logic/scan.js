@@ -236,13 +236,13 @@ function handleScan(qrCode) {
     }
 
     // 3. Аномалии
-    if (code.startsWith("anom_")) {
+    if (code.startsWith(QR_PREFIX_ANOM)) {
         let now = Date.now();
         if (player.scannedCodes[code]) {
             let diffSec = (now - player.scannedCodes[code]) / 1000;
-            if (diffSec < 7200) {
+            if (diffSec < ANOMALY_COOLDOWN_SEC) {
                 playSound('error');
-                let remaining = Math.ceil(7200 - diffSec);
+                let remaining = Math.ceil(ANOMALY_COOLDOWN_SEC - diffSec);
                 let hours = Math.floor(remaining / 3600);
                 let minutes = Math.floor((remaining % 3600) / 60);
                 let seconds = remaining % 60;
@@ -301,9 +301,9 @@ function handleScan(qrCode) {
     let itemNow = Date.now();
     if (player.scannedCodes[code]) {
         let diffSec = (itemNow - player.scannedCodes[code]) / 1000;
-        let cooldownTime = 300; // 5 минут (300 сек) для food и junk
+        let cooldownTime = SCAN_COOLDOWN_DEFAULT_SEC;
         if (item.cat === 'weapon' || item.cat === 'med' || item.cat === 'gear') {
-            cooldownTime = 600; // 10 минут (600 сек) для оружия, медицины и снаряжения
+            cooldownTime = SCAN_COOLDOWN_GEAR_SEC;
         }
         if (diffSec < cooldownTime) {
             playSound('error');

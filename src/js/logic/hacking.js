@@ -16,12 +16,12 @@ const HACK_WORDS_POOL = [
 
 function startHacking(code) {
     let now = Date.now();
-    // Защита от повторного взлома (раз в 2 часа = 7200 сек)
+    // Защита от повторного взлома (раз в 2 часа)
     if (player.scannedCodes[code]) {
         let diffSec = (now - player.scannedCodes[code]) / 1000;
-        if (diffSec < 7200) {
+        if (diffSec < ANOMALY_COOLDOWN_SEC) {
             playSound('error');
-            let remaining = Math.ceil(7200 - diffSec);
+            let remaining = Math.ceil(ANOMALY_COOLDOWN_SEC - diffSec);
             let hours = Math.floor(remaining / 3600);
             let minutes = Math.floor((remaining % 3600) / 60);
             let seconds = remaining % 60;
