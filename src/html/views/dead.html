@@ -20,7 +20,12 @@
             <div id="corpse-qr-desc" style="text-align:center; font-size:0.95rem; color:#fff; margin-bottom:15px; display:none;"></div>
 
             <!-- Кнопки подтверждения -->
-            <button id="btn-confirm-heal" onclick="confirmHeal()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)</button>
+            <button id="btn-scan-heal-item" onclick="startHealItemScan()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">📷 ОТСКАНИРОВАТЬ ЛЕЧЕБНЫЙ ПРЕДМЕТ</button>
+            <div id="qr-reader-heal-item" style="display:none; margin-bottom:15px;"></div>
+            <div class="debug-input" id="heal-item-manual-box" style="display:none; margin-bottom:15px;">
+                <input type="text" id="heal-item-manual-code" placeholder="healitem:txId:itemId:heal:callsign" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitHealItemManualCode();}">
+                <button type="button" onclick="submitHealItemManualCode()">ВВОД</button>
+            </div>
             <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
 
             <hr style="border-top:1px dashed #555; margin: 20px 0;">

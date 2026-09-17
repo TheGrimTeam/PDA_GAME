@@ -51,7 +51,7 @@
 | HUD | `#hud` | Постоянная панель | Всегда, кроме экранов `base` и `dead` | — |
 | Навигация | `#nav` | Нижняя панель | Всегда, кроме экранов `base` и `dead` | — |
 | Модалка торговли | `#trade-modal` | Модальное окно | [`initiateP2PTrade()`](../src/js/logic/p2p.js) / [`startTradeConfirmScan()`](../src/js/logic/p2p.js) | [`closeTradeModal()`](../src/js/logic/p2p.js) |
-| Модалка лечения | `#heal-qr-modal` | Модальное окно | [`showHealQR()`](../src/js/views/dead.js) | [`confirmHeal()`](../src/js/views/dead.js) / закрытие |
+| Модалка лечения | `#heal-qr-modal` | Модальное окно | [`showHealQR()`](../src/js/views/dead.js) | [`handleHealItemScan()`](../src/js/views/dead.js) / закрытие |
 | Модалка ограбления | `#rob-qr-modal` | Модальное окно | [`showRobQR()`](../src/js/views/dead.js) | [`confirmRob()`](../src/js/views/dead.js) / закрытие |
 | Модалка выжившего | `#survivor-qr-modal` | Модальное окно | [`showSurvivorQRModal()`](../src/js/views/dead.js) | Закрытие |
 | Виньетка low-HP | класс `low-hp` на `#screen` | CSS-эффект | `player.hp <= 25%` от максимума (в [`updateHUD()`](../src/js/views/navigation.js)) | Восстановление HP |
@@ -91,6 +91,7 @@
 | `item_`, `food_`, `med_`, `wpn_`, `junk_`, `gear_` | Остаётся на scan | Кулдаун предмета истёк; `inventory.length < maxSize` | [`handleScan()`](../src/js/logic/scan.js) |
 | `loot` | Остаётся на scan | Всегда | [`handleScan()`](../src/js/logic/scan.js) |
 | `heal:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
+| `healitem:` | Остаётся на scan | Всегда (обрабатывается до проверки `hp <= 0`) | [`handleHealItemScan()`](../src/js/views/dead.js) |
 | `rob:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
 | `safe_` | Остаётся на scan | Всегда | [`handleScan()`](../src/js/logic/scan.js) |
 | `usb_` | **hacking** | `player.hp > 0`; кулдаун взлома истёк | [`startHacking()`](../src/js/logic/hacking.js) |
@@ -111,7 +112,7 @@
 | Откуда | Куда | Триггер (кнопка) | Условие | Функция |
 |---|---|---|---|---|
 | dead | base | Клик «ВЕРНУТЬСЯ НА БАЗУ» | Всегда | [`returnToBase()`](../src/js/logic/roles.js) |
-| dead | scan | Успешное лечение по QR | [`confirmHeal()`](../src/js/views/dead.js) → `player.hp = 20`, `isCurrentlyDead = false` | [`confirmHeal()`](../src/js/views/dead.js) → [`checkDeathState()`](../src/js/views/dead.js) |
+| dead | scan | Успешное лечение по QR предмета | [`handleHealItemScan()`](../src/js/views/dead.js) → `player.hp = min(maxHp, 20 + heal)`, `isCurrentlyDead = false` | [`handleHealItemScan()`](../src/js/views/dead.js) → [`checkDeathState()`](../src/js/views/dead.js) |
 | dead | scan | Успешное ограбление | [`confirmRob()`](../src/js/views/dead.js) → очистка рюкзака | [`confirmRob()`](../src/js/views/dead.js) |
 | dead | scan | Скан кода возрождения | Отсканирован `npc_base` / `npc_bandit_base` | [`startDeadScan()`](../src/js/logic/scan.js) → [`handleDeadScan()`](../src/js/logic/scan.js) |
 | dead | scan | Ручной ввод кода | Введён `npc_base` / `npc_bandit_base` | [`submitDeadManualCode()`](../src/js/logic/scan.js) |
@@ -120,11 +121,13 @@
 > **Важная деталь:** при восстановлении HP (лечение или возрождение) функция [`checkDeathState()`](../src/js/views/dead.js) автоматически возвращает игрока на `scan` — `if (view-dead активен) switchView('scan')`. То есть выход из состояния смерти всегда ведёт на сканер.
 
 > **Кнопки экрана смерти** (из [`dead.html`](../src/html/views/dead.html)):
-> - «🟢 ЛЕЧЕНИЕ» → [`showHealQR()`](../src/js/views/dead.js) — генерация QR лечения;
+> - «🟢 ЛЕЧЕНИЕ» → [`showHealQR()`](../src/js/views/dead.js) — генерация QR лечения (`heal:help_TS:callsign`), сохранение `pendingHealId`/`pendingHealAt`;
 > - «🔴 ОГРАБИТЬ» → [`showRobQR()`](../src/js/views/dead.js) — генерация QR трупа (тип по роли/карме);
 > - «☣️ ПОКАЗАТЬ QR ЗОМБИ (ОХОТА)» → [`showSurvivorQRModal()`](../src/js/views/dead.js);
-> - «ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)» → [`confirmHeal()`](../src/js/views/dead.js);
+> - «📷 ОТСКАНИРОВАТЬ ЛЕЧЕБНЫЙ ПРЕДМЕТ» → [`startHealItemScan()`](../src/js/views/dead.js) → [`handleHealItemScan()`](../src/js/views/dead.js) — сканирование QR `healitem:txId:itemId:heal:callsign` от спасителя;
 > - «МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)» → [`confirmRob()`](../src/js/views/dead.js);
+>
+> **Механика лечения (handshake):** спаситель сканирует `heal:`-код умирающего, отдаёт food/med, получает +1 кармы и показывает ответный QR `healitem:` с `txId`. Умирающий сканирует его; `txId` сверяется с `pendingHealId`, проверяется таймаут [`HEAL_ITEM_TIMEOUT_MS`](../src/js/config/constants.js) (1 минута) и одноразовость через `processedHealTxs`. Кнопка `confirmHeal()` удалена — лечение без реального QR невозможно.
 > - «ВКЛЮЧИТЬ СКАНЕР БАЗЫ» → [`startDeadScan()`](../src/js/logic/scan.js);
 > - поле ручного ввода кода → [`submitDeadManualCode()`](../src/js/logic/scan.js).
 
@@ -293,7 +296,7 @@ stateDiagram-v2
 | [`buyItem()`](../src/js/logic/trade.js) | trade.js | score, inventory |
 | [`buyHeal()`](../src/js/logic/trade.js) | trade.js | score, hp |
 | [`resolveBlowout()`](../src/js/logic/blowout.js) | blowout.js | hp, rads |
-| [`confirmHeal()`](../src/js/views/dead.js) | dead.js | hp |
+| [`handleHealItemScan()`](../src/js/views/dead.js) | dead.js | hp, rads, pendingHealId, processedHealTxs |
 | [`confirmRob()`](../src/js/views/dead.js) | dead.js | inventory |
 | [`adminModifyCredits()`](../src/js/logic/roles.js) | roles.js | score |
 | [`adminSetRole()`](../src/js/logic/roles.js) | roles.js | role |
@@ -824,7 +827,8 @@ stateDiagram-v2
 | `gear_` | Снаряжение | [`handleScan()`](../src/js/logic/scan.js) |
 | `loot` | Лут | [`handleScan()`](../src/js/logic/scan.js) |
 | `rob:` | Ограбление | [`handleScan()`](../src/js/logic/scan.js) |
-| `heal:` | Лечение | [`handleScan()`](../src/js/logic/scan.js) |
+| `heal:` | Лечение (запрос умирающего) | [`handleScan()`](../src/js/logic/scan.js) |
+| `healitem:` | Лечебный предмет (ответ спасителя) | [`handleHealItemScan()`](../src/js/views/dead.js) |
 | `safe_` | Сейф | [`handleScan()`](../src/js/logic/scan.js) |
 | `usb_` | USB (взлом) | [`startHacking()`](../src/js/logic/hacking.js) |
 | `term_` | Терминал (взлом) | [`startHacking()`](../src/js/logic/hacking.js) |

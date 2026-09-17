@@ -47,6 +47,23 @@ function submitDeadManualCode() {
 }
 window.submitDeadManualCode = submitDeadManualCode;
 
+function submitHealItemManualCode() {
+    try {
+        const input = document.getElementById('heal-item-manual-code');
+        if (!input) return;
+        const code = String(input.value || '').trim();
+        if (!code) {
+            input.focus();
+            return;
+        }
+        handleHealItemScan(code);
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка ввода кода: ' + err.message);
+    }
+}
+window.submitHealItemManualCode = submitHealItemManualCode;
+
 function handleScan(qrCode) {
     const resDiv = document.getElementById('scan-result');
     if (!qrCode) return;
@@ -72,6 +89,19 @@ function handleScan(qrCode) {
     }
 
     if (document.getElementById('manual-code')) document.getElementById('manual-code').value = ''; let code = qrCode.trim().toLowerCase();
+
+    // Лечебный предмет от спасителя: обрабатывается ДО проверки hp<=0,
+    // так как умирающий имеет 0 HP и должен иметь возможность сканировать.
+    if (code.startsWith(QR_PREFIX_HEAL_ITEM)) {
+        // Зомби не может быть вылечен человеческим предметом.
+        if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
+            playSound('error');
+            return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Лечебный предмет вам не поможет.</span>";
+        }
+        handleHealItemScan(code);
+        return;
+    }
+
     if (player.hp <= 0) return;
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
@@ -118,16 +148,26 @@ function handleScan(qrCode) {
 
     // 1. Помощь умирающему (Спасение)
     if (code.startsWith(QR_PREFIX_HEAL)) {
-        let parts = code.split(":"); let corpseId = parts[1]; let targetName = parts[2];
+        let parts = code.split(":");
+        let corpseId = parts[1];
+        let targetName = parts[2];
 
-        let consumableIdx = player.inventory.findIndex(id => ITEMS_DB[id].cat === 'food' || ITEMS_DB[id].cat === 'med');
+        // Отдавать можно только предметы, реально восстанавливающие HP:
+        // у med_2 (Антирадин) и med_6 (Рад-Х) heal = 0, они бы не подняли умирающего.
+        let consumableIdx = player.inventory.findIndex(id => {
+            const it = ITEMS_DB[id];
+            return it && (it.cat === 'food' || it.cat === 'med') && (it.heal || 0) > 0;
+        });
 
         if (consumableIdx === -1) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>У вас нет еды или медикаментов для помощи!</span>";
         }
 
-        let usedItemName = ITEMS_DB[player.inventory[consumableIdx]].name;
+        let usedItemId = player.inventory[consumableIdx];
+        let usedItem = ITEMS_DB[usedItemId];
+        let usedItemName = usedItem.name;
+        let healAmount = usedItem.heal || 0;
         player.inventory.splice(consumableIdx, 1);
 
         player.karma_score++;
@@ -138,7 +178,14 @@ function handleScan(qrCode) {
 
         saveState();
 
-        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот экран спасенному.</span>`;
+        // Генерируем QR лечебного предмета с отдельным префиксом healitem:,
+        // чтобы умирающий не мог сканировать обычный медикамент.
+        // txId = corpseId из QR умирающего: именно с ним сверяется pendingHealId
+        // на стороне умирающего в handleHealItemScan().
+        let txId = corpseId;
+
+        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" style="background:#fff; padding:8px; margin:10px auto; width:170px; height:170px; border-radius:6px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
+        generateQR('heal-item-qr', `${QR_PREFIX_HEAL_ITEM}${txId}:${usedItemId}:${healAmount}:${player.callsign}`);
         return;
     }
 
@@ -354,9 +401,12 @@ function handleDeadScan(qrCode) {
         player.inventory = [];
         player.quests.active = null;
         player.infectionTime = 0; player.zombieTime = 0;
+        // Возрождение отменяет незавершённый запрос на лечение.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
-        document.getElementById('btn-confirm-heal').style.display = "none";
+        document.getElementById('btn-scan-heal-item').style.display = "none";
         document.getElementById('btn-confirm-rob').style.display = "none";
         document.getElementById('qr-reader-dead').style.display = 'none'; document.getElementById('btn-dead-scan').style.display = 'block';
         player.isCurrentlyDead = false; saveState(); checkDeathState(); alert("ВЫ ВОСКРЕШЕНЫ И ПОЛНОСТЬЮ ИЗЛЕЧЕНЫ!");

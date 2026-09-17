@@ -3,7 +3,16 @@
 // Состояние смерти, QR-коды лечения и мародерства
 // ============================================================
 
-function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState(); checkDeathState(); } }
+function declareDeath() {
+    if (confirm("Вы убиты? ПДА заблокируется.")) {
+        player.hp = 0;
+        // Сбрасываем незавершённый запрос на лечение: старый QR больше не должен приниматься.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
+        saveState();
+        checkDeathState();
+    }
+}
 
 function checkDeathState() {
     updateHUD();
@@ -32,6 +41,10 @@ function checkDeathState() {
         if(scanner) scanner.stop();
     } else {
         document.getElementById('nav-buttons').style.display = 'grid';
+        // Игрок больше не мёртв — незавершённый запрос на лечение неактуален.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
+        stopHealItemScanner();
         if(document.getElementById('view-dead').classList.contains('active')) switchView('scan');
         if (player.radioOn) startRadio();
     }
@@ -40,11 +53,15 @@ function checkDeathState() {
 function showHealQR() {
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "help_" + Date.now();
+    // Сохраняем ID запроса на лечение: с ним будет сверяться txId из QR лечебного предмета.
+    player.pendingHealId = cId;
+    player.pendingHealAt = Date.now();
+    saveState();
     generateQR('corpse-qr-container', QR_PREFIX_HEAL + cId + ":" + player.callsign);
 
     document.getElementById('corpse-qr-desc').style.display = "block";
-    document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы, а вы встанете с 20% здоровья.</span>";
-    document.getElementById('btn-confirm-heal').style.display = "block";
+    document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы. Затем отсканируйте QR предмета, который он покажет.</span>";
+    document.getElementById('btn-scan-heal-item').style.display = "block";
     document.getElementById('btn-confirm-rob').style.display = "none";
 }
 
@@ -74,7 +91,7 @@ function showRobQR() {
 
     document.getElementById('btn-confirm-rob').onclick = function() { confirmRob(corpseType); };
     document.getElementById('btn-confirm-rob').style.display = "block";
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
 }
 
 function showSurvivorQRModal() {
@@ -103,22 +120,98 @@ function showSurvivorQRModal() {
         corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 💎).</span>";
     }
 
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
     document.getElementById('btn-confirm-rob').style.display = "none";
 }
 
-function confirmHeal() {
+// === ЛЕЧЕНИЕ ЧЕРЕЗ СКАНИРОВАНИЕ QR ЛЕЧЕБНОГО ПРЕДМЕТА ===
+// Кнопка confirmHeal() удалена: лечение невозможно без реального QR от спасителя.
+let healItemScanner = null;
+
+// Останавливает камеру сканера лечебного предмета, если она запущена.
+// stop() возвращает Promise и может отклониться (scanner not running) — глушим.
+function stopHealItemScanner() {
+    if (!healItemScanner) return;
+    Promise.resolve(healItemScanner.stop()).catch(() => {});
+}
+
+function startHealItemScan() {
+    if (typeof Html5Qrcode === 'undefined') {
+        alert("⚠️ Офлайн-режим: камера недоступна. Введите код вручную.");
+        document.getElementById('heal-item-manual-box').style.display = 'flex';
+        return;
+    }
+    if (!healItemScanner) healItemScanner = new Html5Qrcode("qr-reader-heal-item");
+    document.getElementById('qr-reader-heal-item').style.display = 'block';
+    document.getElementById('btn-scan-heal-item').style.display = 'none';
+    healItemScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+        (t) => {
+            // stop() возвращает Promise и может отклониться (scanner not running).
+            // Обрабатываем результат только после остановки камеры.
+            Promise.resolve(healItemScanner.stop()).catch(() => {}).finally(() => handleHealItemScan(t));
+        }, (e) => { })
+        .catch(e => alert("Ошибка камеры."));
+}
+
+function handleHealItemScan(qrCode) {
+    // Камера могла остаться запущенной (ручной ввод или повторный вызов) — гасим.
+    stopHealItemScanner();
+    let code = String(qrCode || '').trim().toLowerCase();
+    if (!code.startsWith(QR_PREFIX_HEAL_ITEM)) {
+        playSound('error');
+        return alert("Это не код лечебного предмета!");
+    }
+    let parts = code.split(":");
+    let txId = parts[1];
+    let healAmount = parseInt(parts[3]) || 0;
+    let healerName = parts[4] || "Неизвестный";
+
+    if (!player.pendingHealId) {
+        playSound('error');
+        return alert("Нет активного запроса на лечение. Сначала покажите свой QR (кнопка ЛЕЧЕНИЕ).");
+    }
+    if (txId !== player.pendingHealId) {
+        playSound('error');
+        return alert("Этот QR предназначен для другого игрока!");
+    }
+    if (Date.now() - player.pendingHealAt > HEAL_ITEM_TIMEOUT_MS) {
+        playSound('error');
+        player.pendingHealId = null;
+        saveState();
+        return alert("Срок действия лечения истёк (1 минута). Покажите QR заново.");
+    }
+    player.processedHealTxs = player.processedHealTxs || {};
+    if (player.processedHealTxs[txId]) {
+        playSound('error');
+        return alert("Этот предмет уже использован для лечения!");
+    }
+    if (healAmount <= 0) {
+        playSound('error');
+        return alert("Этот предмет не восстанавливает здоровье!");
+    }
+
+    player.processedHealTxs[txId] = Date.now();
+    player.pendingHealId = null;
+    player.pendingHealAt = 0;
+
     if (player.rads > 50) player.rads = 50;
-    player.hp = 20;
-    // ВНИМАНИЕ: Лечение спасителем восстанавливает 20% HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
+    let maxHp = getEffectiveMaxHp();
+    // Math.max(1, ...) гарантирует подъём: при maxHp <= 0 (высокая радиация)
+    // игрок иначе остался бы с hp = 0, а isCurrentlyDead уже сброшен ниже.
+    player.hp = Math.max(1, Math.min(maxHp, 20 + healAmount));
+    // ВНИМАНИЕ: Лечение спасителем восстанавливает HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
     saveState();
+
     document.getElementById('corpse-qr-container').style.display = "none";
     document.getElementById('corpse-qr-desc').style.display = "none";
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
+    document.getElementById('qr-reader-heal-item').style.display = 'none';
     player.inBase = false; player.isCurrentlyDead = false;
     checkDeathState();
-    alert("Вы были подняты спасителем (20% HP). Внимание: Инфекция вируса не вылечена!");
+    alert(`Вы были подняты спасителем ${healerName} (+${healAmount} HP). Внимание: Инфекция вируса не вылечена!`);
 }
+window.startHealItemScan = startHealItemScan;
+window.handleHealItemScan = handleHealItemScan;
 
 function confirmRob(corpseType = 'survivor') {
     player.inventory = [];

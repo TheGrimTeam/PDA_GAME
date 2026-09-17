@@ -22,6 +22,7 @@ const QR_PREFIX_GEAR = 'gear_';
 const QR_PREFIX_LOOT = 'loot';
 const QR_PREFIX_ROB = 'rob:';
 const QR_PREFIX_HEAL = 'heal:';
+const QR_PREFIX_HEAL_ITEM = 'healitem:';
 const QR_PREFIX_SAFE = 'safe_';
 const QR_PREFIX_USB = 'usb_';
 const QR_PREFIX_TERM = 'term_';
@@ -38,6 +39,7 @@ const MAX_RADS = 60;   // максимальный уровень радиаци
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
+const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
 // --- Кулдауны повторного сканирования (в секундах) ---
