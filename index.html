@@ -391,16 +391,10 @@ button:disabled { background: var(--term-dark); color: #555; border-color: #555;
     border: none;
 }
 
-/* qrcode.js создаёт служебный <img> рядом с canvas. Скрываем только его,
-   чтобы не дублировать QR. Селектор :not(.qr-fallback-img) не затрагивает
-   изображение резервного варианта через внешний API. */
-.qr-surface img:not(.qr-fallback-img) {
-    display: none;
-}
-
-/* Fallback через внешний API (useAPIFallback) — единственный случай,
-   когда изображение должно быть видно на белой подложке. */
-.qr-surface img.qr-fallback-img {
+/* qrcode.js при canvas-рендере показывает QR именно через <img>
+   (canvas конвертируется в PNG и скрывается самой библиотекой).
+   Поэтому <img> должен быть видим — доверяем библиотеке. */
+.qr-surface img {
     display: block;
     margin: 0 auto;
     padding: 0;
@@ -1684,18 +1678,20 @@ function generateQR(containerId, textVal) {
                 let canvas = container.querySelector('canvas');
                 let img = container.querySelector('img');
                 let table = container.querySelector('table');
+                // Библиотека qrcode.js при canvas-рендере рисует QR на <canvas>,
+                // затем конвертирует его в PNG и показывает именно <img>, а <canvas>
+                // скрывает. Поэтому видимый QR — это <img>, и его нельзя прятать.
+                // Доверяем библиотеке: она сама управляет видимостью canvas/img.
+                if (img) {
+                    img.style.width = QR_SIZE + "px";
+                    img.style.height = QR_SIZE + "px";
+                    img.style.margin = "0 auto";
+                    img.style.display = "block";
+                }
                 if (canvas) {
                     canvas.style.width = QR_SIZE + "px";
                     canvas.style.height = QR_SIZE + "px";
                     canvas.style.margin = "0 auto";
-                }
-                if (img) {
-                    // qrcode.js добавляет служебный <img> рядом с canvas.
-                    // Скрываем его, чтобы не дублировать QR (canvas уже виден).
-                    img.style.display = "none";
-                    img.style.width = "0";
-                    img.style.height = "0";
-                    img.style.margin = "0";
                 }
                 if (table) {
                     table.style.margin = "0 auto";

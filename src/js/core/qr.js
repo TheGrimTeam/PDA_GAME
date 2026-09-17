@@ -39,18 +39,20 @@ function generateQR(containerId, textVal) {
                 let canvas = container.querySelector('canvas');
                 let img = container.querySelector('img');
                 let table = container.querySelector('table');
+                // Библиотека qrcode.js при canvas-рендере рисует QR на <canvas>,
+                // затем конвертирует его в PNG и показывает именно <img>, а <canvas>
+                // скрывает. Поэтому видимый QR — это <img>, и его нельзя прятать.
+                // Доверяем библиотеке: она сама управляет видимостью canvas/img.
+                if (img) {
+                    img.style.width = QR_SIZE + "px";
+                    img.style.height = QR_SIZE + "px";
+                    img.style.margin = "0 auto";
+                    img.style.display = "block";
+                }
                 if (canvas) {
                     canvas.style.width = QR_SIZE + "px";
                     canvas.style.height = QR_SIZE + "px";
                     canvas.style.margin = "0 auto";
-                }
-                if (img) {
-                    // qrcode.js добавляет служебный <img> рядом с canvas.
-                    // Скрываем его, чтобы не дублировать QR (canvas уже виден).
-                    img.style.display = "none";
-                    img.style.width = "0";
-                    img.style.height = "0";
-                    img.style.margin = "0";
                 }
                 if (table) {
                     table.style.margin = "0 auto";
