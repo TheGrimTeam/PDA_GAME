@@ -4721,9 +4721,11 @@ function startHealItemScan() {
     document.getElementById('btn-scan-heal-item').style.display = 'none';
     healItemScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
         (t) => {
-            // stop() возвращает Promise и может отклониться (scanner not running).
-            // Обрабатываем результат только после остановки камеры.
-            Promise.resolve(healItemScanner.stop()).catch(() => {}).finally(() => handleHealItemScan(t));
+            // Останавливаем камеру, но НЕ ждём промис stop() — обрабатываем результат
+            // сразу, как в startDeadScan(). Иначе при зависшем stop() обработка
+            // (handleHealItemScan) никогда не вызовется, и лечение не сработает.
+            Promise.resolve(healItemScanner.stop()).catch(() => {});
+            handleHealItemScan(t);
         }, (e) => { })
         .catch(e => alert("Ошибка камеры."));
 }
