@@ -125,10 +125,17 @@ function showSurvivorQRModal() {
 let healItemScanner = null;
 
 // Останавливает камеру сканера лечебного предмета, если она запущена.
-// stop() возвращает Promise и может отклониться (scanner not running) — глушим.
+// ВАЖНО: html5-qrcode может бросить СИНХРОННОЕ исключение ("Cannot stop, scanner
+// is not running"), если сканер уже остановлен. Поэтому вызов stop() обязательно
+// оборачиваем в try/catch — иначе исключение прервёт handleHealItemScan и лечение
+// не сработает (HP не восстановится).
 function stopHealItemScanner() {
     if (!healItemScanner) return;
-    Promise.resolve(healItemScanner.stop()).catch(() => {});
+    try {
+        Promise.resolve(healItemScanner.stop()).catch(() => {});
+    } catch (e) {
+        // Игнорируем: сканер уже остановлен.
+    }
 }
 
 function startHealItemScan() {
@@ -145,10 +152,14 @@ function startHealItemScan() {
             // Останавливаем камеру, но НЕ ждём промис stop() — обрабатываем результат
             // сразу, как в startDeadScan(). Иначе при зависшем stop() обработка
             // (handleHealItemScan) никогда не вызовется, и лечение не сработает.
-            Promise.resolve(healItemScanner.stop()).catch(() => {});
+            try {
+                Promise.resolve(healItemScanner.stop()).catch(() => {});
+            } catch (e) {
+                // Игнорируем: сканер уже остановлен.
+            }
             handleHealItemScan(t);
         }, (e) => { })
-        .catch(e => alert("Ошибка камеры."));
+        .catch(e => { alert("Ошибка камеры."); });
 }
 
 function handleHealItemScan(qrCode) {

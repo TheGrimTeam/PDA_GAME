@@ -36,7 +36,9 @@ function updateHUD() {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
         let baseMaxHp = getMaxHp();
         let maxHp = getEffectiveMaxHp();
-        if (player.hp > maxHp) player.hp = maxHp;
+        if (player.hp > maxHp) {
+            player.hp = maxHp;
+        }
 
         // Проверка критического уровня здоровья (виньетка)
         let vig = document.getElementById('low-hp-overlay');
