@@ -92,7 +92,52 @@ button:disabled { background: var(--term-dark); color: #555; border-color: #555;
     text-shadow: 0 0 5px var(--term-green);
 }
 
+/* ============================================================
+   ЕДИНАЯ БЕЛАЯ ПОДЛОЖКА ПОД QR-КОД
+   ============================================================
+   Применяется ко всем контейнерам, где рендерится QR:
+   #corpse-qr-container, #trade-qr-container,
+   #arrest-qr-container, #heal-item-qr.
+   Гарантирует белый фон, отступы и скругление независимо
+   от inline-стилей и способа рендеринга (canvas / img / table).
+   ============================================================ */
+.qr-surface {
+    background: #ffffff;
+    padding: 10px;
+    border-radius: 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+    text-align: center;
+    position: relative;
+    margin: 10px auto;
+}
+
+/* Вложенные элементы QR всегда лежат на белой подложке без отступов и границ. */
+.qr-surface canvas,
+.qr-surface table {
+    display: block;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
+    border-collapse: collapse;
+}
+
+.qr-surface table td {
+    padding: 0;
+    margin: 0;
+    border: none;
+}
+
 /* qrcode.js creates a hidden fallback image beside the canvas. Never show both. */
-#corpse-qr-container img, #trade-qr-container img, #arrest-qr-container img {
+.qr-surface img {
     display: none !important;
+}
+
+/* Fallback через внешний API (useAPIFallback) — единственный случай,
+   когда изображение должно быть видно на белой подложке. */
+.qr-surface img.qr-fallback-img {
+    display: block !important;
+    margin: 0 auto;
+    padding: 0;
+    border: none;
 }

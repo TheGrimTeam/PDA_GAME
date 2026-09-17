@@ -13,21 +13,22 @@ function generateQR(containerId, textVal) {
         container.removeChild(container.firstChild);
     }
 
+    // Белая подложка, отступы, скругление и overflow задаются классом .qr-surface.
+    // Здесь только гарантируем, что контейнер видим и является точкой отсчёта
+    // для абсолютно позиционированного wrapper.
+    container.classList.add("qr-surface");
     container.style.display = "block";
-    container.style.background = "#ffffff";
-    container.style.overflow = "hidden";
-    container.style.boxSizing = "border-box";
-    container.style.width = "170px";
-    container.style.height = "170px";
-    container.style.margin = "0 auto";
     container.style.position = "relative";
 
     try {
         if (typeof QRCode !== 'undefined') {
             const wrapper = document.createElement('div');
+            // Центрируем QR внутри контейнера .qr-surface, у которого
+            // padding: 10px и переменная ширина (190–230px).
             wrapper.style.position = "absolute";
-            wrapper.style.top = "0px";
-            wrapper.style.left = "0px";
+            wrapper.style.top = "50%";
+            wrapper.style.left = "50%";
+            wrapper.style.transform = "translate(-50%, -50%)";
             wrapper.style.width = "170px";
             wrapper.style.height = "170px";
             wrapper.style.overflow = "hidden";
@@ -83,11 +84,13 @@ function generateQR(containerId, textVal) {
 
 function useAPIFallback(container, textVal) {
     container.innerHTML = "";
+    // Класс .qr-surface гарантирует белую подложку контейнера,
+    // а .qr-fallback-img — что это единственное видимое изображение QR.
+    container.classList.add("qr-surface");
     const img = document.createElement('img');
+    img.className = "qr-fallback-img";
     img.src = "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + encodeURIComponent(textVal);
     img.width = 200;
     img.height = 200;
-    img.style.display = "block";
-    img.style.margin = "0 auto";
     container.appendChild(img);
 }

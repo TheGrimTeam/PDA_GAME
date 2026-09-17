@@ -98,15 +98,11 @@ function showSurvivorQRModal() {
     let corpseCont = document.getElementById('corpse-qr-container');
     let corpseDesc = document.getElementById('corpse-qr-desc');
 
+    // Белая подложка, отступы и скругление обеспечивает класс .qr-surface.
     corpseCont.style.display = "block";
     corpseCont.style.width = "210px";
     corpseCont.style.height = "210px";
     corpseCont.style.margin = "0 auto 15px auto";
-    corpseCont.style.display = "flex";
-    corpseCont.style.justifyContent = "center";
-    corpseCont.style.alignItems = "center";
-    corpseCont.style.borderRadius = "4px";
-    corpseCont.style.overflow = "hidden";
 
     let isZomb = player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS);
     let qrPayload = isZomb ? (QR_PREFIX_ZOMBIE_ID + (player.id || player.callsign) + ":" + player.callsign) : (QR_PREFIX_PLAYER_ID + (player.id || player.callsign) + ":" + player.callsign);

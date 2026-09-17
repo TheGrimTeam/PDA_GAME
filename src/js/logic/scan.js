@@ -184,7 +184,7 @@ function handleScan(qrCode) {
         // на стороне умирающего в handleHealItemScan().
         let txId = corpseId;
 
-        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" style="background:#fff; padding:8px; margin:10px auto; width:170px; height:170px; border-radius:6px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
+        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" class="qr-surface" style="width:170px; height:170px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
         generateQR('heal-item-qr', `${QR_PREFIX_HEAL_ITEM}${txId}:${usedItemId}:${healAmount}:${player.callsign}`);
         return;
     }
