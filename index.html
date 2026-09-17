@@ -178,12 +178,18 @@ h4 { margin-bottom: 5px; }
 .quest-text { color: var(--quest-color); text-shadow: 0 0 5px var(--quest-color); }
 .trade-text { color: var(--trade-color); text-shadow: 0 0 5px var(--trade-color); }
 
+/* Баннер событий — расположен вне #screen-content, сразу под HUD.
+   flex-shrink: 0 не даёт сжаться в flex-колонке #screen.
+   z-index ниже #hud (20), чтобы не перекрывать шапку. */
 #event-banner {
+    flex-shrink: 0;
+    position: relative;
+    z-index: 15;
     background: var(--term-green);
     color: var(--term-dark);
     text-align: center;
     padding: 5px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     display: none;
     font-weight: bold;
     animation: blink 1s infinite;
@@ -454,7 +460,7 @@ body.zombie-interface #hud {
         <div id="low-hp-overlay" class="low-hp-vignette"></div>
 
         <!-- HUD — закреплённая шапка экрана, вне скроллируемого контента -->
-        <div id="hud">
+            <div id="hud">
             <div class="hud-row" style="margin-bottom: 5px;">
                 <div>HP:<span id="hp-val">100</span><span id="hp-max-val" style="font-size:0.85em; color:var(--term-green);">/100</span></div>
                 <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
@@ -474,8 +480,12 @@ body.zombie-interface #hud {
         </div>
 
 
+        <!-- Баннер событий — всегда под HUD, вне скроллируемого контента -->
+            <div id="event-banner"></div>
+
+
         <div id="screen-content">
-        <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
+                    <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
         <div id="view-base" class="view">
             <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.2]</span></h2>
             <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color); background:rgba(255,0,0,0.05);">
@@ -525,7 +535,12 @@ body.zombie-interface #hud {
             <div id="corpse-qr-desc" style="text-align:center; font-size:0.95rem; color:#fff; margin-bottom:15px; display:none;"></div>
 
             <!-- Кнопки подтверждения -->
-            <button id="btn-confirm-heal" onclick="confirmHeal()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)</button>
+            <button id="btn-scan-heal-item" onclick="startHealItemScan()" style="width:100%; display:none; border-color:var(--hero-color); color:var(--hero-color); margin-bottom: 15px;">📷 ОТСКАНИРОВАТЬ ЛЕЧЕБНЫЙ ПРЕДМЕТ</button>
+            <div id="qr-reader-heal-item" style="display:none; margin-bottom:15px;"></div>
+            <div class="debug-input" id="heal-item-manual-box" style="display:none; margin-bottom:15px;">
+                <input type="text" id="heal-item-manual-code" placeholder="healitem:txId:itemId:heal:callsign" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitHealItemManualCode();}">
+                <button type="button" onclick="submitHealItemManualCode()">ВВОД</button>
+            </div>
             <button id="btn-confirm-rob" onclick="confirmRob()" style="width:100%; display:none; border-color:var(--bandit-color); color:var(--bandit-color); margin-bottom: 15px;">МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)</button>
 
             <hr style="border-top:1px dashed #555; margin: 20px 0;">
@@ -927,9 +942,7 @@ body.zombie-interface #hud {
             <button onclick="switchView('scan')" style="width:100%; margin-top:20px;">ЗАКОНЧИТЬ ТОРГОВЛЮ</button>
         </div>
 
-        <div id="event-banner"></div>
-
-    <div id="nav-buttons">
+                <div id="nav-buttons">
         <button onclick="switchView('scan'); playSound('use');" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
         <button onclick="switchView('inventory'); playSound('use');" id="btn-nav-inventory">ИНВЕНТ</button>
         <button onclick="switchView('quests'); playSound('use');" id="btn-nav-quests">КВЕСТЫ</button>
@@ -993,6 +1006,7 @@ const QR_PREFIX_GEAR = 'gear_';
 const QR_PREFIX_LOOT = 'loot';
 const QR_PREFIX_ROB = 'rob:';
 const QR_PREFIX_HEAL = 'heal:';
+const QR_PREFIX_HEAL_ITEM = 'healitem:';
 const QR_PREFIX_SAFE = 'safe_';
 const QR_PREFIX_USB = 'usb_';
 const QR_PREFIX_TERM = 'term_';
@@ -1009,6 +1023,7 @@ const MAX_RADS = 60;   // максимальный уровень радиаци
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
+const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
 // --- Кулдауны повторного сканирования (в секундах) ---
@@ -1048,8 +1063,11 @@ function pDB(pref, cat, list, minV, maxV, minS, maxS, minH = 0, maxH = 0, minF =
     }
 }
 
-pDB('food', 'food', nFood, 5, 25, 1, 2, 0, 0, 15, 35); pDB('gear', 'gear', nGear, 20, 100, 2, 4);
-pDB('med', 'med', nMed, 30, 150, 1, 2, 20, 80); pDB('wpn', 'weapon', nWpn, 50, 250, 2, 5); pDB('junk', 'junk', nJunk, 2, 15, 1, 2);
+pDB('food', 'food', nFood, 5, 25, 1, 2, 0, 0, 15, 35);
+pDB('gear', 'gear', nGear, 20, 100, 2, 4);
+pDB('med', 'med', nMed, 30, 150, 1, 2, 20, 80);
+pDB('wpn', 'weapon', nWpn, 50, 250, 2, 5);
+pDB('junk', 'junk', nJunk, 2, 15, 1, 2);
 
 ITEMS_DB['med_2'].radCure = 50; ITEMS_DB['med_2'].heal = 0;
 ITEMS_DB['med_6'].radCure = 25; ITEMS_DB['med_6'].heal = 0;
@@ -1162,6 +1180,9 @@ if (!Array.isArray(player.safeBoxQuest)) player.safeBoxQuest = genQ(3, 5);
 if (player.equipment === undefined) player.equipment = null;
 if (!player.npcRep) player.npcRep = {};
 if (!player.processedTradeTxs) player.processedTradeTxs = {};
+if (player.pendingHealId === undefined) player.pendingHealId = null;
+if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
+if (!player.processedHealTxs) player.processedHealTxs = {};
 if (!player.role) player.role = 'Безработный';
 if (player.shelterLevel === undefined) player.shelterLevel = 0;
 if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
@@ -1459,6 +1480,12 @@ function getMaxHp() {
     return baseMaxHp;
 }
 
+// Реальный потолок HP с учётом радиации (радиация съедает максимум здоровья).
+// Единая точка правды — не дублировать вычитание player.rads в других местах.
+function getEffectiveMaxHp() {
+    return getMaxHp() - (player.rads || 0);
+}
+
 function getRadMultiplier() {
     let mult = 1.0;
     let hasMask = player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0;
@@ -1715,6 +1742,23 @@ function submitDeadManualCode() {
 }
 window.submitDeadManualCode = submitDeadManualCode;
 
+function submitHealItemManualCode() {
+    try {
+        const input = document.getElementById('heal-item-manual-code');
+        if (!input) return;
+        const code = String(input.value || '').trim();
+        if (!code) {
+            input.focus();
+            return;
+        }
+        handleHealItemScan(code);
+    } catch (err) {
+        console.error(err);
+        alert('Ошибка ввода кода: ' + err.message);
+    }
+}
+window.submitHealItemManualCode = submitHealItemManualCode;
+
 function handleScan(qrCode) {
     const resDiv = document.getElementById('scan-result');
     if (!qrCode) return;
@@ -1740,6 +1784,19 @@ function handleScan(qrCode) {
     }
 
     if (document.getElementById('manual-code')) document.getElementById('manual-code').value = ''; let code = qrCode.trim().toLowerCase();
+
+    // Лечебный предмет от спасителя: обрабатывается ДО проверки hp<=0,
+    // так как умирающий имеет 0 HP и должен иметь возможность сканировать.
+    if (code.startsWith(QR_PREFIX_HEAL_ITEM)) {
+        // Зомби не может быть вылечен человеческим предметом.
+        if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
+            playSound('error');
+            return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Лечебный предмет вам не поможет.</span>";
+        }
+        handleHealItemScan(code);
+        return;
+    }
+
     if (player.hp <= 0) return;
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
@@ -1786,16 +1843,26 @@ function handleScan(qrCode) {
 
     // 1. Помощь умирающему (Спасение)
     if (code.startsWith(QR_PREFIX_HEAL)) {
-        let parts = code.split(":"); let corpseId = parts[1]; let targetName = parts[2];
+        let parts = code.split(":");
+        let corpseId = parts[1];
+        let targetName = parts[2];
 
-        let consumableIdx = player.inventory.findIndex(id => ITEMS_DB[id].cat === 'food' || ITEMS_DB[id].cat === 'med');
+        // Отдавать можно только предметы, реально восстанавливающие HP:
+        // у med_2 (Антирадин) и med_6 (Рад-Х) heal = 0, они бы не подняли умирающего.
+        let consumableIdx = player.inventory.findIndex(id => {
+            const it = ITEMS_DB[id];
+            return it && (it.cat === 'food' || it.cat === 'med') && (it.heal || 0) > 0;
+        });
 
         if (consumableIdx === -1) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>У вас нет еды или медикаментов для помощи!</span>";
         }
 
-        let usedItemName = ITEMS_DB[player.inventory[consumableIdx]].name;
+        let usedItemId = player.inventory[consumableIdx];
+        let usedItem = ITEMS_DB[usedItemId];
+        let usedItemName = usedItem.name;
+        let healAmount = usedItem.heal || 0;
         player.inventory.splice(consumableIdx, 1);
 
         player.karma_score++;
@@ -1806,7 +1873,14 @@ function handleScan(qrCode) {
 
         saveState();
 
-        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот экран спасенному.</span>`;
+        // Генерируем QR лечебного предмета с отдельным префиксом healitem:,
+        // чтобы умирающий не мог сканировать обычный медикамент.
+        // txId = corpseId из QR умирающего: именно с ним сверяется pendingHealId
+        // на стороне умирающего в handleHealItemScan().
+        let txId = corpseId;
+
+        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" style="background:#fff; padding:8px; margin:10px auto; width:170px; height:170px; border-radius:6px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
+        generateQR('heal-item-qr', `${QR_PREFIX_HEAL_ITEM}${txId}:${usedItemId}:${healAmount}:${player.callsign}`);
         return;
     }
 
@@ -2014,11 +2088,20 @@ function handleDeadScan(qrCode) {
     }
 
     if (allowedBase) {
-        playSound('use'); player.hp = getMaxHp(); player.rads = 0; player.hunger = MAX_HUNGER; player.inventory = []; player.quests.active = null;
+        playSound('use');
+        player.rads = 0;
+        player.hp = getEffectiveMaxHp();
+
+        player.hunger = MAX_HUNGER;
+        player.inventory = [];
+        player.quests.active = null;
         player.infectionTime = 0; player.zombieTime = 0;
+        // Возрождение отменяет незавершённый запрос на лечение.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
         document.getElementById('corpse-qr-container').style.display = "none";
         document.getElementById('corpse-qr-desc').style.display = "none";
-        document.getElementById('btn-confirm-heal').style.display = "none";
+        document.getElementById('btn-scan-heal-item').style.display = "none";
         document.getElementById('btn-confirm-rob').style.display = "none";
         document.getElementById('qr-reader-dead').style.display = 'none'; document.getElementById('btn-dead-scan').style.display = 'block';
         player.isCurrentlyDead = false; saveState(); checkDeathState(); alert("ВЫ ВОСКРЕШЕНЫ И ПОЛНОСТЬЮ ИЗЛЕЧЕНЫ!");
@@ -2050,7 +2133,9 @@ function useMedkit(index, id, isSafe = false) {
         player.rads = Math.max(0, player.rads - it.radCure);
     }
 
-    let maxHp = getMaxHp() - player.rads; player.hp = Math.min(maxHp, player.hp + (it.heal || 0)); player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
+    let maxHp = getEffectiveMaxHp();
+    player.hp = Math.min(maxHp, player.hp + (it.heal || 0));
+    player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
 
@@ -2100,7 +2185,9 @@ function useFood(index, id, isSafe = false) {
     let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
     let barLvl = getNpcRepLevel(barRep);
     let maxHunger = MAX_HUNGER + (barLvl * 10);
-    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0)); let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0));
+    let maxHp = getEffectiveMaxHp();
+    if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
 
@@ -2654,8 +2741,8 @@ function buyHeal() {
     if (player.score < healCost) return alert("Мало кредитов!");
     playSound('use');
     player.score -= healCost;
-    player.hp = currentMaxHp;
     player.rads = 0;
+    player.hp = getEffectiveMaxHp();
     saveState();
     renderTradeView();
     alert("Вылечен!");
@@ -3486,9 +3573,9 @@ function startHeartbeatLoop() {
                 if (player.shelterLevel >= 5) {
                     player.regenTimer = (player.regenTimer || 0) + diffSec;
                     if (player.regenTimer >= 60) {
-                        let maxHp = getMaxHp();
-                        if (player.hp < maxHp - player.rads) {
-                            player.hp = Math.min(maxHp - player.rads, player.hp + 1);
+                        let maxHp = getEffectiveMaxHp();
+                        if (player.hp < maxHp) {
+                            player.hp = Math.min(maxHp, player.hp + 1);
                             updateHUD();
                         }
                         player.regenTimer = 0;
@@ -3547,7 +3634,8 @@ function startEventLoop() {
             player.rads = 0;
         }
 
-        let maxHp = getMaxHp() - player.rads; if (player.hp > maxHp) player.hp = maxHp;
+        let maxHp = getEffectiveMaxHp();
+        if (player.hp > maxHp) player.hp = maxHp;
 
         if (player.hunger === 0 && player.hp > 0) {
             let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
@@ -4283,7 +4371,31 @@ function updateAdminVisibility() {
     if (loginBtn) loginBtn.style.display = player.isAdmin ? 'none' : 'block';
 }
 
-function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem(STORAGE_KEY_PLAYER); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
+function factoryReset() {
+    const first = prompt("Введите позывной для сброса ПДА:");
+    if (first === null) return; // отмена — тихо выходим
+
+    if (first.trim() !== player.callsign) {
+        alert("Неверный позывной!");
+        return;
+    }
+
+    const second = prompt("Введите позывной повторно для подтверждения:");
+    if (second === null) return;
+
+    if (second.trim() !== player.callsign) {
+        alert("Позывные не совпадают!");
+        return;
+    }
+
+    localStorage.removeItem(STORAGE_KEY_PLAYER);
+    localStorage.removeItem('pda_heartbeat');
+    localStorage.removeItem('wasteland_notes');
+    localStorage.removeItem(STORAGE_KEY_MAP_MARKERS);
+    localStorage.removeItem(STORAGE_KEY_MAP_BG);
+    location.reload();
+}
+
 
 
 /* ===== next js file ===== */
@@ -4325,7 +4437,7 @@ function updateHUD() {
     try {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
         let baseMaxHp = getMaxHp();
-        let maxHp = baseMaxHp - (player.rads || 0);
+        let maxHp = getEffectiveMaxHp();
         if (player.hp > maxHp) player.hp = maxHp;
 
         // Проверка критического уровня здоровья (виньетка)
@@ -4433,7 +4545,16 @@ function startGameFromBase() {
 // Состояние смерти, QR-коды лечения и мародерства
 // ============================================================
 
-function declareDeath() { if(confirm("Вы убиты? ПДА заблокируется.")) { player.hp = 0; saveState(); checkDeathState(); } }
+function declareDeath() {
+    if (confirm("Вы убиты? ПДА заблокируется.")) {
+        player.hp = 0;
+        // Сбрасываем незавершённый запрос на лечение: старый QR больше не должен приниматься.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
+        saveState();
+        checkDeathState();
+    }
+}
 
 function checkDeathState() {
     updateHUD();
@@ -4462,6 +4583,10 @@ function checkDeathState() {
         if(scanner) scanner.stop();
     } else {
         document.getElementById('nav-buttons').style.display = 'grid';
+        // Игрок больше не мёртв — незавершённый запрос на лечение неактуален.
+        player.pendingHealId = null;
+        player.pendingHealAt = 0;
+        stopHealItemScanner();
         if(document.getElementById('view-dead').classList.contains('active')) switchView('scan');
         if (player.radioOn) startRadio();
     }
@@ -4470,11 +4595,15 @@ function checkDeathState() {
 function showHealQR() {
     document.getElementById('corpse-qr-container').style.display = "block";
     let cId = "help_" + Date.now();
+    // Сохраняем ID запроса на лечение: с ним будет сверяться txId из QR лечебного предмета.
+    player.pendingHealId = cId;
+    player.pendingHealAt = Date.now();
+    saveState();
     generateQR('corpse-qr-container', QR_PREFIX_HEAL + cId + ":" + player.callsign);
 
     document.getElementById('corpse-qr-desc').style.display = "block";
-    document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы, а вы встанете с 20% здоровья.</span>";
-    document.getElementById('btn-confirm-heal').style.display = "block";
+    document.getElementById('corpse-qr-desc').innerHTML = "<span style='color:var(--hero-color)'>Покажите этот код спасителю. У него спишется еда/медикамент, он получит +1 кармы. Затем отсканируйте QR предмета, который он покажет.</span>";
+    document.getElementById('btn-scan-heal-item').style.display = "block";
     document.getElementById('btn-confirm-rob').style.display = "none";
 }
 
@@ -4504,7 +4633,7 @@ function showRobQR() {
 
     document.getElementById('btn-confirm-rob').onclick = function() { confirmRob(corpseType); };
     document.getElementById('btn-confirm-rob').style.display = "block";
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
 }
 
 function showSurvivorQRModal() {
@@ -4533,22 +4662,98 @@ function showSurvivorQRModal() {
         corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 💎).</span>";
     }
 
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
     document.getElementById('btn-confirm-rob').style.display = "none";
 }
 
-function confirmHeal() {
+// === ЛЕЧЕНИЕ ЧЕРЕЗ СКАНИРОВАНИЕ QR ЛЕЧЕБНОГО ПРЕДМЕТА ===
+// Кнопка confirmHeal() удалена: лечение невозможно без реального QR от спасителя.
+let healItemScanner = null;
+
+// Останавливает камеру сканера лечебного предмета, если она запущена.
+// stop() возвращает Promise и может отклониться (scanner not running) — глушим.
+function stopHealItemScanner() {
+    if (!healItemScanner) return;
+    Promise.resolve(healItemScanner.stop()).catch(() => {});
+}
+
+function startHealItemScan() {
+    if (typeof Html5Qrcode === 'undefined') {
+        alert("⚠️ Офлайн-режим: камера недоступна. Введите код вручную.");
+        document.getElementById('heal-item-manual-box').style.display = 'flex';
+        return;
+    }
+    if (!healItemScanner) healItemScanner = new Html5Qrcode("qr-reader-heal-item");
+    document.getElementById('qr-reader-heal-item').style.display = 'block';
+    document.getElementById('btn-scan-heal-item').style.display = 'none';
+    healItemScanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } },
+        (t) => {
+            // stop() возвращает Promise и может отклониться (scanner not running).
+            // Обрабатываем результат только после остановки камеры.
+            Promise.resolve(healItemScanner.stop()).catch(() => {}).finally(() => handleHealItemScan(t));
+        }, (e) => { })
+        .catch(e => alert("Ошибка камеры."));
+}
+
+function handleHealItemScan(qrCode) {
+    // Камера могла остаться запущенной (ручной ввод или повторный вызов) — гасим.
+    stopHealItemScanner();
+    let code = String(qrCode || '').trim().toLowerCase();
+    if (!code.startsWith(QR_PREFIX_HEAL_ITEM)) {
+        playSound('error');
+        return alert("Это не код лечебного предмета!");
+    }
+    let parts = code.split(":");
+    let txId = parts[1];
+    let healAmount = parseInt(parts[3]) || 0;
+    let healerName = parts[4] || "Неизвестный";
+
+    if (!player.pendingHealId) {
+        playSound('error');
+        return alert("Нет активного запроса на лечение. Сначала покажите свой QR (кнопка ЛЕЧЕНИЕ).");
+    }
+    if (txId !== player.pendingHealId) {
+        playSound('error');
+        return alert("Этот QR предназначен для другого игрока!");
+    }
+    if (Date.now() - player.pendingHealAt > HEAL_ITEM_TIMEOUT_MS) {
+        playSound('error');
+        player.pendingHealId = null;
+        saveState();
+        return alert("Срок действия лечения истёк (1 минута). Покажите QR заново.");
+    }
+    player.processedHealTxs = player.processedHealTxs || {};
+    if (player.processedHealTxs[txId]) {
+        playSound('error');
+        return alert("Этот предмет уже использован для лечения!");
+    }
+    if (healAmount <= 0) {
+        playSound('error');
+        return alert("Этот предмет не восстанавливает здоровье!");
+    }
+
+    player.processedHealTxs[txId] = Date.now();
+    player.pendingHealId = null;
+    player.pendingHealAt = 0;
+
     if (player.rads > 50) player.rads = 50;
-    player.hp = 20;
-    // ВНИМАНИЕ: Лечение спасителем восстанавливает 20% HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
+    let maxHp = getEffectiveMaxHp();
+    // Math.max(1, ...) гарантирует подъём: при maxHp <= 0 (высокая радиация)
+    // игрок иначе остался бы с hp = 0, а isCurrentlyDead уже сброшен ниже.
+    player.hp = Math.max(1, Math.min(maxHp, 20 + healAmount));
+    // ВНИМАНИЕ: Лечение спасителем восстанавливает HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
     saveState();
+
     document.getElementById('corpse-qr-container').style.display = "none";
     document.getElementById('corpse-qr-desc').style.display = "none";
-    document.getElementById('btn-confirm-heal').style.display = "none";
+    document.getElementById('btn-scan-heal-item').style.display = "none";
+    document.getElementById('qr-reader-heal-item').style.display = 'none';
     player.inBase = false; player.isCurrentlyDead = false;
     checkDeathState();
-    alert("Вы были подняты спасителем (20% HP). Внимание: Инфекция вируса не вылечена!");
+    alert(`Вы были подняты спасителем ${healerName} (+${healAmount} HP). Внимание: Инфекция вируса не вылечена!`);
 }
+window.startHealItemScan = startHealItemScan;
+window.handleHealItemScan = handleHealItemScan;
 
 function confirmRob(corpseType = 'survivor') {
     player.inventory = [];
@@ -5078,7 +5283,7 @@ function handlePdaPhotoCaptured(event) {
             let now = new Date();
             let dateStr = now.toLocaleDateString('ru-RU') + ' ' + now.toLocaleTimeString('ru-RU');
             let callsign = player.callsign || 'СТАЛКЕР';
-            let maxHp = getMaxHp();
+            let maxHp = getEffectiveMaxHp();
 
             let headerH = Math.max(50, Math.floor(height * 0.07));
             let footerH = Math.max(60, Math.floor(height * 0.08));
