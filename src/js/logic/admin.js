@@ -29,4 +29,28 @@ function updateAdminVisibility() {
     if (loginBtn) loginBtn.style.display = player.isAdmin ? 'none' : 'block';
 }
 
-function factoryReset() { if (prompt("Введите PIN-код:") === "Прайс админ") { localStorage.removeItem(STORAGE_KEY_PLAYER); localStorage.removeItem('pda_heartbeat'); location.reload(); } else { alert("Неверный PIN!"); } }
+function factoryReset() {
+    const first = prompt("Введите позывной для сброса ПДА:");
+    if (first === null) return; // отмена — тихо выходим
+
+    if (first.trim() !== player.callsign) {
+        alert("Неверный позывной!");
+        return;
+    }
+
+    const second = prompt("Введите позывной повторно для подтверждения:");
+    if (second === null) return;
+
+    if (second.trim() !== player.callsign) {
+        alert("Позывные не совпадают!");
+        return;
+    }
+
+    localStorage.removeItem(STORAGE_KEY_PLAYER);
+    localStorage.removeItem('pda_heartbeat');
+    localStorage.removeItem('wasteland_notes');
+    localStorage.removeItem(STORAGE_KEY_MAP_MARKERS);
+    localStorage.removeItem(STORAGE_KEY_MAP_BG);
+    location.reload();
+}
+
