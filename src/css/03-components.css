@@ -128,15 +128,17 @@ button:disabled { background: var(--term-dark); color: #555; border-color: #555;
     border: none;
 }
 
-/* qrcode.js creates a hidden fallback image beside the canvas. Never show both. */
-.qr-surface img {
-    display: none !important;
+/* qrcode.js создаёт служебный <img> рядом с canvas. Скрываем только его,
+   чтобы не дублировать QR. Селектор :not(.qr-fallback-img) не затрагивает
+   изображение резервного варианта через внешний API. */
+.qr-surface img:not(.qr-fallback-img) {
+    display: none;
 }
 
 /* Fallback через внешний API (useAPIFallback) — единственный случай,
    когда изображение должно быть видно на белой подложке. */
 .qr-surface img.qr-fallback-img {
-    display: block !important;
+    display: block;
     margin: 0 auto;
     padding: 0;
     border: none;

@@ -13,59 +13,50 @@ function generateQR(containerId, textVal) {
         container.removeChild(container.firstChild);
     }
 
-    // Белая подложка, отступы, скругление и overflow задаются классом .qr-surface.
-    // Здесь только гарантируем, что контейнер видим и является точкой отсчёта
-    // для абсолютно позиционированного wrapper.
+    // Белая подложка, отступы и скругление задаются классом .qr-surface.
+    // QR рендерится прямо в контейнер, поэтому дополнительная обёртка не нужна.
     container.classList.add("qr-surface");
     container.style.display = "block";
-    container.style.position = "relative";
 
     try {
         if (typeof QRCode !== 'undefined') {
-            const wrapper = document.createElement('div');
-            // Центрируем QR внутри контейнера .qr-surface, у которого
-            // padding: 10px и переменная ширина (190–230px).
-            wrapper.style.position = "absolute";
-            wrapper.style.top = "50%";
-            wrapper.style.left = "50%";
-            wrapper.style.transform = "translate(-50%, -50%)";
-            wrapper.style.width = "170px";
-            wrapper.style.height = "170px";
-            wrapper.style.overflow = "hidden";
-            container.appendChild(wrapper);
+            // QR рендерится прямо в контейнер .qr-surface. Контейнер уже имеет
+            // padding: 10px и box-sizing: border-box, поэтому размер QR (150px)
+            // гарантированно помещается во внутреннюю область любого из
+            // существующих контейнеров (190–230px).
+            const QR_SIZE = 150;
 
-            new QRCode(wrapper, {
+            new QRCode(container, {
                 text: textVal,
-                width: 170,
-                height: 170,
+                width: QR_SIZE,
+                height: QR_SIZE,
                 colorDark: "#000000",
                 colorLight: "#ffffff",
                 correctLevel: QRCode.CorrectLevel.M
             });
 
             setTimeout(() => {
-                let canvas = wrapper.querySelector('canvas');
-                let img = wrapper.querySelector('img');
-                let table = wrapper.querySelector('table');
+                let canvas = container.querySelector('canvas');
+                let img = container.querySelector('img');
+                let table = container.querySelector('table');
                 if (canvas) {
-                    canvas.style.display = "block";
-                    canvas.style.width = "170px";
-                    canvas.style.height = "170px";
-                    canvas.style.margin = "0";
+                    canvas.style.width = QR_SIZE + "px";
+                    canvas.style.height = QR_SIZE + "px";
+                    canvas.style.margin = "0 auto";
                 }
                 if (img) {
-                    // qrcode.js adds a fallback <img> after the canvas.
-                    // Keep it hidden; otherwise a second QR appears below the first one.
+                    // qrcode.js добавляет служебный <img> рядом с canvas.
+                    // Скрываем его, чтобы не дублировать QR (canvas уже виден).
                     img.style.display = "none";
                     img.style.width = "0";
                     img.style.height = "0";
                     img.style.margin = "0";
                 }
                 if (table) {
-                    table.style.margin = "0";
+                    table.style.margin = "0 auto";
                     table.style.borderCollapse = "collapse";
-                    table.style.width = "170px";
-                    table.style.height = "170px";
+                    table.style.width = QR_SIZE + "px";
+                    table.style.height = QR_SIZE + "px";
                     table.querySelectorAll('td').forEach(td => {
                         td.style.padding = "0";
                         td.style.margin = "0";
