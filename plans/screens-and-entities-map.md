@@ -2,7 +2,7 @@
 
 > Документ описывает архитектуру SPA-приложения: все экраны, переходы между ними с точными условиями срабатывания, а также модель игровых сущностей (свойства, связи, функции и внешние воздействия).
 >
-> Источник данных: [`src/js/main.js`](./src/js/main.js), [`src/js/views/navigation.js`](./src/js/views/navigation.js), [`src/js/state/player.js`](./src/js/state/player.js), [`src/js/config/constants.js`](./src/js/config/constants.js), [`src/js/logic/scan.js`](./src/js/logic/scan.js), [`src/js/logic/events.js`](./src/js/logic/events.js), [`src/js/logic/trade.js`](./src/js/logic/trade.js), [`src/js/logic/blowout.js`](./src/js/logic/blowout.js), [`src/js/logic/hacking.js`](./src/js/logic/hacking.js), [`src/js/logic/p2p.js`](./src/js/logic/p2p.js), [`src/js/logic/quests.js`](./src/js/logic/quests.js), [`src/js/logic/shelter.js`](./src/js/logic/shelter.js), [`src/js/logic/slots.js`](./src/js/logic/slots.js), [`src/js/logic/roles.js`](./src/js/logic/roles.js), [`src/js/logic/admin.js`](./src/js/logic/admin.js), [`src/js/logic/equipment.js`](./src/js/logic/equipment.js), [`src/js/logic/inventory.js`](./src/js/logic/inventory.js), [`src/js/logic/map.js`](./src/js/logic/map.js), [`src/js/views/dead.js`](./src/js/views/dead.js), [`src/js/views/profile.js`](./src/js/views/profile.js), [`src/js/views/scan.js`](./src/js/views/scan.js), [`src/js/views/base.js`](./src/js/views/base.js), [`src/js/core/utils.js`](./src/js/core/utils.js), [`src/js/core/audio.js`](./src/js/core/audio.js), [`src/js/core/qr.js`](./src/js/core/qr.js), [`src/js/config/items.js`](./src/js/config/items.js), [`src/js/config/npc.js`](./src/js/config/npc.js), [`src/js/config/upgrades.js`](./src/js/config/upgrades.js).
+> Источник данных: [`src/js/main.js`](../src/js/main.js), [`src/js/views/navigation.js`](../src/js/views/navigation.js), [`src/js/state/player.js`](../src/js/state/player.js), [`src/js/config/constants.js`](../src/js/config/constants.js), [`src/js/logic/scan.js`](../src/js/logic/scan.js), [`src/js/logic/events.js`](../src/js/logic/events.js), [`src/js/logic/trade.js`](../src/js/logic/trade.js), [`src/js/logic/blowout.js`](../src/js/logic/blowout.js), [`src/js/logic/hacking.js`](../src/js/logic/hacking.js), [`src/js/logic/p2p.js`](../src/js/logic/p2p.js), [`src/js/logic/quests.js`](../src/js/logic/quests.js), [`src/js/logic/shelter.js`](../src/js/logic/shelter.js), [`src/js/logic/slots.js`](../src/js/logic/slots.js), [`src/js/logic/roles.js`](../src/js/logic/roles.js), [`src/js/logic/admin.js`](../src/js/logic/admin.js), [`src/js/logic/equipment.js`](../src/js/logic/equipment.js), [`src/js/logic/inventory.js`](../src/js/logic/inventory.js), [`src/js/logic/map.js`](../src/js/logic/map.js), [`src/js/views/dead.js`](../src/js/views/dead.js), [`src/js/views/profile.js`](../src/js/views/profile.js), [`src/js/views/scan.js`](../src/js/views/scan.js), [`src/js/views/base.js`](../src/js/views/base.js), [`src/js/core/utils.js`](../src/js/core/utils.js), [`src/js/core/audio.js`](../src/js/core/audio.js), [`src/js/core/qr.js`](../src/js/core/qr.js), [`src/js/config/items.js`](../src/js/config/items.js), [`src/js/config/npc.js`](../src/js/config/npc.js), [`src/js/config/upgrades.js`](../src/js/config/upgrades.js).
 
 ---
 
@@ -10,9 +10,9 @@
 
 ## 1.1. Архитектура навигации
 
-Приложение — одностраничное (SPA). Все экраны (`.view`) существуют в DOM одновременно и переключаются функцией [`switchView(viewName)`](./src/js/views/navigation.js) через CSS-класс `active`. Дополнительно существуют оверлеи (модальные окна, баннеры, boot-экран), которые не являются вьюхами, но перекрывают контент.
+Приложение — одностраничное (SPA). Все экраны (`.view`) существуют в DOM одновременно и переключаются функцией [`switchView(viewName)`](../src/js/views/navigation.js) через CSS-класс `active`. Дополнительно существуют оверлеи (модальные окна, баннеры, boot-экран), которые не являются вьюхами, но перекрывают контент.
 
-Ключевые элементы каркаса (из [`src/index.template.html`](./src/index.template.html)):
+Ключевые элементы каркаса (из [`src/index.template.html`](../src/index.template.html)):
 
 | Элемент | ID / класс | Назначение |
 |---|---|---|
@@ -30,31 +30,31 @@
 
 | # | Экран | DOM ID | Файл разметки | Файл логики | Назначение |
 |---|---|---|---|---|---|
-| 1 | **База (лобби/пауза)** | `view-base` | [`base.html`](./src/html/views/base.html) | [`base.js`](./src/js/views/base.js) | Стартовый экран, ввод позывного, вход в Зону |
-| 2 | **Сканер** | `view-scan` | [`scan.html`](./src/html/views/scan.html) | [`scan.js`](./src/js/views/scan.js) + [`logic/scan.js`](./src/js/logic/scan.js) | Главный игровой экран: QR-сканер, радио, блокнот |
-| 3 | **Инвентарь** | `view-inventory` | [`inventory.html`](./src/html/views/inventory.html) | [`logic/inventory.js`](./src/js/logic/inventory.js) | Рюкзак, сейф, крафт, апгрейды |
-| 4 | **Квесты** | `view-quests` | [`quests.html`](./src/html/views/quests.html) | [`logic/quests.js`](./src/js/logic/quests.js) | Активные/доступные/выполненные задания |
-| 5 | **Убежище** | `view-shelter` | [`shelter.html`](./src/html/views/shelter.html) | [`logic/shelter.js`](./src/js/logic/shelter.js) | Статистика, уровни убежища, бонусы |
-| 6 | **Карта** | `view-map` | [`map.html`](./src/html/views/map.html) | [`logic/map.js`](./src/js/logic/map.js) | Интерактивная карта Зоны, редактор меток |
-| 7 | **Профиль** | `view-profile` | [`profile.html`](./src/html/views/profile.html) | [`views/profile.js`](./src/js/views/profile.js) | Личное дело, репутация, арсенал, фото-модуль |
-| 8 | **Торговля** | `view-trade` | [`trade.html`](./src/html/views/trade.html) | [`logic/trade.js`](./src/js/logic/trade.js) | Магазин NPC: покупка/продажа/лечение |
-| 9 | **Взлом** | `view-hacking` | [`hacking.html`](./src/html/views/hacking.html) | [`logic/hacking.js`](./src/js/logic/hacking.js) | Мини-игра подбора пароля (Fallout-style) |
-| 10 | **Смерть** | `view-dead` | [`dead.html`](./src/html/views/dead.html) | [`views/dead.js`](./src/js/views/dead.js) | Экран смерти, генерация QR трупа, лечение/ограбление |
+| 1 | **База (лобби/пауза)** | `view-base` | [`base.html`](../src/html/views/base.html) | [`base.js`](../src/js/views/base.js) | Стартовый экран, ввод позывного, вход в Зону |
+| 2 | **Сканер** | `view-scan` | [`scan.html`](../src/html/views/scan.html) | [`scan.js`](../src/js/views/scan.js) + [`logic/scan.js`](../src/js/logic/scan.js) | Главный игровой экран: QR-сканер, радио, блокнот |
+| 3 | **Инвентарь** | `view-inventory` | [`inventory.html`](../src/html/views/inventory.html) | [`logic/inventory.js`](../src/js/logic/inventory.js) | Рюкзак, сейф, крафт, апгрейды |
+| 4 | **Квесты** | `view-quests` | [`quests.html`](../src/html/views/quests.html) | [`logic/quests.js`](../src/js/logic/quests.js) | Активные/доступные/выполненные задания |
+| 5 | **Убежище** | `view-shelter` | [`shelter.html`](../src/html/views/shelter.html) | [`logic/shelter.js`](../src/js/logic/shelter.js) | Статистика, уровни убежища, бонусы |
+| 6 | **Карта** | `view-map` | [`map.html`](../src/html/views/map.html) | [`logic/map.js`](../src/js/logic/map.js) | Интерактивная карта Зоны, редактор меток |
+| 7 | **Профиль** | `view-profile` | [`profile.html`](../src/html/views/profile.html) | [`views/profile.js`](../src/js/views/profile.js) | Личное дело, репутация, арсенал, фото-модуль |
+| 8 | **Торговля** | `view-trade` | [`trade.html`](../src/html/views/trade.html) | [`logic/trade.js`](../src/js/logic/trade.js) | Магазин NPC: покупка/продажа/лечение |
+| 9 | **Взлом** | `view-hacking` | [`hacking.html`](../src/html/views/hacking.html) | [`logic/hacking.js`](../src/js/logic/hacking.js) | Мини-игра подбора пароля (Fallout-style) |
+| 10 | **Смерть** | `view-dead` | [`dead.html`](../src/html/views/dead.html) | [`views/dead.js`](../src/js/views/dead.js) | Экран смерти, генерация QR трупа, лечение/ограбление |
 
 ## 1.3. Оверлеи, модалки и глобальные слои
 
 | Элемент | ID | Тип | Условие появления | Условие скрытия |
 |---|---|---|---|---|
-| BIOS-boot | `#boot-screen` | Полноэкранный оверлей | Вызов [`runBootSequence()`](./src/js/core/audio.js) при входе в Зону | Автоскрытие через ~1800 мс |
-| Баннер выброса | `#blowout-banner` | Глобальный баннер | `blowoutActive === true` (см. [`updateBlowoutUI()`](./src/js/logic/blowout.js)) | Окончание последовательности выброса |
-| Баннер событий | `#event-banner` | Всплывающее уведомление | Любой вызов [`showBanner(text, color)`](./src/js/core/utils.js) | Автоскрытие через 5000 мс |
+| BIOS-boot | `#boot-screen` | Полноэкранный оверлей | Вызов [`runBootSequence()`](../src/js/core/audio.js) при входе в Зону | Автоскрытие через ~1800 мс |
+| Баннер выброса | `#blowout-banner` | Глобальный баннер | `blowoutActive === true` (см. [`updateBlowoutUI()`](../src/js/logic/blowout.js)) | Окончание последовательности выброса |
+| Баннер событий | `#event-banner` | Всплывающее уведомление | Любой вызов [`showBanner(text, color)`](../src/js/core/utils.js) | Автоскрытие через 5000 мс |
 | HUD | `#hud` | Постоянная панель | Всегда, кроме экранов `base` и `dead` | — |
 | Навигация | `#nav` | Нижняя панель | Всегда, кроме экранов `base` и `dead` | — |
-| Модалка торговли | `#trade-modal` | Модальное окно | [`initiateP2PTrade()`](./src/js/logic/p2p.js) / [`startTradeConfirmScan()`](./src/js/logic/p2p.js) | [`closeTradeModal()`](./src/js/logic/p2p.js) |
-| Модалка лечения | `#heal-qr-modal` | Модальное окно | [`showHealQR()`](./src/js/views/dead.js) | [`confirmHeal()`](./src/js/views/dead.js) / закрытие |
-| Модалка ограбления | `#rob-qr-modal` | Модальное окно | [`showRobQR()`](./src/js/views/dead.js) | [`confirmRob()`](./src/js/views/dead.js) / закрытие |
-| Модалка выжившего | `#survivor-qr-modal` | Модальное окно | [`showSurvivorQRModal()`](./src/js/views/dead.js) | Закрытие |
-| Виньетка low-HP | класс `low-hp` на `#screen` | CSS-эффект | `player.hp <= 25%` от максимума (в [`updateHUD()`](./src/js/views/navigation.js)) | Восстановление HP |
+| Модалка торговли | `#trade-modal` | Модальное окно | [`initiateP2PTrade()`](../src/js/logic/p2p.js) / [`startTradeConfirmScan()`](../src/js/logic/p2p.js) | [`closeTradeModal()`](../src/js/logic/p2p.js) |
+| Модалка лечения | `#heal-qr-modal` | Модальное окно | [`showHealQR()`](../src/js/views/dead.js) | [`confirmHeal()`](../src/js/views/dead.js) / закрытие |
+| Модалка ограбления | `#rob-qr-modal` | Модальное окно | [`showRobQR()`](../src/js/views/dead.js) | [`confirmRob()`](../src/js/views/dead.js) / закрытие |
+| Модалка выжившего | `#survivor-qr-modal` | Модальное окно | [`showSurvivorQRModal()`](../src/js/views/dead.js) | Закрытие |
+| Виньетка low-HP | класс `low-hp` на `#screen` | CSS-эффект | `player.hp <= 25%` от максимума (в [`updateHUD()`](../src/js/views/navigation.js)) | Восстановление HP |
 
 ## 1.4. Матрица переходов между экранами
 
@@ -64,45 +64,45 @@
 
 | Откуда | Куда | Триггер | Условие | Функция |
 |---|---|---|---|---|
-| Любой экран (кроме base/dead) | scan | Клик по кнопке «СКАНЕР» | `player.hp > 0` | [`switchView('scan')`](./src/js/views/navigation.js) |
-| Любой экран (кроме base/dead) | inventory | Клик по кнопке «РЮКЗАК» | `player.hp > 0` | [`switchView('inventory')`](./src/js/views/navigation.js) |
-| Любой экран (кроме base/dead) | quests | Клик по кнопке «КВЕСТЫ» | `player.hp > 0` | [`switchView('quests')`](./src/js/views/navigation.js) |
-| Любой экран (кроме base/dead) | shelter | Клик по кнопке «УБЕЖИЩЕ» | `player.hp > 0` | [`switchView('shelter')`](./src/js/views/navigation.js) |
-| Любой экран (кроме base/dead) | map | Клик по кнопке «КАРТА» | `player.hp > 0` | [`switchView('map')`](./src/js/views/navigation.js) |
-| Любой экран (кроме base/dead) | profile | Клик по кнопке «ПРОФИЛЬ» | Всегда (даже при `hp <= 0`) | [`switchView('profile')`](./src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | scan | Клик по кнопке «СКАНЕР» | `player.hp > 0` | [`switchView('scan')`](../src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | inventory | Клик по кнопке «РЮКЗАК» | `player.hp > 0` | [`switchView('inventory')`](../src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | quests | Клик по кнопке «КВЕСТЫ» | `player.hp > 0` | [`switchView('quests')`](../src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | shelter | Клик по кнопке «УБЕЖИЩЕ» | `player.hp > 0` | [`switchView('shelter')`](../src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | map | Клик по кнопке «КАРТА» | `player.hp > 0` | [`switchView('map')`](../src/js/views/navigation.js) |
+| Любой экран (кроме base/dead) | profile | Клик по кнопке «ПРОФИЛЬ» | Всегда (даже при `hp <= 0`) | [`switchView('profile')`](../src/js/views/navigation.js) |
 
-> **Блокировка:** при `player.hp <= 0` разрешены только переходы на `base` и `profile`. Все прочие вызовы [`switchView()`](./src/js/views/navigation.js) игнорируются.
+> **Блокировка:** при `player.hp <= 0` разрешены только переходы на `base` и `profile`. Все прочие вызовы [`switchView()`](../src/js/views/navigation.js) игнорируются.
 
 ### 1.4.2. Переходы из экрана «База»
 
 | Откуда | Куда | Триггер | Условие | Функция |
 |---|---|---|---|---|
-| base | scan | Клик по кнопке «ВОЙТИ В ЗОНУ» | Всегда | [`startGameFromBase()`](./src/js/views/base.js) → `runBootSequence()` → через 1800 мс `switchView('scan')` |
-| base | scan | То же | `player.radioOn === true` | Дополнительно [`startRadio()`](./src/js/views/scan.js) |
-| base | (без перехода) | Клик «СОХРАНИТЬ ПОЗЫВНОЙ» | `input.value.trim() !== ""` | [`saveBaseCallsign()`](./src/js/views/base.js) |
-| base | dead | Автоматически при загрузке | `player.hp <= 0` при `init()` | [`checkDeathState()`](./src/js/views/dead.js) |
+| base | scan | Клик по кнопке «ВОЙТИ В ЗОНУ» | Всегда | [`startGameFromBase()`](../src/js/views/base.js) → `runBootSequence()` → через 1800 мс `switchView('scan')` |
+| base | scan | То же | `player.radioOn === true` | Дополнительно [`startRadio()`](../src/js/views/scan.js) |
+| base | (без перехода) | Клик «СОХРАНИТЬ ПОЗЫВНОЙ» | `input.value.trim() !== ""` | [`saveBaseCallsign()`](../src/js/views/base.js) |
+| base | dead | Автоматически при загрузке | `player.hp <= 0` при `init()` | [`checkDeathState()`](../src/js/views/dead.js) |
 
 ### 1.4.3. Переходы из экрана «Сканер» (по результату QR-скана)
 
-Центральный обработчик — [`handleScan()`](./src/js/logic/scan.js). Ветвление по префиксу QR-кода:
+Центральный обработчик — [`handleScan()`](../src/js/logic/scan.js). Ветвление по префиксу QR-кода:
 
 | Префикс QR | Куда / Эффект | Точное условие | Функция |
 |---|---|---|---|
-| `item_`, `food_`, `med_`, `wpn_`, `junk_`, `gear_` | Остаётся на scan | Кулдаун предмета истёк; `inventory.length < maxSize` | [`handleScan()`](./src/js/logic/scan.js) |
-| `loot` | Остаётся на scan | Всегда | [`handleScan()`](./src/js/logic/scan.js) |
-| `heal:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](./src/js/logic/scan.js) |
-| `rob:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](./src/js/logic/scan.js) |
-| `safe_` | Остаётся на scan | Всегда | [`handleScan()`](./src/js/logic/scan.js) |
-| `usb_` | **hacking** | `player.hp > 0`; кулдаун взлома истёк | [`startHacking()`](./src/js/logic/hacking.js) |
-| `term_` | **hacking** | `player.hp > 0`; кулдаун взлома истёк | [`startHacking()`](./src/js/logic/hacking.js) |
-| `arrest:` | Остаётся на scan | `player.hp > 0` | [`handleArrestScan()`](./src/js/logic/roles.js) → блокировка на 10 мин |
-| `bandit_id:` | Остаётся на scan | `player.role === "Военный"` | [`handleBanditScan()`](./src/js/logic/roles.js) → +100 💎 |
-| `player_id:` | Остаётся на scan | Всегда | [`handleScan()`](./src/js/logic/scan.js) |
-| `zombie_id:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](./src/js/logic/scan.js) |
-| `anom_` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](./src/js/logic/scan.js) |
-| `p2ptrade:` | **trade-modal** (оверлей) | `player.hp > 0`; транзакция не обработана | [`handleP2PTradeScan()`](./src/js/logic/p2p.js) |
-| NPC-код (`npc_*`) | **trade** | `player.hp > 0`; доступ к базе NPC разрешён | [`openTrade()`](./src/js/logic/trade.js) |
-| Код укрытия при выбросе | Остаётся на scan | `blowoutActive === true`; код соответствует фракции | [`checkBlowoutShelterScan()`](./src/js/logic/blowout.js) → +200 💎 |
+| `item_`, `food_`, `med_`, `wpn_`, `junk_`, `gear_` | Остаётся на scan | Кулдаун предмета истёк; `inventory.length < maxSize` | [`handleScan()`](../src/js/logic/scan.js) |
+| `loot` | Остаётся на scan | Всегда | [`handleScan()`](../src/js/logic/scan.js) |
+| `heal:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
+| `rob:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
+| `safe_` | Остаётся на scan | Всегда | [`handleScan()`](../src/js/logic/scan.js) |
+| `usb_` | **hacking** | `player.hp > 0`; кулдаун взлома истёк | [`startHacking()`](../src/js/logic/hacking.js) |
+| `term_` | **hacking** | `player.hp > 0`; кулдаун взлома истёк | [`startHacking()`](../src/js/logic/hacking.js) |
+| `arrest:` | Остаётся на scan | `player.hp > 0` | [`handleArrestScan()`](../src/js/logic/roles.js) → блокировка на 10 мин |
+| `bandit_id:` | Остаётся на scan | `player.role === "Военный"` | [`handleBanditScan()`](../src/js/logic/roles.js) → +100 💎 |
+| `player_id:` | Остаётся на scan | Всегда | [`handleScan()`](../src/js/logic/scan.js) |
+| `zombie_id:` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
+| `anom_` | Остаётся на scan | `player.hp > 0` | [`handleScan()`](../src/js/logic/scan.js) |
+| `p2ptrade:` | **trade-modal** (оверлей) | `player.hp > 0`; транзакция не обработана | [`handleP2PTradeScan()`](../src/js/logic/p2p.js) |
+| NPC-код (`npc_*`) | **trade** | `player.hp > 0`; доступ к базе NPC разрешён | [`openTrade()`](../src/js/logic/trade.js) |
+| Код укрытия при выбросе | Остаётся на scan | `blowoutActive === true`; код соответствует фракции | [`checkBlowoutShelterScan()`](../src/js/logic/blowout.js) → +200 💎 |
 
 ### 1.4.4. Переходы из экрана «Смерть»
 
@@ -110,73 +110,73 @@
 
 | Откуда | Куда | Триггер (кнопка) | Условие | Функция |
 |---|---|---|---|---|
-| dead | base | Клик «ВЕРНУТЬСЯ НА БАЗУ» | Всегда | [`returnToBase()`](./src/js/logic/roles.js) |
-| dead | scan | Успешное лечение по QR | [`confirmHeal()`](./src/js/views/dead.js) → `player.hp = 20`, `isCurrentlyDead = false` | [`confirmHeal()`](./src/js/views/dead.js) → [`checkDeathState()`](./src/js/views/dead.js) |
-| dead | scan | Успешное ограбление | [`confirmRob()`](./src/js/views/dead.js) → очистка рюкзака | [`confirmRob()`](./src/js/views/dead.js) |
-| dead | scan | Скан кода возрождения | Отсканирован `npc_base` / `npc_bandit_base` | [`startDeadScan()`](./src/js/logic/scan.js) → [`handleDeadScan()`](./src/js/logic/scan.js) |
-| dead | scan | Ручной ввод кода | Введён `npc_base` / `npc_bandit_base` | [`submitDeadManualCode()`](./src/js/logic/scan.js) |
-| Любой | dead | Автоматически | `player.hp <= 0` (проверка в циклах) | [`checkDeathState()`](./src/js/views/dead.js) |
+| dead | base | Клик «ВЕРНУТЬСЯ НА БАЗУ» | Всегда | [`returnToBase()`](../src/js/logic/roles.js) |
+| dead | scan | Успешное лечение по QR | [`confirmHeal()`](../src/js/views/dead.js) → `player.hp = 20`, `isCurrentlyDead = false` | [`confirmHeal()`](../src/js/views/dead.js) → [`checkDeathState()`](../src/js/views/dead.js) |
+| dead | scan | Успешное ограбление | [`confirmRob()`](../src/js/views/dead.js) → очистка рюкзака | [`confirmRob()`](../src/js/views/dead.js) |
+| dead | scan | Скан кода возрождения | Отсканирован `npc_base` / `npc_bandit_base` | [`startDeadScan()`](../src/js/logic/scan.js) → [`handleDeadScan()`](../src/js/logic/scan.js) |
+| dead | scan | Ручной ввод кода | Введён `npc_base` / `npc_bandit_base` | [`submitDeadManualCode()`](../src/js/logic/scan.js) |
+| Любой | dead | Автоматически | `player.hp <= 0` (проверка в циклах) | [`checkDeathState()`](../src/js/views/dead.js) |
 
-> **Важная деталь:** при восстановлении HP (лечение или возрождение) функция [`checkDeathState()`](./src/js/views/dead.js) автоматически возвращает игрока на `scan` — `if (view-dead активен) switchView('scan')`. То есть выход из состояния смерти всегда ведёт на сканер.
+> **Важная деталь:** при восстановлении HP (лечение или возрождение) функция [`checkDeathState()`](../src/js/views/dead.js) автоматически возвращает игрока на `scan` — `if (view-dead активен) switchView('scan')`. То есть выход из состояния смерти всегда ведёт на сканер.
 
-> **Кнопки экрана смерти** (из [`dead.html`](./src/html/views/dead.html)):
-> - «🟢 ЛЕЧЕНИЕ» → [`showHealQR()`](./src/js/views/dead.js) — генерация QR лечения;
-> - «🔴 ОГРАБИТЬ» → [`showRobQR()`](./src/js/views/dead.js) — генерация QR трупа (тип по роли/карме);
-> - «☣️ ПОКАЗАТЬ QR ЗОМБИ (ОХОТА)» → [`showSurvivorQRModal()`](./src/js/views/dead.js);
-> - «ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)» → [`confirmHeal()`](./src/js/views/dead.js);
-> - «МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)» → [`confirmRob()`](./src/js/views/dead.js);
-> - «ВКЛЮЧИТЬ СКАНЕР БАЗЫ» → [`startDeadScan()`](./src/js/logic/scan.js);
-> - поле ручного ввода кода → [`submitDeadManualCode()`](./src/js/logic/scan.js).
+> **Кнопки экрана смерти** (из [`dead.html`](../src/html/views/dead.html)):
+> - «🟢 ЛЕЧЕНИЕ» → [`showHealQR()`](../src/js/views/dead.js) — генерация QR лечения;
+> - «🔴 ОГРАБИТЬ» → [`showRobQR()`](../src/js/views/dead.js) — генерация QR трупа (тип по роли/карме);
+> - «☣️ ПОКАЗАТЬ QR ЗОМБИ (ОХОТА)» → [`showSurvivorQRModal()`](../src/js/views/dead.js);
+> - «ВСТАТЬ (МЕНЯ ВЫЛЕЧИЛИ 20% HP)» → [`confirmHeal()`](../src/js/views/dead.js);
+> - «МАРОДЕР ЗАБРАЛ ЛУТ (ОЧИСТИТЬ)» → [`confirmRob()`](../src/js/views/dead.js);
+> - «ВКЛЮЧИТЬ СКАНЕР БАЗЫ» → [`startDeadScan()`](../src/js/logic/scan.js);
+> - поле ручного ввода кода → [`submitDeadManualCode()`](../src/js/logic/scan.js).
 
-> **Примечание о профиле:** экран профиля технически доступен при `hp <= 0` (через [`switchView('profile')`](./src/js/views/navigation.js) он не блокируется), однако на экране смерти кнопки для этого перехода нет. Попасть в профиль мёртвым можно только если он был открыт до смерти. Из профиля при `hp <= 0` переходы на scan/inventory/quests/shelter/map заблокированы — доступны только profile и base.
+> **Примечание о профиле:** экран профиля технически доступен при `hp <= 0` (через [`switchView('profile')`](../src/js/views/navigation.js) он не блокируется), однако на экране смерти кнопки для этого перехода нет. Попасть в профиль мёртвым можно только если он был открыт до смерти. Из профиля при `hp <= 0` переходы на scan/inventory/quests/shelter/map заблокированы — доступны только profile и base.
 
 ### 1.4.5. Переходы из экрана «Торговля»
 
 | Откуда | Куда | Триггер | Условие | Функция |
 |---|---|---|---|---|
-| trade | scan | Клик «НАЗАД» / закрытие | Всегда | [`switchView('scan')`](./src/js/views/navigation.js) |
-| trade | trade | Покупка предмета | `player.score >= price`; `inventory.length < maxSize` | [`buyItem()`](./src/js/logic/trade.js) |
-| trade | trade | Покупка экипировки | `player.score >= price`; слот экипировки свободен | [`buyEquipment()`](./src/js/logic/trade.js) |
-| trade | trade | Продажа предмета | Предмет есть в рюкзаке | [`sellItem()`](./src/js/logic/trade.js) |
-| trade | trade | Продать всё | В рюкзаке есть продаваемые предметы | [`sellAllToBase()`](./src/js/logic/trade.js) |
-| trade | trade | Лечение | `player.score >= getHealCost()`; `player.hp < getMaxHp()` | [`buyHeal()`](./src/js/logic/trade.js) |
-| trade | trade | Сдача квеста | Квест активен и выполнен | [`openTrade()`](./src/js/logic/trade.js) |
+| trade | scan | Клик «НАЗАД» / закрытие | Всегда | [`switchView('scan')`](../src/js/views/navigation.js) |
+| trade | trade | Покупка предмета | `player.score >= price`; `inventory.length < maxSize` | [`buyItem()`](../src/js/logic/trade.js) |
+| trade | trade | Покупка экипировки | `player.score >= price`; слот экипировки свободен | [`buyEquipment()`](../src/js/logic/trade.js) |
+| trade | trade | Продажа предмета | Предмет есть в рюкзаке | [`sellItem()`](../src/js/logic/trade.js) |
+| trade | trade | Продать всё | В рюкзаке есть продаваемые предметы | [`sellAllToBase()`](../src/js/logic/trade.js) |
+| trade | trade | Лечение | `player.score >= getHealCost()`; `player.hp < getMaxHp()` | [`buyHeal()`](../src/js/logic/trade.js) |
+| trade | trade | Сдача квеста | Квест активен и выполнен | [`openTrade()`](../src/js/logic/trade.js) |
 
 ### 1.4.6. Переходы из экрана «Взлом»
 
 | Откуда | Куда | Триггер | Условие | Функция |
 |---|---|---|---|---|
-| hacking | scan | Клик «ОТМЕНА» | Всегда | [`abortHacking()`](./src/js/logic/hacking.js) |
-| hacking | scan | Успешный подбор пароля | Введено верное слово | [`submitHackWord()`](./src/js/logic/hacking.js) |
-| hacking | scan | Исчерпаны попытки | `attempts === 0` (из 4) | [`updateHackAttemptsUI()`](./src/js/logic/hacking.js) |
+| hacking | scan | Клик «ОТМЕНА» | Всегда | [`abortHacking()`](../src/js/logic/hacking.js) |
+| hacking | scan | Успешный подбор пароля | Введено верное слово | [`submitHackWord()`](../src/js/logic/hacking.js) |
+| hacking | scan | Исчерпаны попытки | `attempts === 0` (из 4) | [`updateHackAttemptsUI()`](../src/js/logic/hacking.js) |
 
 ### 1.4.7. Переходы внутри экранов (без смены вьюхи)
 
 | Экран | Действие | Условие | Функция |
 |---|---|---|---|
-| inventory | Использовать аптечку | Есть `med_*` в рюкзаке | [`useMedkit()`](./src/js/logic/inventory.js) |
-| inventory | Быстрое использование | Есть расходник | [`quickUseItem()`](./src/js/logic/inventory.js) |
-| inventory | Съесть еду | Есть `food_*` | [`useFood()`](./src/js/logic/inventory.js) |
-| inventory | Переместить в сейф | `safeBox.length < лимит` | [`moveToSafe()`](./src/js/logic/inventory.js) |
-| inventory | Переместить в рюкзак | `inventory.length < maxSize` | [`moveToInv()`](./src/js/logic/inventory.js) |
-| inventory | Применить апгрейд | Все `req` из [`SHELTER_UPGRADES`](./src/js/config/upgrades.js) в наличии | [`applyUpgrade()`](./src/js/logic/inventory.js) |
-| quests | Взять квест | Активных < 2 | [`acceptQuest()`](./src/js/logic/quests.js) |
-| quests | Взять особый квест | Выполнено ≥ 5 обычных; особых < 3 | [`acceptSpecialQuest()`](./src/js/logic/quests.js) |
-| quests | Отказаться | Квест активен | [`abandonQuest()`](./src/js/logic/quests.js) |
-| shelter | Улучшить убежище | Все `req` уровня в наличии; `shelterLevel < 5` | [`upgradeShelter()`](./src/js/logic/shelter.js) |
-| profile | Включить/выключить оружие | Оружие в арсенале | [`toggleWeapon()`](./src/js/logic/equipment.js) |
-| profile | Починить хламом | Есть `junk_*`; `durability < 100` | [`repairWeaponWithJunk()`](./src/js/logic/equipment.js) |
-| profile | Ремонт на базе | Отсканирован QR базы; есть 💎 | [`repairWeaponAtBase()`](./src/js/logic/equipment.js) |
-| profile | Снять экипировку | `player.equipment !== null` | [`unequipSpecialItem()`](./src/js/logic/equipment.js) |
-| profile | Продать экипировку | `player.equipment !== null` | [`sellEquipment()`](./src/js/views/profile.js) |
-| profile | Сделать фото ПДА | Выбран файл изображения | [`handlePdaPhotoCaptured()`](./src/js/views/profile.js) |
-| map | Включить редактор меток | Всегда | [`toggleMapEditor()`](./src/js/logic/map.js) |
-| map | Добавить метку | Всегда | [`addNewMapMarker()`](./src/js/logic/map.js) |
-| map | Удалить метку | Метка выбрана | [`deleteSelectedMarker()`](./src/js/logic/map.js) |
-| map | Загрузить фон карты | Выбран файл изображения | [`handleMapBackgroundUpload()`](./src/js/logic/map.js) |
-| scan | Вкл/выкл радио | Всегда | [`toggleRadio()`](./src/js/views/scan.js) |
-| scan | Пасхалка УВБ-76 | 5 кликов по радио | [`registerRadioSecretClick()`](./src/js/views/scan.js) |
-| scan | Пасхалка ХАКЕР | 5 кликов по терминалу | [`registerHackClick()`](./src/js/views/scan.js) |
+| inventory | Использовать аптечку | Есть `med_*` в рюкзаке | [`useMedkit()`](../src/js/logic/inventory.js) |
+| inventory | Быстрое использование | Есть расходник | [`quickUseItem()`](../src/js/logic/inventory.js) |
+| inventory | Съесть еду | Есть `food_*` | [`useFood()`](../src/js/logic/inventory.js) |
+| inventory | Переместить в сейф | `safeBox.length < лимит` | [`moveToSafe()`](../src/js/logic/inventory.js) |
+| inventory | Переместить в рюкзак | `inventory.length < maxSize` | [`moveToInv()`](../src/js/logic/inventory.js) |
+| inventory | Применить апгрейд | Все `req` из [`SHELTER_UPGRADES`](../src/js/config/upgrades.js) в наличии | [`applyUpgrade()`](../src/js/logic/inventory.js) |
+| quests | Взять квест | Активных < 2 | [`acceptQuest()`](../src/js/logic/quests.js) |
+| quests | Взять особый квест | Выполнено ≥ 5 обычных; особых < 3 | [`acceptSpecialQuest()`](../src/js/logic/quests.js) |
+| quests | Отказаться | Квест активен | [`abandonQuest()`](../src/js/logic/quests.js) |
+| shelter | Улучшить убежище | Все `req` уровня в наличии; `shelterLevel < 5` | [`upgradeShelter()`](../src/js/logic/shelter.js) |
+| profile | Включить/выключить оружие | Оружие в арсенале | [`toggleWeapon()`](../src/js/logic/equipment.js) |
+| profile | Починить хламом | Есть `junk_*`; `durability < 100` | [`repairWeaponWithJunk()`](../src/js/logic/equipment.js) |
+| profile | Ремонт на базе | Отсканирован QR базы; есть 💎 | [`repairWeaponAtBase()`](../src/js/logic/equipment.js) |
+| profile | Снять экипировку | `player.equipment !== null` | [`unequipSpecialItem()`](../src/js/logic/equipment.js) |
+| profile | Продать экипировку | `player.equipment !== null` | [`sellEquipment()`](../src/js/views/profile.js) |
+| profile | Сделать фото ПДА | Выбран файл изображения | [`handlePdaPhotoCaptured()`](../src/js/views/profile.js) |
+| map | Включить редактор меток | Всегда | [`toggleMapEditor()`](../src/js/logic/map.js) |
+| map | Добавить метку | Всегда | [`addNewMapMarker()`](../src/js/logic/map.js) |
+| map | Удалить метку | Метка выбрана | [`deleteSelectedMarker()`](../src/js/logic/map.js) |
+| map | Загрузить фон карты | Выбран файл изображения | [`handleMapBackgroundUpload()`](../src/js/logic/map.js) |
+| scan | Вкл/выкл радио | Всегда | [`toggleRadio()`](../src/js/views/scan.js) |
+| scan | Пасхалка УВБ-76 | 5 кликов по радио | [`registerRadioSecretClick()`](../src/js/views/scan.js) |
+| scan | Пасхалка ХАКЕР | 5 кликов по терминалу | [`registerHackClick()`](../src/js/views/scan.js) |
 
 ## 1.5. Граф экранов (Mermaid)
 
@@ -212,14 +212,14 @@ stateDiagram-v2
 
 | Таймер | Интервал | Условие запуска | Эффект | Функция |
 |---|---|---|---|---|
-| Инфекция | 1000 мс | `player.infectionTime` установлен | Прогресс инфекции → зомби | [`startInfectionLoop()`](./src/js/logic/events.js) |
-| Heartbeat | 5000 мс | Всегда после `init()` | Арест, зарплата, регенерация, время выживания | [`startHeartbeatLoop()`](./src/js/logic/events.js) |
-| События | 60000 мс | Всегда после `init()` | Износ оружия, голод, радиация, случайные события | [`startEventLoop()`](./src/js/logic/events.js) |
-| Выброс | 3600000 мс (60 мин) | Всегда после `init()` | Пси-выброс: 240 с на укрытие | [`startBlowoutSchedule()`](./src/js/logic/blowout.js) |
-| Радио | 20000–60000 мс | `player.radioOn === true` | Новое сообщение в эфире | [`startRadio()`](./src/js/views/scan.js) |
-| Гейгер | Постоянно | Радиация > 0 | Звук счётчика Гейгера | [`runGeigerLoop()`](./src/js/core/audio.js) |
-| Сердцебиение | Постоянно | Низкий HP | Звук сердцебиения | [`runHeartbeatLoop()`](./src/js/core/audio.js) |
-| Офлайн-время | При загрузке | `pda_heartbeat` в localStorage | Износ, голод, радиация за офлайн | [`processOfflineTime()`](./src/js/core/utils.js) |
+| Инфекция | 1000 мс | `player.infectionTime` установлен | Прогресс инфекции → зомби | [`startInfectionLoop()`](../src/js/logic/events.js) |
+| Heartbeat | 5000 мс | Всегда после `init()` | Арест, зарплата, регенерация, время выживания | [`startHeartbeatLoop()`](../src/js/logic/events.js) |
+| События | 60000 мс | Всегда после `init()` | Износ оружия, голод, радиация, случайные события | [`startEventLoop()`](../src/js/logic/events.js) |
+| Выброс | 3600000 мс (60 мин) | Всегда после `init()` | Пси-выброс: 240 с на укрытие | [`startBlowoutSchedule()`](../src/js/logic/blowout.js) |
+| Радио | 20000–60000 мс | `player.radioOn === true` | Новое сообщение в эфире | [`startRadio()`](../src/js/views/scan.js) |
+| Гейгер | Постоянно | Радиация > 0 | Звук счётчика Гейгера | [`runGeigerLoop()`](../src/js/core/audio.js) |
+| Сердцебиение | Постоянно | Низкий HP | Звук сердцебиения | [`runHeartbeatLoop()`](../src/js/core/audio.js) |
+| Офлайн-время | При загрузке | `pda_heartbeat` в localStorage | Износ, голод, радиация за офлайн | [`processOfflineTime()`](../src/js/core/utils.js) |
 
 ---
 
@@ -227,8 +227,8 @@ stateDiagram-v2
 
 ## 2.1. Player (Игрок)
 
-**Хранилище:** `localStorage['wasteland_player']` (ключ [`STORAGE_KEY_PLAYER`](./src/js/config/constants.js)).
-**Определение:** [`src/js/state/player.js`](./src/js/state/player.js).
+**Хранилище:** `localStorage['wasteland_player']` (ключ [`STORAGE_KEY_PLAYER`](../src/js/config/constants.js)).
+**Определение:** [`src/js/state/player.js`](../src/js/state/player.js).
 
 ### Свойства
 
@@ -278,29 +278,29 @@ stateDiagram-v2
 
 | Функция | Файл | Что меняет |
 |---|---|---|
-| [`saveState()`](./src/js/core/utils.js) | utils.js | Сериализация в localStorage + обновление UI |
-| [`processOfflineTime()`](./src/js/core/utils.js) | utils.js | HP, hunger, rads, durability за офлайн |
-| [`getMaxHp()`](./src/js/core/utils.js) | utils.js | Расчёт максимума HP (репутация + убежище) |
-| [`getEffectiveMaxHp()`](./src/js/core/utils.js) | utils.js | Максимум HP минус радиация |
-| [`getRadMultiplier()`](./src/js/core/utils.js) | utils.js | Множитель радиации (маска/плащ) |
-| [`getKarmaStatus()`](./src/js/core/utils.js) | utils.js | Статус кармы |
-| [`startInfectionLoop()`](./src/js/logic/events.js) | events.js | infectionTime, zombieTime, hp |
-| [`startHeartbeatLoop()`](./src/js/logic/events.js) | events.js | arrestedUntil, score, hp, survivalTime |
-| [`startEventLoop()`](./src/js/logic/events.js) | events.js | hunger, rads, durability, hp |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | inventory, score, hp, rads, karma_score, npcRep |
-| [`useMedkit()`](./src/js/logic/inventory.js) | inventory.js | hp, infectionTime |
-| [`useFood()`](./src/js/logic/inventory.js) | inventory.js | hunger |
-| [`buyItem()`](./src/js/logic/trade.js) | trade.js | score, inventory |
-| [`buyHeal()`](./src/js/logic/trade.js) | trade.js | score, hp |
-| [`resolveBlowout()`](./src/js/logic/blowout.js) | blowout.js | hp, rads |
-| [`confirmHeal()`](./src/js/views/dead.js) | dead.js | hp |
-| [`confirmRob()`](./src/js/views/dead.js) | dead.js | inventory |
-| [`adminModifyCredits()`](./src/js/logic/roles.js) | roles.js | score |
-| [`adminSetRole()`](./src/js/logic/roles.js) | roles.js | role |
+| [`saveState()`](../src/js/core/utils.js) | utils.js | Сериализация в localStorage + обновление UI |
+| [`processOfflineTime()`](../src/js/core/utils.js) | utils.js | HP, hunger, rads, durability за офлайн |
+| [`getMaxHp()`](../src/js/core/utils.js) | utils.js | Расчёт максимума HP (репутация + убежище) |
+| [`getEffectiveMaxHp()`](../src/js/core/utils.js) | utils.js | Максимум HP минус радиация |
+| [`getRadMultiplier()`](../src/js/core/utils.js) | utils.js | Множитель радиации (маска/плащ) |
+| [`getKarmaStatus()`](../src/js/core/utils.js) | utils.js | Статус кармы |
+| [`startInfectionLoop()`](../src/js/logic/events.js) | events.js | infectionTime, zombieTime, hp |
+| [`startHeartbeatLoop()`](../src/js/logic/events.js) | events.js | arrestedUntil, score, hp, survivalTime |
+| [`startEventLoop()`](../src/js/logic/events.js) | events.js | hunger, rads, durability, hp |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | inventory, score, hp, rads, karma_score, npcRep |
+| [`useMedkit()`](../src/js/logic/inventory.js) | inventory.js | hp, infectionTime |
+| [`useFood()`](../src/js/logic/inventory.js) | inventory.js | hunger |
+| [`buyItem()`](../src/js/logic/trade.js) | trade.js | score, inventory |
+| [`buyHeal()`](../src/js/logic/trade.js) | trade.js | score, hp |
+| [`resolveBlowout()`](../src/js/logic/blowout.js) | blowout.js | hp, rads |
+| [`confirmHeal()`](../src/js/views/dead.js) | dead.js | hp |
+| [`confirmRob()`](../src/js/views/dead.js) | dead.js | inventory |
+| [`adminModifyCredits()`](../src/js/logic/roles.js) | roles.js | score |
+| [`adminSetRole()`](../src/js/logic/roles.js) | roles.js | role |
 
 ## 2.2. NPC (Неигровой персонаж)
 
-**Определение:** [`src/js/config/npc.js`](./src/js/config/npc.js) — `NPC_DB`.
+**Определение:** [`src/js/config/npc.js`](../src/js/config/npc.js) — `NPC_DB`.
 
 ### Свойства
 
@@ -317,16 +317,16 @@ stateDiagram-v2
 
 - **NPC → Player:** через `player.npcRep[npc.id]`.
 - **NPC → Item:** через `stock` (ассортимент).
-- **NPC → Quest:** через сдачу квестов в [`openTrade()`](./src/js/logic/trade.js).
+- **NPC → Quest:** через сдачу квестов в [`openTrade()`](../src/js/logic/trade.js).
 
 ### Функции и воздействия
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`getNpcRepLevel()`](./src/js/config/npc.js) | npc.js | Расчёт уровня репутации (points / 20) |
-| [`openTrade()`](./src/js/logic/trade.js) | trade.js | Генерация стока, проверка доступа, сдача квестов |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | Начисление очков репутации при скане NPC-кода |
-| [`acceptQuest()`](./src/js/logic/quests.js) | quests.js | +25 очков репутации при сдаче квеста |
+| [`getNpcRepLevel()`](../src/js/config/npc.js) | npc.js | Расчёт уровня репутации (points / 20) |
+| [`openTrade()`](../src/js/logic/trade.js) | trade.js | Генерация стока, проверка доступа, сдача квестов |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | Начисление очков репутации при скане NPC-кода |
+| [`acceptQuest()`](../src/js/logic/quests.js) | quests.js | +25 очков репутации при сдаче квеста |
 
 ### Внешние воздействия
 
@@ -339,7 +339,7 @@ stateDiagram-v2
 
 ## 2.3. Item (Предмет)
 
-**Определение:** [`src/js/config/items.js`](./src/js/config/items.js) — процедурный `ITEMS_DB` + функция `genQ()`.
+**Определение:** [`src/js/config/items.js`](../src/js/config/items.js) — процедурный `ITEMS_DB` + функция `genQ()`.
 
 ### Свойства
 
@@ -368,7 +368,7 @@ stateDiagram-v2
 ### Связи
 
 - **Item → Player:** через `inventory` и `safeBox`.
-- **Item → Shelter:** через `req` в [`SHELTER_UPGRADES`](./src/js/config/upgrades.js).
+- **Item → Shelter:** через `req` в [`SHELTER_UPGRADES`](../src/js/config/upgrades.js).
 - **Item → Weapon:** через ремонт (`junk_*`).
 - **Item → NPC:** через `stock` (ассортимент).
 
@@ -376,18 +376,18 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`genQ()`](./src/js/config/items.js) | items.js | Генерация QR-кода предмета |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | Добавление предмета в рюкзак |
-| [`useFood()`](./src/js/logic/inventory.js) | inventory.js | Применение еды |
-| [`useMedkit()`](./src/js/logic/inventory.js) | inventory.js | Применение медикаментов |
-| [`dropItem()`](./src/js/logic/inventory.js) | inventory.js | Выброс предмета |
-| [`moveToSafe()`](./src/js/logic/inventory.js) / [`moveToInv()`](./src/js/logic/inventory.js) | inventory.js | Перемещение между рюкзаком и сейфом |
-| [`sellItem()`](./src/js/logic/trade.js) | trade.js | Продажа предмета |
-| [`buyItem()`](./src/js/logic/trade.js) | trade.js | Покупка предмета |
+| [`genQ()`](../src/js/config/items.js) | items.js | Генерация QR-кода предмета |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | Добавление предмета в рюкзак |
+| [`useFood()`](../src/js/logic/inventory.js) | inventory.js | Применение еды |
+| [`useMedkit()`](../src/js/logic/inventory.js) | inventory.js | Применение медикаментов |
+| [`dropItem()`](../src/js/logic/inventory.js) | inventory.js | Выброс предмета |
+| [`moveToSafe()`](../src/js/logic/inventory.js) / [`moveToInv()`](../src/js/logic/inventory.js) | inventory.js | Перемещение между рюкзаком и сейфом |
+| [`sellItem()`](../src/js/logic/trade.js) | trade.js | Продажа предмета |
+| [`buyItem()`](../src/js/logic/trade.js) | trade.js | Покупка предмета |
 
 ## 2.4. Quest (Квест)
 
-**Определение:** [`src/js/logic/quests.js`](./src/js/logic/quests.js).
+**Определение:** [`src/js/logic/quests.js`](../src/js/logic/quests.js).
 
 ### Свойства
 
@@ -415,13 +415,13 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`generateQuestChoices()`](./src/js/logic/quests.js) | quests.js | Генерация доступных квестов |
-| [`createRandomQuest()`](./src/js/logic/quests.js) | quests.js | Создание случайного квеста |
-| [`renderQuests()`](./src/js/logic/quests.js) | quests.js | Отрисовка списка квестов |
-| [`acceptQuest()`](./src/js/logic/quests.js) | quests.js | Принятие квеста (макс 2 активных) |
-| [`acceptSpecialQuest()`](./src/js/logic/quests.js) | quests.js | Принятие особого квеста (макс 3) |
-| [`abandonQuest()`](./src/js/logic/quests.js) | quests.js | Отказ от квеста |
-| [`openTrade()`](./src/js/logic/trade.js) | trade.js | Сдача выполненного квеста |
+| [`generateQuestChoices()`](../src/js/logic/quests.js) | quests.js | Генерация доступных квестов |
+| [`createRandomQuest()`](../src/js/logic/quests.js) | quests.js | Создание случайного квеста |
+| [`renderQuests()`](../src/js/logic/quests.js) | quests.js | Отрисовка списка квестов |
+| [`acceptQuest()`](../src/js/logic/quests.js) | quests.js | Принятие квеста (макс 2 активных) |
+| [`acceptSpecialQuest()`](../src/js/logic/quests.js) | quests.js | Принятие особого квеста (макс 3) |
+| [`abandonQuest()`](../src/js/logic/quests.js) | quests.js | Отказ от квеста |
+| [`openTrade()`](../src/js/logic/trade.js) | trade.js | Сдача выполненного квеста |
 
 ### Ограничения
 
@@ -431,7 +431,7 @@ stateDiagram-v2
 
 ## 2.5. Weapon (Оружие)
 
-**Определение:** объект `player.weapons` в [`src/js/state/player.js`](./src/js/state/player.js), рендер в [`views/profile.js`](./src/js/views/profile.js).
+**Определение:** объект `player.weapons` в [`src/js/state/player.js`](../src/js/state/player.js), рендер в [`views/profile.js`](../src/js/views/profile.js).
 
 ### Свойства
 
@@ -465,17 +465,17 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`toggleWeapon()`](./src/js/logic/equipment.js) | equipment.js | Вкл/выкл оружие |
-| [`repairWeaponWithJunk()`](./src/js/logic/equipment.js) | equipment.js | Ремонт хламом |
-| [`getRepairCost()`](./src/js/logic/equipment.js) | equipment.js | Расчёт стоимости ремонта |
-| [`repairWeaponAtBase()`](./src/js/logic/equipment.js) | equipment.js | Ремонт на базе (через QR) |
-| [`startEventLoop()`](./src/js/logic/events.js) | events.js | Износ оружия со временем |
-| [`processOfflineTime()`](./src/js/core/utils.js) | utils.js | Износ за офлайн-время |
-| [`getRadMultiplier()`](./src/js/core/utils.js) | utils.js | Противогаз даёт −60% радиации |
+| [`toggleWeapon()`](../src/js/logic/equipment.js) | equipment.js | Вкл/выкл оружие |
+| [`repairWeaponWithJunk()`](../src/js/logic/equipment.js) | equipment.js | Ремонт хламом |
+| [`getRepairCost()`](../src/js/logic/equipment.js) | equipment.js | Расчёт стоимости ремонта |
+| [`repairWeaponAtBase()`](../src/js/logic/equipment.js) | equipment.js | Ремонт на базе (через QR) |
+| [`startEventLoop()`](../src/js/logic/events.js) | events.js | Износ оружия со временем |
+| [`processOfflineTime()`](../src/js/core/utils.js) | utils.js | Износ за офлайн-время |
+| [`getRadMultiplier()`](../src/js/core/utils.js) | utils.js | Противогаз даёт −60% радиации |
 
 ## 2.6. Equipment (Спецэкипировка)
 
-**Определение:** `player.equipment` (ID предмета `eq_*` из [`ITEMS_DB`](./src/js/config/items.js)).
+**Определение:** `player.equipment` (ID предмета `eq_*` из [`ITEMS_DB`](../src/js/config/items.js)).
 
 ### Свойства
 
@@ -509,15 +509,15 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`buyEquipment()`](./src/js/logic/trade.js) | trade.js | Покупка экипировки |
-| [`unequipSpecialItem()`](./src/js/logic/equipment.js) | equipment.js | Снятие экипировки |
-| [`sellEquipment()`](./src/js/views/profile.js) | profile.js | Продажа за 50% стоимости |
-| [`getRadMultiplier()`](./src/js/core/utils.js) | utils.js | Учёт `eq_rad` |
-| [`processOfflineTime()`](./src/js/core/utils.js) | utils.js | Учёт `eq_hunger` |
+| [`buyEquipment()`](../src/js/logic/trade.js) | trade.js | Покупка экипировки |
+| [`unequipSpecialItem()`](../src/js/logic/equipment.js) | equipment.js | Снятие экипировки |
+| [`sellEquipment()`](../src/js/views/profile.js) | profile.js | Продажа за 50% стоимости |
+| [`getRadMultiplier()`](../src/js/core/utils.js) | utils.js | Учёт `eq_rad` |
+| [`processOfflineTime()`](../src/js/core/utils.js) | utils.js | Учёт `eq_hunger` |
 
 ## 2.7. Shelter (Убежище)
 
-**Определение:** [`src/js/config/upgrades.js`](./src/js/config/upgrades.js) — `SHELTER_UPGRADES`, логика в [`src/js/logic/shelter.js`](./src/js/logic/shelter.js).
+**Определение:** [`src/js/config/upgrades.js`](../src/js/config/upgrades.js) — `SHELTER_UPGRADES`, логика в [`src/js/logic/shelter.js`](../src/js/logic/shelter.js).
 
 ### Свойства
 
@@ -542,22 +542,22 @@ stateDiagram-v2
 
 - **Shelter → Player:** через `player.shelterLevel`.
 - **Shelter → Item:** через `req` (требуемые предметы).
-- **Shelter → HP:** уровень 4 даёт +10% макс. HP ([`getMaxHp()`](./src/js/core/utils.js)).
+- **Shelter → HP:** уровень 4 даёт +10% макс. HP ([`getMaxHp()`](../src/js/core/utils.js)).
 - **Shelter → Backpack:** уровень 5 даёт +3 кг.
 
 ### Функции и воздействия
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`renderShelter()`](./src/js/logic/shelter.js) | shelter.js | Отрисовка статистики и требований |
-| [`upgradeShelter()`](./src/js/logic/shelter.js) | shelter.js | Повышение уровня |
-| [`applyUpgrade()`](./src/js/logic/inventory.js) | inventory.js | Применение апгрейда из инвентаря |
-| [`startHeartbeatLoop()`](./src/js/logic/events.js) | events.js | Регенерация +1 HP/мин (уровень 5) |
-| [`getMaxHp()`](./src/js/core/utils.js) | utils.js | Учёт бонуса уровня 4 |
+| [`renderShelter()`](../src/js/logic/shelter.js) | shelter.js | Отрисовка статистики и требований |
+| [`upgradeShelter()`](../src/js/logic/shelter.js) | shelter.js | Повышение уровня |
+| [`applyUpgrade()`](../src/js/logic/inventory.js) | inventory.js | Применение апгрейда из инвентаря |
+| [`startHeartbeatLoop()`](../src/js/logic/events.js) | events.js | Регенерация +1 HP/мин (уровень 5) |
+| [`getMaxHp()`](../src/js/core/utils.js) | utils.js | Учёт бонуса уровня 4 |
 
 ## 2.8. MapMarker (Метка карты)
 
-**Определение:** [`src/js/logic/map.js`](./src/js/logic/map.js), хранилище `localStorage['pda_zone_markers']`.
+**Определение:** [`src/js/logic/map.js`](../src/js/logic/map.js), хранилище `localStorage['pda_zone_markers']`.
 
 ### Свойства
 
@@ -581,24 +581,24 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`initMapSystem()`](./src/js/logic/map.js) | map.js | Загрузка меток из localStorage |
-| [`renderZoneMap()`](./src/js/logic/map.js) | map.js | Отрисовка меток |
-| [`selectMapMarker()`](./src/js/logic/map.js) | map.js | Выбор метки |
-| [`toggleMapEditor()`](./src/js/logic/map.js) | map.js | Вкл/выкл редактор |
-| [`saveSelectedMarker()`](./src/js/logic/map.js) | map.js | Сохранение изменений |
-| [`addNewMapMarker()`](./src/js/logic/map.js) | map.js | Добавление метки |
-| [`deleteSelectedMarker()`](./src/js/logic/map.js) | map.js | Удаление метки |
-| [`resetMapMarkersToDefault()`](./src/js/logic/map.js) | map.js | Сброс к стандарту |
-| [`saveMapMarkers()`](./src/js/logic/map.js) | map.js | Сохранение в localStorage |
-| [`startDragMarker()`](./src/js/logic/map.js) | map.js | Перетаскивание (мышь) |
-| [`startDragMarkerTouch()`](./src/js/logic/map.js) | map.js | Перетаскивание (тач) |
-| [`handleMapBackgroundUpload()`](./src/js/logic/map.js) | map.js | Загрузка фона (сжатие до 640px) |
-| [`uploadCustomMapBg()`](./src/js/logic/map.js) | map.js | Загрузка фона без сжатия |
-| [`resetCustomMapBg()`](./src/js/logic/map.js) | map.js | Сброс фона |
+| [`initMapSystem()`](../src/js/logic/map.js) | map.js | Загрузка меток из localStorage |
+| [`renderZoneMap()`](../src/js/logic/map.js) | map.js | Отрисовка меток |
+| [`selectMapMarker()`](../src/js/logic/map.js) | map.js | Выбор метки |
+| [`toggleMapEditor()`](../src/js/logic/map.js) | map.js | Вкл/выкл редактор |
+| [`saveSelectedMarker()`](../src/js/logic/map.js) | map.js | Сохранение изменений |
+| [`addNewMapMarker()`](../src/js/logic/map.js) | map.js | Добавление метки |
+| [`deleteSelectedMarker()`](../src/js/logic/map.js) | map.js | Удаление метки |
+| [`resetMapMarkersToDefault()`](../src/js/logic/map.js) | map.js | Сброс к стандарту |
+| [`saveMapMarkers()`](../src/js/logic/map.js) | map.js | Сохранение в localStorage |
+| [`startDragMarker()`](../src/js/logic/map.js) | map.js | Перетаскивание (мышь) |
+| [`startDragMarkerTouch()`](../src/js/logic/map.js) | map.js | Перетаскивание (тач) |
+| [`handleMapBackgroundUpload()`](../src/js/logic/map.js) | map.js | Загрузка фона (сжатие до 640px) |
+| [`uploadCustomMapBg()`](../src/js/logic/map.js) | map.js | Загрузка фона без сжатия |
+| [`resetCustomMapBg()`](../src/js/logic/map.js) | map.js | Сброс фона |
 
 ## 2.9. TradeTransaction (P2P-транзакция)
 
-**Определение:** [`src/js/logic/p2p.js`](./src/js/logic/p2p.js).
+**Определение:** [`src/js/logic/p2p.js`](../src/js/logic/p2p.js).
 
 ### Свойства
 
@@ -622,10 +622,10 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`initiateP2PTrade()`](./src/js/logic/p2p.js) | p2p.js | Инициация обмена |
-| [`startTradeConfirmScan()`](./src/js/logic/p2p.js) | p2p.js | Подтверждение через скан |
-| [`handleP2PTradeScan()`](./src/js/logic/p2p.js) | p2p.js | Обработка QR (sell/confirm) |
-| [`closeTradeModal()`](./src/js/logic/p2p.js) | p2p.js | Закрытие модалки |
+| [`initiateP2PTrade()`](../src/js/logic/p2p.js) | p2p.js | Инициация обмена |
+| [`startTradeConfirmScan()`](../src/js/logic/p2p.js) | p2p.js | Подтверждение через скан |
+| [`handleP2PTradeScan()`](../src/js/logic/p2p.js) | p2p.js | Обработка QR (sell/confirm) |
+| [`closeTradeModal()`](../src/js/logic/p2p.js) | p2p.js | Закрытие модалки |
 
 ### Защита
 
@@ -633,7 +633,7 @@ stateDiagram-v2
 
 ## 2.10. Blowout (Пси-выброс)
 
-**Определение:** [`src/js/logic/blowout.js`](./src/js/logic/blowout.js).
+**Определение:** [`src/js/logic/blowout.js`](../src/js/logic/blowout.js).
 
 ### Свойства
 
@@ -654,12 +654,12 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`startBlowoutSchedule()`](./src/js/logic/blowout.js) | blowout.js | Планирование выброса (60 мин) |
-| [`triggerTestBlowout()`](./src/js/logic/blowout.js) | blowout.js | Тестовый выброс |
-| [`triggerBlowoutSequence()`](./src/js/logic/blowout.js) | blowout.js | Последовательность (240 с) |
-| [`updateBlowoutUI()`](./src/js/logic/blowout.js) | blowout.js | Обновление баннера |
-| [`resolveBlowout()`](./src/js/logic/blowout.js) | blowout.js | HP до 30%, +35 рад |
-| [`checkBlowoutShelterScan()`](./src/js/logic/blowout.js) | blowout.js | Проверка кода укрытия (+200 💎) |
+| [`startBlowoutSchedule()`](../src/js/logic/blowout.js) | blowout.js | Планирование выброса (60 мин) |
+| [`triggerTestBlowout()`](../src/js/logic/blowout.js) | blowout.js | Тестовый выброс |
+| [`triggerBlowoutSequence()`](../src/js/logic/blowout.js) | blowout.js | Последовательность (240 с) |
+| [`updateBlowoutUI()`](../src/js/logic/blowout.js) | blowout.js | Обновление баннера |
+| [`resolveBlowout()`](../src/js/logic/blowout.js) | blowout.js | HP до 30%, +35 рад |
+| [`checkBlowoutShelterScan()`](../src/js/logic/blowout.js) | blowout.js | Проверка кода укрытия (+200 💎) |
 
 ### Условия
 
@@ -670,7 +670,7 @@ stateDiagram-v2
 
 ## 2.11. Infection / Zombie (Инфекция и зомби)
 
-**Определение:** [`src/js/logic/events.js`](./src/js/logic/events.js) — `startInfectionLoop()`.
+**Определение:** [`src/js/logic/events.js`](../src/js/logic/events.js) — `startInfectionLoop()`.
 
 ### Свойства
 
@@ -684,17 +684,17 @@ stateDiagram-v2
 ### Связи
 
 - **Infection → Player:** через `infectionTime`, `zombieTime`.
-- **Infection → Item:** лечение через `med_*` ([`useMedkit()`](./src/js/logic/inventory.js)).
-- **Infection → Death:** 15% шанс инфекции при смерти ([`checkDeathState()`](./src/js/views/dead.js)).
+- **Infection → Item:** лечение через `med_*` ([`useMedkit()`](../src/js/logic/inventory.js)).
+- **Infection → Death:** 15% шанс инфекции при смерти ([`checkDeathState()`](../src/js/views/dead.js)).
 
 ### Функции и воздействия
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`startInfectionLoop()`](./src/js/logic/events.js) | events.js | Прогресс инфекции → зомби → выгорание |
-| [`useMedkit()`](./src/js/logic/inventory.js) | inventory.js | Лечение инфекции |
-| [`checkDeathState()`](./src/js/views/dead.js) | dead.js | 15% шанс инфекции при смерти |
-| [`renderProfile()`](./src/js/views/profile.js) | profile.js | Отображение статуса ИНФИЦИРОВАН / ЗОМБИ |
+| [`startInfectionLoop()`](../src/js/logic/events.js) | events.js | Прогресс инфекции → зомби → выгорание |
+| [`useMedkit()`](../src/js/logic/inventory.js) | inventory.js | Лечение инфекции |
+| [`checkDeathState()`](../src/js/views/dead.js) | dead.js | 15% шанс инфекции при смерти |
+| [`renderProfile()`](../src/js/views/profile.js) | profile.js | Отображение статуса ИНФИЦИРОВАН / ЗОМБИ |
 
 ### Тайминги
 
@@ -703,7 +703,7 @@ stateDiagram-v2
 
 ## 2.12. Role (Роль)
 
-**Определение:** `player.role`, логика в [`src/js/logic/roles.js`](./src/js/logic/roles.js).
+**Определение:** `player.role`, логика в [`src/js/logic/roles.js`](../src/js/logic/roles.js).
 
 ### Свойства
 
@@ -723,21 +723,21 @@ stateDiagram-v2
 ### Связи
 
 - **Role → Player:** через `player.role`.
-- **Role → QR:** тип трупа при смерти ([`showRobQR()`](./src/js/views/dead.js)).
+- **Role → QR:** тип трупа при смерти ([`showRobQR()`](../src/js/views/dead.js)).
 - **Role → Trade:** доступ к базам фракций.
 
 ### Функции и воздействия
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`adminSetRole()`](./src/js/logic/roles.js) | roles.js | Установка роли (админ) |
-| [`registerHackClick()`](./src/js/views/scan.js) | scan.js | Получение роли ХАКЕР ПУСТОШЕЙ |
-| [`handleBanditScan()`](./src/js/logic/roles.js) | roles.js | +100 💎 военному |
-| [`showRobQR()`](./src/js/views/dead.js) | dead.js | Тип трупа по роли |
+| [`adminSetRole()`](../src/js/logic/roles.js) | roles.js | Установка роли (админ) |
+| [`registerHackClick()`](../src/js/views/scan.js) | scan.js | Получение роли ХАКЕР ПУСТОШЕЙ |
+| [`handleBanditScan()`](../src/js/logic/roles.js) | roles.js | +100 💎 военному |
+| [`showRobQR()`](../src/js/views/dead.js) | dead.js | Тип трупа по роли |
 
 ## 2.13. Karma (Карма)
 
-**Определение:** `player.karma_score`, [`getKarmaStatus()`](./src/js/core/utils.js).
+**Определение:** `player.karma_score`, [`getKarmaStatus()`](../src/js/core/utils.js).
 
 ### Свойства
 
@@ -757,20 +757,20 @@ stateDiagram-v2
 
 - **Karma → Player:** через `karma_score`.
 - **Karma → Radiation:** при `karma_score < 3` радиация накапливается в офлайне.
-- **Karma → Death:** тип трупа ([`showRobQR()`](./src/js/views/dead.js)).
+- **Karma → Death:** тип трупа ([`showRobQR()`](../src/js/views/dead.js)).
 
 ### Функции и воздействия
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`getKarmaStatus()`](./src/js/core/utils.js) | utils.js | Определение статуса |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | Изменение кармы при действиях |
-| [`processOfflineTime()`](./src/js/core/utils.js) | utils.js | Радиация при карме < 3 |
-| [`renderProfile()`](./src/js/views/profile.js) | profile.js | Отображение статуса |
+| [`getKarmaStatus()`](../src/js/core/utils.js) | utils.js | Определение статуса |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | Изменение кармы при действиях |
+| [`processOfflineTime()`](../src/js/core/utils.js) | utils.js | Радиация при карме < 3 |
+| [`renderProfile()`](../src/js/views/profile.js) | profile.js | Отображение статуса |
 
 ## 2.14. Reputation (Репутация)
 
-**Определение:** `player.npcRep`, [`getNpcRepLevel()`](./src/js/config/npc.js).
+**Определение:** `player.npcRep`, [`getNpcRepLevel()`](../src/js/config/npc.js).
 
 ### Свойства
 
@@ -789,10 +789,10 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`getNpcRepLevel()`](./src/js/config/npc.js) | npc.js | Расчёт уровня |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | Начисление очков |
-| [`acceptQuest()`](./src/js/logic/quests.js) | quests.js | +25 очков за квест |
-| [`getMaxHp()`](./src/js/core/utils.js) | utils.js | Бонус HP от `npc_med` |
+| [`getNpcRepLevel()`](../src/js/config/npc.js) | npc.js | Расчёт уровня |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | Начисление очков |
+| [`acceptQuest()`](../src/js/logic/quests.js) | quests.js | +25 очков за квест |
+| [`getMaxHp()`](../src/js/core/utils.js) | utils.js | Бонус HP от `npc_med` |
 
 ### Начисление
 
@@ -802,7 +802,7 @@ stateDiagram-v2
 
 ## 2.15. QR-код (Игровой механизм)
 
-**Определение:** генерация — [`src/js/core/qr.js`](./src/js/core/qr.js), обработка — [`src/js/logic/scan.js`](./src/js/logic/scan.js).
+**Определение:** генерация — [`src/js/core/qr.js`](../src/js/core/qr.js), обработка — [`src/js/logic/scan.js`](../src/js/logic/scan.js).
 
 ### Свойства
 
@@ -816,24 +816,24 @@ stateDiagram-v2
 
 | Префикс | Назначение | Обработчик |
 |---|---|---|
-| `item_` | Предмет | [`handleScan()`](./src/js/logic/scan.js) |
-| `food_` | Еда | [`handleScan()`](./src/js/logic/scan.js) |
-| `med_` | Медикаменты | [`handleScan()`](./src/js/logic/scan.js) |
-| `wpn_` | Оружие | [`handleScan()`](./src/js/logic/scan.js) |
-| `junk_` | Хлам | [`handleScan()`](./src/js/logic/scan.js) |
-| `gear_` | Снаряжение | [`handleScan()`](./src/js/logic/scan.js) |
-| `loot` | Лут | [`handleScan()`](./src/js/logic/scan.js) |
-| `rob:` | Ограбление | [`handleScan()`](./src/js/logic/scan.js) |
-| `heal:` | Лечение | [`handleScan()`](./src/js/logic/scan.js) |
-| `safe_` | Сейф | [`handleScan()`](./src/js/logic/scan.js) |
-| `usb_` | USB (взлом) | [`startHacking()`](./src/js/logic/hacking.js) |
-| `term_` | Терминал (взлом) | [`startHacking()`](./src/js/logic/hacking.js) |
-| `arrest:` | Ордер на арест | [`handleArrestScan()`](./src/js/logic/roles.js) |
-| `bandit_id:` | ID бандита | [`handleBanditScan()`](./src/js/logic/roles.js) |
-| `player_id:` | ID игрока | [`handleScan()`](./src/js/logic/scan.js) |
-| `zombie_id:` | ID зомби | [`handleScan()`](./src/js/logic/scan.js) |
-| `anom_` | Аномалия | [`handleScan()`](./src/js/logic/scan.js) |
-| `p2ptrade:` | P2P-обмен | [`handleP2PTradeScan()`](./src/js/logic/p2p.js) |
+| `item_` | Предмет | [`handleScan()`](../src/js/logic/scan.js) |
+| `food_` | Еда | [`handleScan()`](../src/js/logic/scan.js) |
+| `med_` | Медикаменты | [`handleScan()`](../src/js/logic/scan.js) |
+| `wpn_` | Оружие | [`handleScan()`](../src/js/logic/scan.js) |
+| `junk_` | Хлам | [`handleScan()`](../src/js/logic/scan.js) |
+| `gear_` | Снаряжение | [`handleScan()`](../src/js/logic/scan.js) |
+| `loot` | Лут | [`handleScan()`](../src/js/logic/scan.js) |
+| `rob:` | Ограбление | [`handleScan()`](../src/js/logic/scan.js) |
+| `heal:` | Лечение | [`handleScan()`](../src/js/logic/scan.js) |
+| `safe_` | Сейф | [`handleScan()`](../src/js/logic/scan.js) |
+| `usb_` | USB (взлом) | [`startHacking()`](../src/js/logic/hacking.js) |
+| `term_` | Терминал (взлом) | [`startHacking()`](../src/js/logic/hacking.js) |
+| `arrest:` | Ордер на арест | [`handleArrestScan()`](../src/js/logic/roles.js) |
+| `bandit_id:` | ID бандита | [`handleBanditScan()`](../src/js/logic/roles.js) |
+| `player_id:` | ID игрока | [`handleScan()`](../src/js/logic/scan.js) |
+| `zombie_id:` | ID зомби | [`handleScan()`](../src/js/logic/scan.js) |
+| `anom_` | Аномалия | [`handleScan()`](../src/js/logic/scan.js) |
+| `p2ptrade:` | P2P-обмен | [`handleP2PTradeScan()`](../src/js/logic/p2p.js) |
 
 ### Связи
 
@@ -846,11 +846,11 @@ stateDiagram-v2
 
 | Функция | Файл | Эффект |
 |---|---|---|
-| [`generateQR()`](./src/js/core/qr.js) | qr.js | Генерация QR-кода |
-| [`useAPIFallback()`](./src/js/core/qr.js) | qr.js | Резервная генерация через API |
-| [`handleScan()`](./src/js/logic/scan.js) | scan.js | Центральный обработчик |
-| [`handleDeadScan()`](./src/js/logic/scan.js) | scan.js | Обработка скана трупа |
-| [`submitManualCode()`](./src/js/logic/scan.js) | scan.js | Ручной ввод кода |
+| [`generateQR()`](../src/js/core/qr.js) | qr.js | Генерация QR-кода |
+| [`useAPIFallback()`](../src/js/core/qr.js) | qr.js | Резервная генерация через API |
+| [`handleScan()`](../src/js/logic/scan.js) | scan.js | Центральный обработчик |
+| [`handleDeadScan()`](../src/js/logic/scan.js) | scan.js | Обработка скана трупа |
+| [`submitManualCode()`](../src/js/logic/scan.js) | scan.js | Ручной ввод кода |
 
 ---
 
@@ -950,32 +950,32 @@ erDiagram
 
 | Файл | Роль в архитектуре |
 |---|---|
-| [`src/js/main.js`](./src/js/main.js) | Точка входа, `init()`, запуск циклов |
-| [`src/js/views/navigation.js`](./src/js/views/navigation.js) | `switchView()`, `updateHUD()` |
-| [`src/js/state/player.js`](./src/js/state/player.js) | Структура игрока, миграция сохранений |
-| [`src/js/state/globals.js`](./src/js/state/globals.js) | Глобальные переменные |
-| [`src/js/config/constants.js`](./src/js/config/constants.js) | Все константы |
-| [`src/js/config/items.js`](./src/js/config/items.js) | База предметов |
-| [`src/js/config/npc.js`](./src/js/config/npc.js) | База NPC |
-| [`src/js/config/upgrades.js`](./src/js/config/upgrades.js) | Уровни убежища |
-| [`src/js/logic/scan.js`](./src/js/logic/scan.js) | Центральный обработчик QR |
-| [`src/js/logic/events.js`](./src/js/logic/events.js) | Игровые циклы |
-| [`src/js/logic/trade.js`](./src/js/logic/trade.js) | Торговля |
-| [`src/js/logic/blowout.js`](./src/js/logic/blowout.js) | Пси-выброс |
-| [`src/js/logic/hacking.js`](./src/js/logic/hacking.js) | Мини-игра взлома |
-| [`src/js/logic/p2p.js`](./src/js/logic/p2p.js) | P2P-торговля |
-| [`src/js/logic/quests.js`](./src/js/logic/quests.js) | Квесты |
-| [`src/js/logic/shelter.js`](./src/js/logic/shelter.js) | Убежище |
-| [`src/js/logic/slots.js`](./src/js/logic/slots.js) | Слот-машина |
-| [`src/js/logic/roles.js`](./src/js/logic/roles.js) | Роли, арест, админ |
-| [`src/js/logic/admin.js`](./src/js/logic/admin.js) | Админ-панель |
-| [`src/js/logic/equipment.js`](./src/js/logic/equipment.js) | Экипировка и оружие |
-| [`src/js/logic/inventory.js`](./src/js/logic/inventory.js) | Инвентарь, крафт |
-| [`src/js/logic/map.js`](./src/js/logic/map.js) | Карта и метки |
-| [`src/js/views/dead.js`](./src/js/views/dead.js) | Экран смерти |
-| [`src/js/views/profile.js`](./src/js/views/profile.js) | Профиль, фото-модуль |
-| [`src/js/views/scan.js`](./src/js/views/scan.js) | Радио, пасхалки |
-| [`src/js/views/base.js`](./src/js/views/base.js) | База (лобби) |
-| [`src/js/core/utils.js`](./src/js/core/utils.js) | Утилиты, офлайн-время |
-| [`src/js/core/audio.js`](./src/js/core/audio.js) | Процедурный звук |
-| [`src/js/core/qr.js`](./src/js/core/qr.js) | Генерация QR |
+| [`src/js/main.js`](../src/js/main.js) | Точка входа, `init()`, запуск циклов |
+| [`src/js/views/navigation.js`](../src/js/views/navigation.js) | `switchView()`, `updateHUD()` |
+| [`src/js/state/player.js`](../src/js/state/player.js) | Структура игрока, миграция сохранений |
+| [`src/js/state/globals.js`](../src/js/state/globals.js) | Глобальные переменные |
+| [`src/js/config/constants.js`](../src/js/config/constants.js) | Все константы |
+| [`src/js/config/items.js`](../src/js/config/items.js) | База предметов |
+| [`src/js/config/npc.js`](../src/js/config/npc.js) | База NPC |
+| [`src/js/config/upgrades.js`](../src/js/config/upgrades.js) | Уровни убежища |
+| [`src/js/logic/scan.js`](../src/js/logic/scan.js) | Центральный обработчик QR |
+| [`src/js/logic/events.js`](../src/js/logic/events.js) | Игровые циклы |
+| [`src/js/logic/trade.js`](../src/js/logic/trade.js) | Торговля |
+| [`src/js/logic/blowout.js`](../src/js/logic/blowout.js) | Пси-выброс |
+| [`src/js/logic/hacking.js`](../src/js/logic/hacking.js) | Мини-игра взлома |
+| [`src/js/logic/p2p.js`](../src/js/logic/p2p.js) | P2P-торговля |
+| [`src/js/logic/quests.js`](../src/js/logic/quests.js) | Квесты |
+| [`src/js/logic/shelter.js`](../src/js/logic/shelter.js) | Убежище |
+| [`src/js/logic/slots.js`](../src/js/logic/slots.js) | Слот-машина |
+| [`src/js/logic/roles.js`](../src/js/logic/roles.js) | Роли, арест, админ |
+| [`src/js/logic/admin.js`](../src/js/logic/admin.js) | Админ-панель |
+| [`src/js/logic/equipment.js`](../src/js/logic/equipment.js) | Экипировка и оружие |
+| [`src/js/logic/inventory.js`](../src/js/logic/inventory.js) | Инвентарь, крафт |
+| [`src/js/logic/map.js`](../src/js/logic/map.js) | Карта и метки |
+| [`src/js/views/dead.js`](../src/js/views/dead.js) | Экран смерти |
+| [`src/js/views/profile.js`](../src/js/views/profile.js) | Профиль, фото-модуль |
+| [`src/js/views/scan.js`](../src/js/views/scan.js) | Радио, пасхалки |
+| [`src/js/views/base.js`](../src/js/views/base.js) | База (лобби) |
+| [`src/js/core/utils.js`](../src/js/core/utils.js) | Утилиты, офлайн-время |
+| [`src/js/core/audio.js`](../src/js/core/audio.js) | Процедурный звук |
+| [`src/js/core/qr.js`](../src/js/core/qr.js) | Генерация QR |
