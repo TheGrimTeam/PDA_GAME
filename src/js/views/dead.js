@@ -207,7 +207,7 @@ function handleHealItemScan(qrCode) {
     let maxHp = getEffectiveMaxHp();
     // Math.max(1, ...) гарантирует подъём: при maxHp <= 0 (высокая радиация)
     // игрок иначе остался бы с hp = 0, а isCurrentlyDead уже сброшен ниже.
-    player.hp = Math.max(1, Math.min(maxHp, 20 + healAmount));
+    player.hp = Math.max(1, Math.min(maxHp, healAmount));
     // ВНИМАНИЕ: Лечение спасителем восстанавливает HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
     saveState();
 
