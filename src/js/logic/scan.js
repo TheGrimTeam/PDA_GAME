@@ -30,6 +30,15 @@ function submitManualCode() {
 }
 window.submitManualCode = submitManualCode;
 
+// Скрывает блок результата сканирования (#scan-result).
+// Используется кнопкой «СКРЫТЬ» после спасения игрока, чтобы убрать
+// сообщение с QR-кодом между радио-панелью и блокнотом выжившего.
+function hideScanResult() {
+    const resDiv = document.getElementById('scan-result');
+    if (resDiv) resDiv.style.display = 'none';
+}
+window.hideScanResult = hideScanResult;
+
 function submitDeadManualCode() {
     try {
         const input = document.getElementById('dead-manual-code');
@@ -67,6 +76,9 @@ window.submitHealItemManualCode = submitHealItemManualCode;
 function handleScan(qrCode) {
     const resDiv = document.getElementById('scan-result');
     if (!qrCode) return;
+    // Возвращаем видимость блока: он мог быть скрыт кнопкой «СКРЫТЬ»
+    // после предыдущего сканирования.
+    if (resDiv) resDiv.style.display = 'block';
     qrCode = String(qrCode);
     if (pendingRepairWeapon) {
         let wName = pendingRepairWeapon;
@@ -184,7 +196,7 @@ function handleScan(qrCode) {
         // на стороне умирающего в handleHealItemScan().
         let txId = corpseId;
 
-        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" class="qr-surface" style="width:190px; height:190px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
+        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" class="qr-surface" style="width:190px; height:190px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small><br><button type="button" onclick="hideScanResult()" style="margin-top:8px; padding:2px 10px; font-size:0.9rem; background:transparent; border:1px solid var(--term-green); color:var(--term-green); border-radius:4px; cursor:pointer;">СКРЫТЬ QR</button>`;
         generateQR('heal-item-qr', `${QR_PREFIX_HEAL_ITEM}${txId}:${usedItemId}:${healAmount}:${player.callsign}`);
         return;
     }
