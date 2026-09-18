@@ -38,7 +38,7 @@ function checkDeathState() {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-dead').classList.add('active');
         document.getElementById('nav-buttons').style.display = 'none';
-        if(scanner) scanner.stop();
+        stopScanner();
     } else {
         document.getElementById('nav-buttons').style.display = 'grid';
         // Игрок больше не мёртв — незавершённый запрос на лечение неактуален.

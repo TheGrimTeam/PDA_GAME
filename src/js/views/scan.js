@@ -5,6 +5,57 @@
 // src/js/logic/scan.js — здесь не дублируются.
 // ============================================================
 
+// === УПРАВЛЕНИЕ КАМЕРОЙ СКАНЕРА ===
+// Обновляет UI кнопки и видимость окна камеры в зависимости от scannerActive.
+function updateScannerUI() {
+    const btn = document.getElementById('start-scan-btn');
+    const reader = document.getElementById('qr-reader');
+    if (btn) btn.innerText = scannerActive ? "ВЫКЛЮЧИТЬ СКАНЕР" : "ВКЛЮЧИТЬ СКАНЕР";
+    if (reader) reader.style.display = scannerActive ? 'block' : 'none';
+}
+
+// Запускает камеру основного сканера и синхронизирует UI.
+function startScanner() {
+    if (typeof Html5Qrcode === 'undefined') {
+        alert("⚠️ Офлайн-сканер: библиотека камеры не загружена (требуется разовый выход в интернет для кэширования). Используйте ручной ввод кодов ниже!");
+        let manualBox = document.getElementById('admin-manual-scan-box');
+        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+        return;
+    }
+    try {
+        if (!scanner) scanner = new Html5Qrcode("qr-reader");
+        scannerActive = true;
+        updateScannerUI();
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => {
+            stopScanner();
+            handleScan(t);
+        }, (e) => {}).catch(err => {
+            scannerActive = false;
+            updateScannerUI();
+            alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
+        });
+    } catch(err) {
+        scannerActive = false;
+        updateScannerUI();
+        alert("Не удалось запустить камеру. Используйте ручной ввод ниже.");
+        let manualBox = document.getElementById('admin-manual-scan-box');
+        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+    }
+}
+
+// Останавливает камеру основного сканера и синхронизирует UI.
+// Безопасно: html5-qrcode может бросить синхронное исключение,
+// если сканер уже остановлен.
+function stopScanner() {
+    if (scanner) {
+        try {
+            scanner.stop().catch(e => {});
+        } catch(e) {}
+    }
+    scannerActive = false;
+    updateScannerUI();
+}
+
 // === РАДИО ===
 function toggleRadio() { player.radioOn = !player.radioOn; saveState(); updateRadioUI(); if (player.radioOn) startRadio(); else stopRadio(); }
 

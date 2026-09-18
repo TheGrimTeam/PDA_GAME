@@ -62,11 +62,7 @@ function repairWeaponAtBase(wName) {
     pendingRepairWeapon = wName;
     alert(`Для подтверждения ремонта отсканируйте QR-код вашей Базы.`);
     switchView('scan');
-    if (!scanner) scanner = new Html5Qrcode("qr-reader");
-    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => {
-        scanner.stop();
-        handleScan(t);
-    }, (e) => { }).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
+    startScanner();
 }
 
 function unequipSpecialItem() {

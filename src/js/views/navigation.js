@@ -16,10 +16,8 @@ function switchView(viewName) {
         if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
     }
 
-    if (viewName !== 'scan' && scanner) {
-        try {
-            scanner.stop().catch(e => {});
-        } catch(e) {}
+    if (viewName !== 'scan') {
+        stopScanner();
     }
     if(viewName === 'inventory') renderInventory();
     if(viewName === 'quests') renderQuests();

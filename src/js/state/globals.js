@@ -6,6 +6,8 @@
 // Экземпляры сканеров QR
 let scanner = null;
 let deadScanner = null;
+// Флаг: активна ли камера основного сканера (для переключения кнопки ВКЛ/ВЫКЛ)
+let scannerActive = false;
 
 // Состояние торговли
 let currentTradeNpc = null;

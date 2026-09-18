@@ -35,28 +35,16 @@ function init() {
     updateRadioUI();
     if (player.radioOn && !player.inBase) startRadio();
     updateAdminVisibility();
+    // Синхронизируем UI сканера при загрузке: камера по умолчанию выключена.
+    updateScannerUI();
 }
 
-// === ОБРАБОТЧИК КНОПКИ СТАРТА СКАНЕРА ===
+// === ОБРАБОТЧИК КНОПКИ СТАРТА/СТОПА СКАНЕРА ===
 document.getElementById('start-scan-btn').addEventListener('click', () => {
-    if (typeof Html5Qrcode === 'undefined') {
-        alert("⚠️ Офлайн-сканер: библиотека камеры не загружена (требуется разовый выход в интернет для кэширования). Используйте ручной ввод кодов ниже!");
-        let manualBox = document.getElementById('admin-manual-scan-box');
-        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
-        return;
-    }
-    try {
-        if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => {
-            scanner.stop();
-            handleScan(t);
-        }, (e) => {}).catch(err => {
-            alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
-        });
-    } catch(err) {
-        alert("Не удалось запустить камеру. Используйте ручной ввод ниже.");
-        let manualBox = document.getElementById('admin-manual-scan-box');
-        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+    if (scannerActive) {
+        stopScanner();
+    } else {
+        startScanner();
     }
 });
 

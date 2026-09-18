@@ -1256,6 +1256,8 @@ if (!player.npcRep || typeof player.npcRep !== 'object') player.npcRep = {};
 // Экземпляры сканеров QR
 let scanner = null;
 let deadScanner = null;
+// Флаг: активна ли камера основного сканера (для переключения кнопки ВКЛ/ВЫКЛ)
+let scannerActive = false;
 
 // Состояние торговли
 let currentTradeNpc = null;
@@ -1762,6 +1764,15 @@ function submitManualCode() {
 }
 window.submitManualCode = submitManualCode;
 
+// Скрывает блок результата сканирования (#scan-result).
+// Используется кнопкой «СКРЫТЬ» после спасения игрока, чтобы убрать
+// сообщение с QR-кодом между радио-панелью и блокнотом выжившего.
+function hideScanResult() {
+    const resDiv = document.getElementById('scan-result');
+    if (resDiv) resDiv.style.display = 'none';
+}
+window.hideScanResult = hideScanResult;
+
 function submitDeadManualCode() {
     try {
         const input = document.getElementById('dead-manual-code');
@@ -1799,6 +1810,9 @@ window.submitHealItemManualCode = submitHealItemManualCode;
 function handleScan(qrCode) {
     const resDiv = document.getElementById('scan-result');
     if (!qrCode) return;
+    // Возвращаем видимость блока: он мог быть скрыт кнопкой «СКРЫТЬ»
+    // после предыдущего сканирования.
+    if (resDiv) resDiv.style.display = 'block';
     qrCode = String(qrCode);
     if (pendingRepairWeapon) {
         let wName = pendingRepairWeapon;
@@ -1916,7 +1930,7 @@ function handleScan(qrCode) {
         // на стороне умирающего в handleHealItemScan().
         let txId = corpseId;
 
-        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" class="qr-surface" style="width:190px; height:190px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small>`;
+        resDiv.innerHTML = `<b style="color:var(--hero-color)">ВЫ СПАСЛИ ${targetName.toUpperCase()}!</b><br><small>Вы отдали: ${usedItemName}. Получено +1 к Карме.</small><br><span style="color:#fff">Покажите этот QR-код спасенному — он должен его отсканировать.</span><div id="heal-item-qr" class="qr-surface" style="width:190px; height:190px;"></div><small style="color:var(--text-dim)">Передано: ${usedItemName} (+${healAmount} HP)</small><br><button type="button" onclick="hideScanResult()" style="margin-top:8px; padding:2px 10px; font-size:0.9rem; background:transparent; border:1px solid var(--term-green); color:var(--term-green); border-radius:4px; cursor:pointer;">СКРЫТЬ QR</button>`;
         generateQR('heal-item-qr', `${QR_PREFIX_HEAL_ITEM}${txId}:${usedItemId}:${healAmount}:${player.callsign}`);
         return;
     }
@@ -4358,11 +4372,7 @@ function repairWeaponAtBase(wName) {
     pendingRepairWeapon = wName;
     alert(`Для подтверждения ремонта отсканируйте QR-код вашей Базы.`);
     switchView('scan');
-    if (!scanner) scanner = new Html5Qrcode("qr-reader");
-    scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, (t) => {
-        scanner.stop();
-        handleScan(t);
-    }, (e) => { }).catch(e => alert("Ошибка камеры при запуске сканирования базы."));
+    startScanner();
 }
 
 function unequipSpecialItem() {
@@ -4455,10 +4465,8 @@ function switchView(viewName) {
         if (document.getElementById(`btn-nav-${viewName}`)) document.getElementById(`btn-nav-${viewName}`).classList.add('active-nav');
     }
 
-    if (viewName !== 'scan' && scanner) {
-        try {
-            scanner.stop().catch(e => {});
-        } catch(e) {}
+    if (viewName !== 'scan') {
+        stopScanner();
     }
     if(viewName === 'inventory') renderInventory();
     if(viewName === 'quests') renderQuests();
@@ -4619,7 +4627,7 @@ function checkDeathState() {
         document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
         document.getElementById('view-dead').classList.add('active');
         document.getElementById('nav-buttons').style.display = 'none';
-        if(scanner) scanner.stop();
+        stopScanner();
     } else {
         document.getElementById('nav-buttons').style.display = 'grid';
         // Игрок больше не мёртв — незавершённый запрос на лечение неактуален.
@@ -4788,7 +4796,7 @@ function handleHealItemScan(qrCode) {
     let maxHp = getEffectiveMaxHp();
     // Math.max(1, ...) гарантирует подъём: при maxHp <= 0 (высокая радиация)
     // игрок иначе остался бы с hp = 0, а isCurrentlyDead уже сброшен ниже.
-    player.hp = Math.max(1, Math.min(maxHp, 20 + healAmount));
+    player.hp = Math.max(1, Math.min(maxHp, healAmount));
     // ВНИМАНИЕ: Лечение спасителем восстанавливает HP, но ОСТАВЛЯЕТ инфекцию/заражение активными!
     saveState();
 
@@ -4821,6 +4829,57 @@ function confirmRob(corpseType = 'survivor') {
 // ВНИМАНИЕ: startDeadScan() и handleDeadScan() определены в
 // src/js/logic/scan.js — здесь не дублируются.
 // ============================================================
+
+// === УПРАВЛЕНИЕ КАМЕРОЙ СКАНЕРА ===
+// Обновляет UI кнопки и видимость окна камеры в зависимости от scannerActive.
+function updateScannerUI() {
+    const btn = document.getElementById('start-scan-btn');
+    const reader = document.getElementById('qr-reader');
+    if (btn) btn.innerText = scannerActive ? "ВЫКЛЮЧИТЬ СКАНЕР" : "ВКЛЮЧИТЬ СКАНЕР";
+    if (reader) reader.style.display = scannerActive ? 'block' : 'none';
+}
+
+// Запускает камеру основного сканера и синхронизирует UI.
+function startScanner() {
+    if (typeof Html5Qrcode === 'undefined') {
+        alert("⚠️ Офлайн-сканер: библиотека камеры не загружена (требуется разовый выход в интернет для кэширования). Используйте ручной ввод кодов ниже!");
+        let manualBox = document.getElementById('admin-manual-scan-box');
+        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+        return;
+    }
+    try {
+        if (!scanner) scanner = new Html5Qrcode("qr-reader");
+        scannerActive = true;
+        updateScannerUI();
+        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => {
+            stopScanner();
+            handleScan(t);
+        }, (e) => {}).catch(err => {
+            scannerActive = false;
+            updateScannerUI();
+            alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
+        });
+    } catch(err) {
+        scannerActive = false;
+        updateScannerUI();
+        alert("Не удалось запустить камеру. Используйте ручной ввод ниже.");
+        let manualBox = document.getElementById('admin-manual-scan-box');
+        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+    }
+}
+
+// Останавливает камеру основного сканера и синхронизирует UI.
+// Безопасно: html5-qrcode может бросить синхронное исключение,
+// если сканер уже остановлен.
+function stopScanner() {
+    if (scanner) {
+        try {
+            scanner.stop().catch(e => {});
+        } catch(e) {}
+    }
+    scannerActive = false;
+    updateScannerUI();
+}
 
 // === РАДИО ===
 function toggleRadio() { player.radioOn = !player.radioOn; saveState(); updateRadioUI(); if (player.radioOn) startRadio(); else stopRadio(); }
@@ -5474,28 +5533,16 @@ function init() {
     updateRadioUI();
     if (player.radioOn && !player.inBase) startRadio();
     updateAdminVisibility();
+    // Синхронизируем UI сканера при загрузке: камера по умолчанию выключена.
+    updateScannerUI();
 }
 
-// === ОБРАБОТЧИК КНОПКИ СТАРТА СКАНЕРА ===
+// === ОБРАБОТЧИК КНОПКИ СТАРТА/СТОПА СКАНЕРА ===
 document.getElementById('start-scan-btn').addEventListener('click', () => {
-    if (typeof Html5Qrcode === 'undefined') {
-        alert("⚠️ Офлайн-сканер: библиотека камеры не загружена (требуется разовый выход в интернет для кэширования). Используйте ручной ввод кодов ниже!");
-        let manualBox = document.getElementById('admin-manual-scan-box');
-        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
-        return;
-    }
-    try {
-        if (!scanner) scanner = new Html5Qrcode("qr-reader");
-        scanner.start({ facingMode: "environment" }, { fps: 10, qrbox: {width: 250, height: 250} }, (t) => {
-            scanner.stop();
-            handleScan(t);
-        }, (e) => {}).catch(err => {
-            alert("Ошибка камеры! Убедитесь, что разрешили доступ к камере в настройках браузера.");
-        });
-    } catch(err) {
-        alert("Не удалось запустить камеру. Используйте ручной ввод ниже.");
-        let manualBox = document.getElementById('admin-manual-scan-box');
-        if (manualBox && player.isAdmin) manualBox.style.display = 'flex';
+    if (scannerActive) {
+        stopScanner();
+    } else {
+        startScanner();
     }
 });
 
