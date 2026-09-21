@@ -18,6 +18,20 @@ export const MAX_HUNGER = 100;
 export const MAX_RADS = 60;
 export const MAX_BACKPACK_SIZE = 30;
 
+// --- Тайминги игровых циклов (мс) ---
+export const INFECTION_TIME_MS = 5 * 60 * 1000;
+export const ZOMBIE_TIME_MS = 10 * 60 * 1000;
+export const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;
+export const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000;
+export const SCAN_COOLDOWN_DEFAULT_SEC = 300;
+export const SCAN_COOLDOWN_GEAR_SEC = 600;
+export const ANOMALY_COOLDOWN_SEC = 7200;
+export const ARREST_BLOCK_MS = 10 * 60 * 1000;
+
+// --- Параметры слотов ---
+export const SLOT_BET_MIN = 5;
+export const SLOT_BET_MAX = 100;
+
 // --- Префиксы QR-кодов ---
 export const QR_PREFIX_ITEM = 'item_';
 export const QR_PREFIX_FOOD = 'food_';
@@ -39,6 +53,8 @@ export const QR_PREFIX_ZOMBIE_ID = 'zombie_id:';
 export const QR_PREFIX_ANOM = 'anom_';
 
 // --- Вьюхи приложения ---
+// Порядок соответствует навигации SPA. `trade` и `hacking` — оверлеи-вьюхи,
+// которые активируются через switchView() при сканировании NPC/сейфа.
 export const VIEWS = [
   'base',
   'scan',
@@ -48,6 +64,15 @@ export const VIEWS = [
   'map',
   'profile',
   'dead',
+  'trade',
+  'hacking',
 ] as const;
 
 export type ViewName = (typeof VIEWS)[number];
+
+// --- Роли игрока ---
+export const ROLES = ['Выживший', 'Рабочий', 'Военный', 'БАНДИТ'] as const;
+export type RoleName = (typeof ROLES)[number];
+
+// --- Уровни кармы ---
+export const KARMA_BANDIT_THRESHOLD = -3;

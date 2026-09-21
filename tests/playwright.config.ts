@@ -7,7 +7,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  workers: process.env.CI ? 2 : undefined,
+  // python3 -m http.server однопоточный: большое число воркеров вызывает
+  // net::ERR_SOCKET_NOT_CONNECTED. Ограничиваем параллелизм для стабильности.
+  workers: 2,
   reporter: [
     ['list'],
     ['html', { open: 'never', outputFolder: 'playwright-report' }],

@@ -29,7 +29,6 @@ test.describe('Smoke: загрузка приложения', () => {
 
     // Игрок создан с базовыми полями
     const player = await game.playerState();
-    expect(player).toBeTruthy();
     expect(typeof player.callsign).toBe('string');
     expect(player.callsign.length).toBeGreaterThan(0);
     expect(player.hp).toBeGreaterThan(0);

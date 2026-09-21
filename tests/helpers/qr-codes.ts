@@ -26,6 +26,16 @@ export const QR = {
   banditId: (id: string) => `bandit_id:${id}`,
   playerId: (id: string) => `player_id:${id}`,
   zombieId: (id: string) => `zombie_id:${id}`,
-  p2pSell: (payload: string) => `p2ptrade:sell:${payload}`,
-  p2pConfirm: (payload: string) => `p2ptrade:confirm:${payload}`,
+  /**
+   * QR продажи P2P. Реальный формат (src/js/logic/p2p.js):
+   *   p2ptrade:sell:<sellerCallsign>:<itemId>:<price>:<txId>
+   */
+  p2pSell: (sellerCallsign: string, itemId: string, price: number, txId: string) =>
+    `p2ptrade:sell:${sellerCallsign}:${itemId}:${price}:${txId}`,
+  /**
+   * QR подтверждения P2P. Реальный формат (src/js/logic/p2p.js):
+   *   p2ptrade:confirm:<txId>:<price>:<itemId>
+   */
+  p2pConfirm: (txId: string, price: number, itemId: string) =>
+    `p2ptrade:confirm:${txId}:${price}:${itemId}`,
 };
