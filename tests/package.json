@@ -1,0 +1,28 @@
+{
+  "name": "wasteland-pda-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "E2E-тесты Playwright для Wasteland PDA",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test e2e/smoke",
+    "test:regression": "playwright test e2e/regression",
+    "test:integration": "playwright test e2e/integration",
+    "test:technical": "playwright test e2e/technical",
+    "test:chromium": "playwright test --project=chromium",
+    "test:firefox": "playwright test --project=firefox",
+    "test:webkit": "playwright test --project=webkit",
+    "test:headed": "playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "check:build": "tsx scripts/build-game.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.2",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

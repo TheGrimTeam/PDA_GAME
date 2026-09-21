@@ -363,6 +363,32 @@ PDA_GAME/
 Откройте собранный `index.html` в браузере. Для полноценной работы PWA и камеры
 (QR-сканер) рекомендуется HTTPS или `localhost`.
 
+## Автотесты (Playwright)
+
+E2E-тесты живут в изолированной папке [`tests/`](tests/) и не влияют на
+бизнес-логику приложения. Тесты запускаются против собранного `index.html`
+через локальный HTTP-сервер (поднимается автоматически).
+
+```bash
+cd tests
+npm install            # установка зависимостей
+npx playwright install # установка браузеров (Chromium, Firefox, WebKit)
+npm test               # все тесты во всех браузерах
+npm run test:smoke     # только smoke-набор
+npm run typecheck      # проверка типов
+npm run check:build    # проверка актуальности index.html относительно src/
+```
+
+Структура тестовой инфраструктуры:
+
+- [`tests/playwright.config.ts`](tests/playwright.config.ts) — конфигурация, три браузерных проекта, `webServer`;
+- [`tests/helpers/`](tests/helpers/) — константы, моки (камера, аудио, PRNG), работа с состоянием и Page Object;
+- [`tests/fixtures/`](tests/fixtures/) — фикстуры `game`, `player`, `two-players`;
+- [`tests/e2e/smoke/`](tests/e2e/smoke/) — smoke-тесты загрузки и навигации.
+
+Подробности внедрения — в [`plans/playwright-implementation-plan.md`](plans/playwright-implementation-plan.md),
+сценарии — в [`plans/playwright-test-scenarios-plan.md`](plans/playwright-test-scenarios-plan.md).
+
 ## Ключевые пользовательские сценарии
 
 ### 1. Первый запуск и вход в Зону
