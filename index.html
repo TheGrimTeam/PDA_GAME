@@ -6938,7 +6938,10 @@ switchView = function(viewName) {
 // === ЗАПУСК ===
 initMapSystem();
 init();
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
+// Service Worker нужен только сайту: в мобильном приложении (Capacitor) файлы уже лежат
+// внутри приложения, а кэш SW мешал бы обновлениям.
+const isNativeApp = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+if ('serviceWorker' in navigator && !isNativeApp) navigator.serviceWorker.register('sw.js').catch(() => {});
 
     </script>
 </body>

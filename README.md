@@ -433,6 +433,12 @@ PDA_GAME/
 Откройте собранный `index.html` в браузере. Для полноценной работы PWA и камеры
 (QR-сканер) рекомендуется HTTPS или `localhost`.
 
+## Мобильное приложение (Android / iOS)
+
+В папке [`mobile/`](mobile/) — приложение на Capacitor, которое упаковывает собранный `index.html`.
+APK собирается автоматически на GitHub (**Actions → Android APK**), iOS-сборка выгружается в TestFlight
+(**Actions → iOS TestFlight**). Настройка и выпуск версий — в [`mobile/README.md`](mobile/README.md).
+
 ## Автотесты (Playwright)
 
 E2E-тесты живут в изолированной папке [`tests/`](tests/) и не влияют на

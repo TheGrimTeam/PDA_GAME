@@ -1,0 +1,13 @@
+{
+  "appId": "ru.thegrimteam.pda",
+  "appName": "ГРИМ-СЕТЬ ПДА",
+  "webDir": "www",
+  "backgroundColor": "#04120a",
+  "android": {
+    "backgroundColor": "#04120a"
+  },
+  "ios": {
+    "backgroundColor": "#04120a",
+    "contentInset": "never"
+  }
+}

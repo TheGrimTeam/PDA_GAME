@@ -1,0 +1,23 @@
+{
+  "name": "grim-pda-mobile",
+  "version": "0.3.0",
+  "private": true,
+  "description": "Мобильное приложение ГРИМ-СЕТЬ ПДА (Android / iOS) — обёртка Capacitor над собранным index.html",
+  "scripts": {
+    "prepare-www": "node scripts/prepare-www.mjs",
+    "sync": "npm run prepare-www && npx cap sync",
+    "sync:android": "npm run prepare-www && npx cap sync android",
+    "sync:ios": "npm run prepare-www && npx cap sync ios",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/ios": "^8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
+    "@capacitor/cli": "^8.5.2"
+  }
+}
