@@ -1,9 +1,10 @@
-        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ, ФЛЕШЕК И СХРОНОВ (в стиле Fallout) -->
+        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ, ФЛЕШЕК И СХРОНОВ (мини-игра «Синхронизация») -->
         <div id="view-hacking" class="view">
-            <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 10px;">📟 ДЕШИФРАТОР</h3>
+            <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 10px;">📟 ВЗЛОМ</h3>
             <div class="profile-card hk-header">
                 <div>УСТРОЙСТВО: <span id="hack-system-name" style="color:#fff; font-weight:bold;">БЛОК ПАМЯТИ</span></div>
                 <div>ЗАЩИТА: <span id="hack-level" style="color:#fff;"></span></div>
+                <div>КОНТУРЫ: <span id="hack-stage" style="color:var(--term-green); font-weight:bold;"></span></div>
                 <div>ПОПЫТКИ: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
                 <div id="hack-lock-warning" class="hk-lock-warning" style="display:none;">!!! ПОСЛЕДНЯЯ ПОПЫТКА — ДАЛЬШЕ БЛОКИРОВКА НА 2 ЧАСА !!!</div>
             </div>
@@ -11,18 +12,18 @@
             <details class="hk-help">
                 <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
                 <ol>
-                    <li>Пароль — одно из слов, спрятанных в дампе памяти среди символов. Нажмите на слово, чтобы ввести его.</li>
-                    <li>Если слово неверное, терминал покажет <b>СОВПАДЕНИЕ</b> — сколько букв стоят <b>на тех же местах</b>, что и в пароле. Число появится рядом со словом.</li>
-                    <li><b>Пример:</b> пароль ЗАМОК, вы ввели ЗАВОД → совпадение 2/5 (З и А на своих местах). Значит, пароль — слово, у которого с ЗАВОД тоже ровно 2 совпадения.</li>
-                    <li>Парные скобки <b>( ) [ ] { } &lt; &gt;</b> в одной строке — бонус: нажмите, чтобы убрать ложное слово или восстановить попытки.</li>
-                    <li>4 ошибки — устройство блокируется на 2 часа. Прервать взлом можно без блокировки.</li>
+                    <li>По шкале бегает сканер. Нажмите <b>«СИНХРОНИЗАЦИЯ»</b>, когда он внутри <b style="color:var(--term-green)">зелёной зоны</b>.</li>
+                    <li>Нужно пройти <b>3 уровня</b>. С каждым уровнем зона уже, а сканер быстрее.</li>
+                    <li>Промах сжигает одну попытку. Уровень при этом не сбрасывается.</li>
+                    <li>4 промаха — устройство блокируется на 2 часа. Прервать взлом можно без блокировки.</li>
                 </ol>
             </details>
 
-            <div id="hack-words-grid" class="hk-dump">
-                <!-- Дамп памяти: строки с адресами, словами и скобками -->
+            <div id="hack-track" class="hk-track">
+                <div id="hack-zone" class="hk-zone"></div>
+                <div id="hack-runner" class="hk-runner"></div>
             </div>
-            <div id="hack-candidates" class="hk-candidates"></div>
+            <button id="hack-sync-btn" class="hk-sync-btn" onclick="hackSync()">СИНХРОНИЗАЦИЯ</button>
 
             <div class="profile-card hk-console" id="hack-console">
                 <!-- Журнал взлома -->

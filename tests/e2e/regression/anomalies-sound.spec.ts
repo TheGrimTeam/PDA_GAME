@@ -2,9 +2,9 @@ import { test, expect } from '../../fixtures/game.fixture';
 import { scanDirect } from '../../helpers/scan-helper';
 
 /**
- * RG-78..RG-85 — взлом в стиле Fallout, схроны, повторная попытка в аномалиях, звуки.
+ * RG-82..RG-85 — повторная попытка в аномалиях, звуки, возрождение.
  */
-test.describe('Regression: взлом (Fallout), схроны, аномалии, звук', () => {
+test.describe('Regression: аномалии, звук, возрождение', () => {
   test.beforeEach(async ({ game }) => {
     await game.patchPlayer({
       inBase: false,
@@ -17,57 +17,6 @@ test.describe('Regression: взлом (Fallout), схроны, аномалии,
       karma_score: 0,
       equipment: null,
     });
-  });
-
-  test('RG-78: сложность зависит от устройства (usb/term/safe)', async ({ game }) => {
-    const expected: Record<string, [number, number]> = { usb_1: [5, 8], term_1: [6, 10], safe_1: [8, 12] };
-    for (const [code, [len, count]] of Object.entries(expected)) {
-      await scanDirect(game.page, code);
-      await game.expectViewActive('hacking');
-      const words: string[] = await game.page.evaluate(() => eval('hackWordsList'));
-      expect(words).toHaveLength(count);
-      expect(words.every((w) => w.length === len)).toBe(true);
-      // Все слова реально видны в дампе
-      const dump = await game.page.locator('#hack-words-grid').innerText();
-      for (const w of words) expect(dump).toContain(w);
-    }
-  });
-
-  test('RG-79: неверное слово помечается совпадением прямо в дампе', async ({ game }) => {
-    await scanDirect(game.page, 'term_2');
-    const { wrong, likeness } = await game.page.evaluate(() => {
-      const secret = eval('hackSecretWord');
-      const wrong = eval('hackWordsList').find((w: string) => w !== secret);
-      return { wrong, likeness: (window as any).hackLikeness(wrong, secret) };
-    });
-    await game.page.locator('.hk-word', { hasText: wrong }).click();
-
-    await expect(game.page.locator('.hk-tried')).toHaveText(`${wrong}${likeness}`);
-    await expect(game.page.locator('#hack-console')).toContainText(`Совпадение: ${likeness}/6`);
-    await expect(game.page.locator('#hack-candidates')).toContainText('Подходят');
-  });
-
-  test('RG-80: скобки убирают ложное слово или восстанавливают попытки', async ({ game }) => {
-    await scanDirect(game.page, 'usb_2');
-    await game.page.evaluate(() => { Math.random = () => 0.1; }); // ветка «убрать ложное слово»
-    const br = game.page.locator('.hk-br').first();
-    await br.click();
-    const removed = await game.page.evaluate(() => Object.keys(eval('hackRemoved')));
-    expect(removed).toHaveLength(1);
-    const secret = await game.page.evaluate(() => eval('hackSecretWord'));
-    expect(removed[0]).not.toBe(secret);
-  });
-
-  test('RG-81: вскрытие схрона (safe_) снижает Карму, флешка — нет', async ({ game }) => {
-    await scanDirect(game.page, 'safe_7');
-    await game.page.evaluate(() => (window as any).submitHackWord(eval('hackSecretWord')));
-    let player = await game.playerState();
-    expect(player.karma_score).toBe(-1);
-
-    await scanDirect(game.page, 'usb_7');
-    await game.page.evaluate(() => (window as any).submitHackWord(eval('hackSecretWord')));
-    player = await game.playerState();
-    expect(player.karma_score).toBe(-1);
   });
 
   test('RG-82: неудача в аномалии не разряжает её — можно пробовать снова', async ({ game }) => {
