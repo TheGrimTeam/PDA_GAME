@@ -64,6 +64,8 @@ function updateHUD() {
             document.getElementById('rad-val').innerText = player.rads;
             document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
         }
+        let maxHunger = getMaxHunger();
+        if (player.hunger > maxHunger) player.hunger = maxHunger; // например, Ядро убрали из рюкзака
         if (document.getElementById('hunger-val')) {
             document.getElementById('hunger-val').innerText = player.hunger;
             document.getElementById('hunger-val').className = player.hunger <= 20 ? 'danger' : '';

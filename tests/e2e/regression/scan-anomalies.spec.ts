@@ -79,7 +79,8 @@ test.describe('Regression: аномалии', () => {
       Math.random = () => 0.75;
     });
 
-    await scanDirect(game.page, 'anom_4');
+    // anom_4 занят сюжетным «Ядром Синтеза» (не сканируется) — берём свободный код
+    await scanDirect(game.page, 'anom_7');
 
     const player = await game.playerState();
     // Болт израсходован.

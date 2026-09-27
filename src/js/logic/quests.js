@@ -44,7 +44,7 @@ function createRandomQuest() {
 
 function renderQuests() {
     const container = document.getElementById('quests-container');
-    container.innerHTML = '';
+    container.innerHTML = renderStoryBlock();
 
     if (!player.quests.choices || player.quests.choices.length === 0) {
         generateQuestChoices();

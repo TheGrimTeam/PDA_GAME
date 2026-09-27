@@ -21,9 +21,10 @@ function checkDeathState() {
             player.isCurrentlyDead = true;
             player.stats.deaths = (player.stats.deaths || 0) + 1;
 
-            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%
+            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%.
+            // «Ядро Синтеза» в рюкзаке — заражение гарантировано.
             if (!player.infectionTime && !player.zombieTime) {
-                if (Math.random() < 0.33) {
+                if (hasSynthCore() || Math.random() < 0.33) {
                     player.infectionTime = Date.now();
                     playSound('hazard');
                     showBanner("ИНФЕЦИРОВАН ВИРУСОМ!", 'yellow');

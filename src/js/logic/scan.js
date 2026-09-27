@@ -118,7 +118,7 @@ function handleScan(qrCode) {
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
     if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
-        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT)) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -134,6 +134,18 @@ function handleScan(qrCode) {
     // Проверка укрытия от Выброса по QR-коду базы
     if (checkBlowoutShelterScan(code)) {
         return;
+    }
+
+    // Станция синтеза (сюжетная цепочка «Путь к эпицентру»)
+    if (code === SYNTH_STATION_CODE) {
+        handleSynthStationScan(resDiv);
+        return;
+    }
+
+    // Сюжетные предметы (капсулы энергии, «Ядро Синтеза») нельзя подобрать по коду
+    if (ITEMS_DB[code] && ITEMS_DB[code].noScan) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:yellow'>Этот предмет нельзя подобрать сканированием — его можно получить только по сюжету.</span>";
     }
 
     // Взлом терминалов и флешек
@@ -326,28 +338,37 @@ function handleScan(qrCode) {
             player.inventory.splice(hasBoltIndex, 1);
         }
 
-        let roll = Math.random(); player.scannedCodes[code] = now;
+        // Аномалия «разряжается» (уходит на кулдаун) только когда артефакт реально
+        // попал в рюкзак. Неудачная попытка или нехватка места — можно пробовать снова.
+        let roll = Math.random();
+        const retryHint = "<br><small style='color:var(--text-dim)'>Аномалия не разрядилась — можно попробовать ещё раз.</small>";
 
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
+            // Квест «Калибровка датчиков»: вместе с артефактом выдаётся капсула энергии
+            let capsule = storyCapsuleForAnomaly(code);
+            let needSize = item.size + (capsule ? ITEMS_DB[capsule].size : 0);
             let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
-            if (currentSize + item.size > player.maxSize) {
-                playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места!</span>`;
+            if (currentSize + needSize > player.maxSize) {
+                playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
-                player.inventory.push(winArt); playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                player.inventory.push(winArt); player.scannedCodes[code] = now;
+                if (capsule) player.inventory.push(capsule);
+                playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                if (capsule) announceStoryProgress();
             }
         } else {
             playSound('hazard'); let penaltyRoll = Math.random();
             if (penaltyRoll < 0.5 || player.inventory.length === 0) {
                 player.hp = Math.max(0, player.hp - 40);
-                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
+                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}${retryHint}`;
                 checkDeathState();
             } else {
                 let dropIdx = Math.floor(Math.random() * player.inventory.length);
                 let droppedName = ITEMS_DB[player.inventory[dropIdx]].name;
                 player.inventory.splice(dropIdx, 1);
-                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
+                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}${retryHint}`;
             }
         }
         saveState(); return;
@@ -411,7 +432,7 @@ function handleDeadScan(qrCode) {
 
         player.hunger = MAX_HUNGER;
         player.inventory = [];
-        player.quests.active = null;
+        player.quests.active = []; // null ломал acceptQuest() после возрождения
         player.infectionTime = 0; player.zombieTime = 0;
         // Возрождение отменяет незавершённый запрос на лечение.
         player.pendingHealId = null;

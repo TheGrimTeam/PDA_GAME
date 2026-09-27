@@ -122,6 +122,8 @@ function startHeartbeatLoop() {
             }
         }
 
+        storyTick(); // синтез в квесте «Станция синтеза»
+
         if (!player.inBase && player.hp > 0 && (!player.arrestedUntil || Date.now() >= player.arrestedUntil)) {
             // Начисление зарплаты (Рабочий: +3💎/мин, Военный: +5💎/мин)
             if (player.role === 'Рабочий' || player.role === 'Военный') {

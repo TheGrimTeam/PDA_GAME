@@ -5,8 +5,10 @@
 function dropItem(index, isSafe = false) { if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
 
 function useMedkit(index, id, isSafe = false) {
-    // Лечение медикаментом излечивает вирус инфицирования
-    if (player.infectionTime) {
+    // Лечение медикаментом излечивает вирус инфицирования — но не при «Ядре Синтеза» в рюкзаке
+    if (player.infectionTime && hasSynthCore()) {
+        showBanner("☣ ЯДРО СИНТЕЗА ПОДАВЛЯЕТ ЛЕЧЕНИЕ! Вирус не купирован.", 'var(--bandit-color)');
+    } else if (player.infectionTime) {
         player.infectionTime = 0;
         showBanner("ВИРУС КУПИРОВАН МЕДИКАМЕНТОМ!", 'var(--quest-color)');
     }
@@ -64,10 +66,7 @@ function useFood(index, id, isSafe = false) {
     if (it.radCure && player.karma_score < 3) {
         player.rads = Math.max(0, player.rads - it.radCure);
     }
-    let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
-    let barLvl = getNpcRepLevel(barRep);
-    let maxHunger = MAX_HUNGER + (barLvl * 10);
-    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0));
+    player.hunger = Math.min(getMaxHunger(), player.hunger + (it.feed || 0));
     let maxHp = getEffectiveMaxHp();
     if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
@@ -147,7 +146,7 @@ function applySafeBox() {
 function renderInventory() {
     const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
     player.inventory.forEach((id, i) => {
-        let it = ITEMS_DB[id], acts = `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> <button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
+        let it = ITEMS_DB[id], acts = (it.cat === 'quest' ? '' : `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> `) + `<button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
 
         let statsDesc = [];
         if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
@@ -162,7 +161,8 @@ function renderInventory() {
 
         if (player.safeBoxUnlocked) acts = `<button onclick="moveToSafe(${i})" class="btn-safe" style="margin-right:5px">В СЕЙФ</button> ` + acts;
 
-        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
+        let descText = it.desc && it.cat !== 'eq' ? `<br><small style="color:var(--hero-color)">${it.desc}</small>` : '';
+        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small>${descText}</div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
     });
     if (player.safeBoxUnlocked) {
         document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';

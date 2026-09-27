@@ -467,6 +467,29 @@ body.zombie-interface #hud {
     border-bottom-color: #ff3333 !important;
 }
 
+/* ===== ВЗЛОМ (дамп памяти в стиле Fallout) ===== */
+.hk-header { font-family: monospace; font-size: 1rem; line-height: 1.4; border-color: var(--trade-color); background: rgba(0,229,255,0.02); }
+.hk-lock-warning { color: var(--bandit-color); font-weight: bold; font-size: 0.85rem; margin-top: 4px; animation: pulse-led 0.8s infinite alternate; }
+.hk-help { border: 1px dashed var(--text-dim); padding: 6px 8px; margin-bottom: 8px; font-size: 0.9rem; }
+.hk-help summary { cursor: pointer; color: var(--trade-color); font-weight: bold; }
+.hk-help ol { margin: 6px 0 0 18px; padding: 0; line-height: 1.35; }
+.hk-help li { margin-bottom: 4px; }
+.hk-dump { column-count: 2; column-gap: 10px; font-family: monospace; font-size: 0.78rem; line-height: 1.5; background: #000; border: 1px solid var(--term-green); padding: 6px; white-space: pre; overflow-x: auto; }
+.hk-row { break-inside: avoid; }
+.hk-addr { color: var(--text-dim); margin-right: 5px; }
+.hk-word { color: #fff; background: rgba(57,255,20,0.15); cursor: pointer; border-radius: 2px; }
+.hk-word:active, .hk-word:hover { background: var(--term-green); color: #000; }
+.hk-tried { color: var(--bandit-color); background: transparent; text-decoration: line-through; cursor: default; }
+.hk-tried:hover { background: transparent; color: var(--bandit-color); }
+.hk-tried sup { text-decoration: none; display: inline-block; color: var(--rad-color); font-weight: bold; margin-left: 1px; }
+.hk-secret { color: #000; background: var(--term-green); }
+.hk-removed { color: #333; }
+.hk-br { color: var(--trade-color); cursor: pointer; text-decoration: underline; }
+.hk-br:active, .hk-br:hover { background: var(--trade-color); color: #000; }
+.hk-br-used { color: #444; }
+.hk-candidates { font-size: 0.85rem; color: var(--rad-color); min-height: 1.1em; margin: 4px 0; }
+.hk-console { font-family: monospace; background: #000; border: 1px solid var(--term-green); max-height: 140px; overflow-y: auto; padding: 8px; font-size: 0.9rem; line-height: 1.25; }
+
 
 /* ===== next css file ===== */
 
@@ -943,23 +966,38 @@ body.zombie-interface #hud {
 
 <!-- ===== next view ===== -->
 
-        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ И ФЛЕШЕК -->
+        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ, ФЛЕШЕК И СХРОНОВ (в стиле Fallout) -->
         <div id="view-hacking" class="view">
-            <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 15px;">📟 ДЕШИФРАТОР СИСТЕМЫ</h3>
-            <div class="profile-card" style="font-family: monospace; font-size: 1.1rem; line-height: 1.4; border-color: var(--trade-color); background: rgba(0,229,255,0.02);">
+            <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 10px;">📟 ДЕШИФРАТОР</h3>
+            <div class="profile-card hk-header">
                 <div>УСТРОЙСТВО: <span id="hack-system-name" style="color:#fff; font-weight:bold;">БЛОК ПАМЯТИ</span></div>
-                <div>ОТКЛИК ЗАЩИТЫ: <span id="hack-attempts" style="color:var(--bandit-color); font-weight:bold;">⬤ ⬤ ⬤ ⬤</span></div>
+                <div>ЗАЩИТА: <span id="hack-level" style="color:#fff;"></span></div>
+                <div>ПОПЫТКИ: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
+                <div id="hack-lock-warning" class="hk-lock-warning" style="display:none;">!!! ПОСЛЕДНЯЯ ПОПЫТКА — ДАЛЬШЕ БЛОКИРОВКА НА 2 ЧАСА !!!</div>
             </div>
 
-            <div class="profile-card" style="font-family: monospace; background:#000; border: 1px solid var(--term-green); height: 130px; overflow-y: auto; padding: 10px; font-size: 0.95rem; line-height:1.2;" id="hack-console">
-                <!-- Консоль взлома -->
+            <details class="hk-help">
+                <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                <ol>
+                    <li>Пароль — одно из слов, спрятанных в дампе памяти среди символов. Нажмите на слово, чтобы ввести его.</li>
+                    <li>Если слово неверное, терминал покажет <b>СОВПАДЕНИЕ</b> — сколько букв стоят <b>на тех же местах</b>, что и в пароле. Число появится рядом со словом.</li>
+                    <li><b>Пример:</b> пароль ЗАМОК, вы ввели ЗАВОД → совпадение 2/5 (З и А на своих местах). Значит, пароль — слово, у которого с ЗАВОД тоже ровно 2 совпадения.</li>
+                    <li>Парные скобки <b>( ) [ ] { } &lt; &gt;</b> в одной строке — бонус: нажмите, чтобы убрать ложное слово или восстановить попытки.</li>
+                    <li>4 ошибки — устройство блокируется на 2 часа. Прервать взлом можно без блокировки.</li>
+                </ol>
+            </details>
+
+            <div id="hack-words-grid" class="hk-dump">
+                <!-- Дамп памяти: строки с адресами, словами и скобками -->
+            </div>
+            <div id="hack-candidates" class="hk-candidates"></div>
+
+            <div class="profile-card hk-console" id="hack-console">
+                <!-- Журнал взлома -->
             </div>
 
-            <div id="hack-words-grid" style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; margin-top:10px;">
-                <!-- Кнопки выбора слов -->
-            </div>
-
-            <button onclick="abortHacking()" style="width:100%; margin-top:15px; border-color:var(--bandit-color); color:var(--bandit-color);">ПРЕРВАТЬ ПОДКЛЮЧЕНИЕ</button>
+            <div id="hack-actions"></div>
+            <button onclick="abortHacking()" style="width:100%; margin-top:10px; border-color:var(--bandit-color); color:var(--bandit-color);">ПРЕРВАТЬ ПОДКЛЮЧЕНИЕ</button>
         </div>
 
 
@@ -1122,6 +1160,14 @@ ITEMS_DB['art_1'] = { name: "Артефакт 'Капля'", val: 500, size: 1, 
 ITEMS_DB['art_2'] = { name: "Артефакт 'Слизь'", val: 800, size: 1, cat: 'artifact' };
 ITEMS_DB['art_3'] = { name: "Артефакт 'Пустышка'", val: 1200, size: 2, cat: 'artifact' };
 
+// СЮЖЕТНЫЕ ПРЕДМЕТЫ (цепочка «Путь к эпицентру», см. config/story.js)
+// noScan — предмет нельзя получить, отсканировав/введя его код; только по сюжету.
+// Категория 'quest' не продаётся торговцам и базам.
+ITEMS_DB['energy_1'] = { name: "Капсула энергии (Аномалия №1)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №1. Нужна для Станции синтеза." };
+ITEMS_DB['energy_2'] = { name: "Капсула энергии (Аномалия №2)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №2. Нужна для Станции синтеза." };
+ITEMS_DB['energy_3'] = { name: "Капсула энергии (Аномалия №3)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №3. Нужна для Станции синтеза." };
+ITEMS_DB['anom_4'] = { name: "Ядро Синтеза", val: 7500, size: 2, cat: 'artifact', noScan: true, desc: "В рюкзаке: +50 макс. HP, +50 макс. сытости. При смерти — 100% заражение, лечение вируса не работает." };
+
 // СПЕЦИАЛЬНОЕ СНАРЯЖЕНИЕ
 ITEMS_DB['eq_rad'] = { name: "Свинцовый плащ", val: 300, size: 0, cat: 'eq', desc: "Защита от радиации: снижает облучение в 2 раза." };
 ITEMS_DB['eq_gas'] = { name: "Противогаз ГП-5", val: 250, size: 0, cat: 'eq', desc: "Фильтрация воздуха: снижает накопление радиации на 60%." };
@@ -1184,6 +1230,69 @@ const SHELTER_UPGRADES = {
 /* ===== next js file ===== */
 
 // ============================================================
+// СЮЖЕТНАЯ ЦЕПОЧКА «ПУТЬ К ЭПИЦЕНТРУ»
+// ============================================================
+// Четыре последовательных квеста. Не занимают слоты обычных контрактов.
+// Логика прогресса — в logic/story.js, отрисовка — в renderQuests().
+// Организаторам: координаты станции и её QR-код задаются здесь.
+// ============================================================
+
+// QR-код, который организаторы размещают на Станции синтеза
+const SYNTH_STATION_CODE = 'lab_synth';
+// Что Доктор Кроу сообщает игроку о местоположении станции
+const SYNTH_STATION_COORDS = 'Заброшенная лаборатория «Синтез»: сектор Д-7, старая насосная станция у северного периметра. Ищите на месте QR-код станции.';
+// Сколько игрок должен провести на станции
+const SYNTH_DURATION_MS = 15 * 60 * 1000;
+
+// Полевые аномалии для квеста 3 и капсулы энергии, которые они дают
+const STORY_FIELD_ANOMALIES = { 'anom_1': 'energy_1', 'anom_2': 'energy_2', 'anom_3': 'energy_3' };
+
+// Квест 1: сколько профильных предметов продать каждому NPC
+const STORY_Q1_NPCS = ['npc_med', 'npc_bar', 'npc_eng', 'npc_trad'];
+const STORY_Q1_ITEMS_PER_NPC = 2;
+// Квест 2: сколько разных видов оружия продать
+const STORY_Q2_WEAPON_KINDS = 10;
+// Квест 2: награда — болты
+const STORY_Q2_REWARD_ITEM = 'junk_6';
+const STORY_Q2_REWARD_QTY = 5;
+// Квест 3: компенсация, если детектор «Велес» уже был куплен
+const STORY_Q3_COMPENSATION = 1000;
+// Ассортимент торговцев после квеста 1
+const TRADE_STOCK_SIZE = 8;
+const TRADE_STOCK_SIZE_EXTENDED = 12;
+
+const STORY_QUESTS = {
+    1: {
+        name: "Первый день в пустоши",
+        desc: "Выживание в Пустоши требует полезных связей. Чтобы закрепиться на базе, новичку нужно познакомиться с ключевыми обитателями и доказать свою пользу в торговле.",
+        task: "Продайте каждому из 4 торговцев базы по 2 профильных предмета: Доктору — медикаменты, Бармену — еду, Инженеру — хлам и снаряжение, Торговцу — оружие, снаряжение или артефакты.",
+        reward: "+1 уровень репутации у каждого из 4 NPC. Расширенный ассортимент у торговцев."
+    },
+    2: {
+        name: "Лёгкие деньги",
+        desc: "На базе растёт спрос на вооружение. Местный оружейник завален заказами и готов неплохо заплатить за сталкерский арсенал.",
+        task: "Соберите в Пустоши 10 разных видов оружия и продайте их торговцам (или сдайте разом у Торговца Сидоровича).",
+        reward: "5 болтов — с болтом шанс вытащить артефакт из аномалии выше."
+    },
+    3: {
+        name: "Калибровка датчиков",
+        desc: "Учёным требуются свежие полевые данные об аномальной активности. Для этого придётся отправиться на полигоны.",
+        task: "Успешно извлеките артефакт из каждой из 3 полевых аномалий. Каждая даст капсулу энергии — держите все 3 капсулы в рюкзаке, они понадобятся для финала.",
+        reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 💎."
+    },
+    4: {
+        name: "Станция синтеза",
+        desc: "Получив у Доктора засекреченные координаты, вы узнаёте о заброшенной лаборатории, способной сплавлять нестабильную энергию.",
+        task: "1) Узнайте координаты у Доктора Кроу. 2) Отсканируйте QR-код станции, чтобы запустить синтез. 3) Оставайтесь на точке 15 минут (не умирайте и не возвращайтесь на Базу). 4) Отсканируйте станцию ещё раз.",
+        reward: "«Ядро Синтеза» — артефакт ценой 7500 💎: +50 к макс. HP и сытости, пока лежит в рюкзаке. Цена могущества: смерть с Ядром — 100% заражение, а лекарства бессильны."
+    }
+};
+const STORY_FINAL_STAGE = 5; // все квесты пройдены
+
+
+/* ===== next js file ===== */
+
+// ============================================================
 // СОСТОЯНИЕ ИГРОКА
 // ============================================================
 // Загрузка из localStorage, миграция старых сохранений,
@@ -1224,6 +1333,10 @@ if (!player.npcRep) player.npcRep = {};
 if (!player.processedTradeTxs) player.processedTradeTxs = {};
 if (!player.processedBuyTxs) player.processedBuyTxs = {};
 if (!player.fractions) player.fractions = {};
+if (!player.eqPurchased) player.eqPurchased = {};
+if (player.equipment) player.eqPurchased[player.equipment] = true;
+if (!player.story || typeof player.story !== 'object') player.story = { stage: 1, q1: {}, q2: [], announced: {}, coordsKnown: false, synthStartedAt: 0, extendedStock: false };
+if (!Array.isArray(player.quests.active)) player.quests.active = [];
 if (player.pendingHealId === undefined) player.pendingHealId = null;
 if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
 if (!player.processedHealTxs) player.processedHealTxs = {};
@@ -1316,15 +1429,8 @@ document.body.addEventListener('touchstart', tryResumeAudio, { once: true });
 let geigerTimer = null;
 function playGeigerClick() {
     if (!audioCtx || audioCtx.state === 'suspended' || player.inBase || player.hp <= 0) return;
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.frequency.setValueAtTime(1300 + Math.random() * 900, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.09, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.015);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.02);
+    // Настоящий счётчик Гейгера трещит, а не пищит: короткий шумовой щелчок
+    noiseBurst(0, 0.006, 0.12, 3000);
 }
 
 function runGeigerLoop() {
@@ -1382,15 +1488,7 @@ function runHeartbeatLoop() {
 // === RETRO BIOS BOOT SEQUENCE ===
 function playRetroBeep() {
     if (!audioCtx || audioCtx.state === 'suspended') return;
-    let osc = audioCtx.createOscillator();
-    let gain = audioCtx.createGain();
-    osc.frequency.setValueAtTime(950, audioCtx.currentTime);
-    gain.gain.setValueAtTime(0.015, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 0.06);
+    tone(950, 0, 0.05, { type: 'triangle', vol: 0.02 });
 }
 
 function runBootSequence() {
@@ -1440,66 +1538,112 @@ function runBootSequence() {
     setTimeout(printLine, 200);
 }
 
+// ============================================================
+// ЗВУКОВЫЕ СИГНАЛЫ ПДА
+// ============================================================
+// Все сигналы мягкие (синус/треугольник с плавной атакой) и проходят через
+// общий регулятор громкости и фильтр, срезающий резкие верха.
+// У каждого события своя «интонация», чтобы понимать его не глядя на экран:
+//   вверх  — хорошо (подбор, покупка, лечение, квест)
+//   вниз   — плохо / отказ (ошибка, карма, смерть)
+//   пульс  — опасность (урон, аномалия, выброс)
+// ============================================================
+
+const SOUND_MASTER_VOLUME = 0.7;
+let soundOut = null;
+
+// Общий выход: мягкий low-pass + мастер-громкость
+function getSoundOut() {
+    if (soundOut) return soundOut;
+    let filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 3200;
+    let master = audioCtx.createGain();
+    master.gain.value = SOUND_MASTER_VOLUME;
+    filter.connect(master);
+    master.connect(audioCtx.destination);
+    soundOut = filter;
+    return soundOut;
+}
+
+// Одна нота: плавная атака 12 мс и затухание, без щелчков
+function tone(freq, delay, dur, opts = {}) {
+    let t = audioCtx.currentTime + delay;
+    let osc = audioCtx.createOscillator();
+    let gain = audioCtx.createGain();
+    osc.type = opts.type || 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    if (opts.glideTo) osc.frequency.exponentialRampToValueAtTime(opts.glideTo, t + dur);
+    let vol = opts.vol || 0.08;
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    osc.connect(gain);
+    gain.connect(getSoundOut());
+    osc.start(t);
+    osc.stop(t + dur + 0.03);
+}
+
+// Короткий отфильтрованный шум (эфир, щелчок затвора)
+function noiseBurst(delay, dur, vol, freq) {
+    let t = audioCtx.currentTime + delay;
+    let len = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+    let buffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    let data = buffer.getChannelData(0);
+    for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+    let src = audioCtx.createBufferSource();
+    src.buffer = buffer;
+    let band = audioCtx.createBiquadFilter();
+    band.type = 'bandpass'; band.frequency.value = freq || 1500; band.Q.value = 1.0;
+    let gain = audioCtx.createGain();
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(band); band.connect(gain); gain.connect(getSoundOut());
+    src.start(t);
+}
+
+// Ноты (Гц)
+const NOTE = { C4: 261.6, E4: 329.6, G4: 392.0, Eb4: 311.1, A4: 440.0, C5: 523.3, D5: 587.3, E5: 659.3, G5: 784.0, A5: 880.0, B5: 987.8, C6: 1046.5 };
+
+const SOUNDS = {
+    // Подбор предмета / успешный скан: короткий светлый «блип» вверх
+    scan:    () => { tone(NOTE.A5, 0, 0.08, { type: 'triangle', vol: 0.06 }); tone(NOTE.E5 * 2, 0.06, 0.09, { vol: 0.04 }); },
+    // Нажатие / выбор: едва слышный тик
+    click:   () => tone(NOTE.A5, 0, 0.04, { type: 'triangle', vol: 0.03 }),
+    // Использование предмета: две ноты вверх
+    use:     () => { tone(NOTE.C5, 0, 0.12, { vol: 0.07 }); tone(NOTE.G5, 0.1, 0.18, { vol: 0.06 }); },
+    // Лечение: тёплый мажорный аккорд вверх
+    heal:    () => { tone(NOTE.C5, 0, 0.2, { vol: 0.06 }); tone(NOTE.E5, 0.08, 0.22, { vol: 0.05 }); tone(NOTE.G5, 0.16, 0.3, { vol: 0.05 }); },
+    // Деньги: «звон монет» — быстрое трезвучие
+    sell:    () => { tone(NOTE.E5, 0, 0.08, { type: 'triangle', vol: 0.06 }); tone(NOTE.G5, 0.07, 0.08, { type: 'triangle', vol: 0.06 }); tone(NOTE.B5, 0.14, 0.16, { type: 'triangle', vol: 0.05 }); },
+    // Квест / достижение: короткие фанфары
+    quest:   () => { [NOTE.C5, NOTE.E5, NOTE.G5].forEach((f, i) => tone(f, i * 0.09, 0.12, { type: 'triangle', vol: 0.06 })); tone(NOTE.C6, 0.27, 0.4, { type: 'triangle', vol: 0.06 }); },
+    // Улучшение (рюкзак, убежище): ступенька вверх с «отзвуком»
+    upgrade: () => { tone(NOTE.G4, 0, 0.12, { type: 'triangle', vol: 0.06 }); tone(NOTE.C5, 0.1, 0.12, { type: 'triangle', vol: 0.06 }); tone(NOTE.G5, 0.2, 0.35, { vol: 0.05 }); },
+    // Отказ / ошибка: мягкое «не-а» — две ноты вниз
+    error:   () => { tone(NOTE.G4, 0, 0.12, { type: 'triangle', vol: 0.07 }); tone(NOTE.Eb4, 0.12, 0.18, { type: 'triangle', vol: 0.07 }); },
+    // Опасность / урон: три коротких пульса и глухой удар
+    hazard:  () => { [0, 0.14, 0.28].forEach(d => tone(NOTE.A4, d, 0.09, { type: 'triangle', vol: 0.07 })); tone(110, 0, 0.3, { vol: 0.08 }); },
+    // Потеря Кармы: медленный минорный спуск
+    karma:   () => { tone(NOTE.A4, 0, 0.3, { vol: 0.06 }); tone(NOTE.E4, 0.25, 0.5, { vol: 0.06 }); },
+    // Смерть: долгое затухание вниз
+    death:   () => { tone(NOTE.G4, 0, 1.4, { vol: 0.07, glideTo: 98 }); tone(NOTE.C4, 0.3, 1.2, { vol: 0.04, glideTo: 65 }); },
+    // Сирена выброса: плавная волна, не резкая
+    siren:   () => { tone(300, 0, 0.5, { vol: 0.05, glideTo: 480 }); tone(480, 0.5, 0.5, { vol: 0.05, glideTo: 300 }); },
+    // Радиоэфир: два сигнала и тихое шипение
+    radio:   () => { tone(1200, 0, 0.07, { type: 'triangle', vol: 0.03 }); tone(1600, 0.09, 0.07, { type: 'triangle', vol: 0.03 }); noiseBurst(0.15, 1.0, 0.05, 1500); },
+    // Затвор фотомодуля
+    photo:   () => { noiseBurst(0, 0.06, 0.08, 2500); tone(NOTE.A5, 0.05, 0.05, { type: 'triangle', vol: 0.03 }); }
+};
+
 function playSound(type) {
     if (audioCtx && audioCtx.state === 'suspended') {
         audioCtx.resume().catch(e => {});
     }
     if (!audioCtx || audioCtx.state === 'suspended') return;
-    const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
-
-    if (type === 'sell') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
-        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-        osc.start(now); osc.stop(now + 0.2);
-        setTimeout(() => {
-            const osc2 = audioCtx.createOscillator(); const gain2 = audioCtx.createGain();
-            osc2.connect(gain2); gain2.connect(audioCtx.destination);
-            osc2.type = 'square'; osc2.frequency.setValueAtTime(1200, audioCtx.currentTime); osc2.frequency.exponentialRampToValueAtTime(1600, audioCtx.currentTime + 0.1);
-            gain2.gain.setValueAtTime(0.1, audioCtx.currentTime); gain2.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
-            osc2.start(audioCtx.currentTime); osc2.stop(audioCtx.currentTime + 0.2);
-        }, 100);
-    } else if (type === 'hazard') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(50, now + 0.6);
-        gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-        osc.start(now); osc.stop(now + 0.6);
-    } else if (type === 'scan') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(1200, now);
-        gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-        osc.start(now); osc.stop(now + 0.15);
-    } else if (type === 'error') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(120, now);
-        gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now); osc.stop(now + 0.3);
-    } else if (type === 'karma') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(30, now + 1.5);
-        gain.gain.setValueAtTime(0.4, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
-        osc.start(now); osc.stop(now + 1.5);
-    } else if (type === 'death') {
-        osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(10, now + 2);
-        gain.gain.setValueAtTime(0.147, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 2);
-        osc.start(now); osc.stop(now + 2);
-    } else if (type === 'use') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(400, now); osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
-        gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-        osc.start(now); osc.stop(now + 0.3);
-    } else if (type === 'siren') {
-        osc.type = 'sine'; osc.frequency.setValueAtTime(180, now); osc.frequency.exponentialRampToValueAtTime(320, now + 0.5); osc.frequency.exponentialRampToValueAtTime(180, now + 1.0);
-        gain.gain.setValueAtTime(0.04, now); gain.gain.linearRampToValueAtTime(0.0, now + 1.0);
-        osc.start(now); osc.stop(now + 1.0);
-    } else if (type === 'radio') {
-        osc.type = 'square'; osc.frequency.setValueAtTime(1200, now); osc.frequency.setValueAtTime(1800, now + 0.1);
-        gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-        osc.start(now); osc.stop(now + 0.2);
-        const bufferSize = audioCtx.sampleRate * 1.5; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-        const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) { data[i] = Math.random() * 2 - 1; }
-        const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
-        const bandpass = audioCtx.createBiquadFilter(); bandpass.type = 'bandpass'; bandpass.frequency.value = 1500; bandpass.Q.value = 1.2;
-        const noiseGain = audioCtx.createGain();
-        noise.connect(bandpass); bandpass.connect(noiseGain); noiseGain.connect(audioCtx.destination);
-        noiseGain.gain.setValueAtTime(0, now); noiseGain.gain.setValueAtTime(0.15, now + 0.15); noiseGain.gain.exponentialRampToValueAtTime(0.01, now + 1.5);
-        noise.start(now);
-    }
+    let fn = SOUNDS[type];
+    if (!fn) return;
+    try { fn(); } catch (e) { console.warn('playSound error:', e); }
 }
 
 
@@ -1523,7 +1667,14 @@ function getMaxHp() {
     if (player.shelterLevel >= 4) {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }
+    if (hasSynthCore()) baseMaxHp += 50; // «Ядро Синтеза» в рюкзаке
     return baseMaxHp;
+}
+
+// Максимальная сытость: база + Бармен Джо (+10 за уровень) + «Ядро Синтеза» (+50)
+function getMaxHunger() {
+    let barLvl = getNpcRepLevel((player.npcRep && player.npcRep['npc_bar']) || 0);
+    return MAX_HUNGER + (barLvl * 10) + (hasSynthCore() ? 50 : 0);
 }
 
 // Реальный потолок HP с учётом радиации (радиация съедает максимум здоровья).
@@ -1870,7 +2021,7 @@ function handleScan(qrCode) {
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
     if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
-        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT)) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -1886,6 +2037,18 @@ function handleScan(qrCode) {
     // Проверка укрытия от Выброса по QR-коду базы
     if (checkBlowoutShelterScan(code)) {
         return;
+    }
+
+    // Станция синтеза (сюжетная цепочка «Путь к эпицентру»)
+    if (code === SYNTH_STATION_CODE) {
+        handleSynthStationScan(resDiv);
+        return;
+    }
+
+    // Сюжетные предметы (капсулы энергии, «Ядро Синтеза») нельзя подобрать по коду
+    if (ITEMS_DB[code] && ITEMS_DB[code].noScan) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:yellow'>Этот предмет нельзя подобрать сканированием — его можно получить только по сюжету.</span>";
     }
 
     // Взлом терминалов и флешек
@@ -2078,28 +2241,37 @@ function handleScan(qrCode) {
             player.inventory.splice(hasBoltIndex, 1);
         }
 
-        let roll = Math.random(); player.scannedCodes[code] = now;
+        // Аномалия «разряжается» (уходит на кулдаун) только когда артефакт реально
+        // попал в рюкзак. Неудачная попытка или нехватка места — можно пробовать снова.
+        let roll = Math.random();
+        const retryHint = "<br><small style='color:var(--text-dim)'>Аномалия не разрядилась — можно попробовать ещё раз.</small>";
 
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
+            // Квест «Калибровка датчиков»: вместе с артефактом выдаётся капсула энергии
+            let capsule = storyCapsuleForAnomaly(code);
+            let needSize = item.size + (capsule ? ITEMS_DB[capsule].size : 0);
             let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
-            if (currentSize + item.size > player.maxSize) {
-                playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места!</span>`;
+            if (currentSize + needSize > player.maxSize) {
+                playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
-                player.inventory.push(winArt); playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                player.inventory.push(winArt); player.scannedCodes[code] = now;
+                if (capsule) player.inventory.push(capsule);
+                playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                if (capsule) announceStoryProgress();
             }
         } else {
             playSound('hazard'); let penaltyRoll = Math.random();
             if (penaltyRoll < 0.5 || player.inventory.length === 0) {
                 player.hp = Math.max(0, player.hp - 40);
-                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
+                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ УДАРИЛА ВАС!</b><br><small>-40 HP</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}${retryHint}`;
                 checkDeathState();
             } else {
                 let dropIdx = Math.floor(Math.random() * player.inventory.length);
                 let droppedName = ITEMS_DB[player.inventory[dropIdx]].name;
                 player.inventory.splice(dropIdx, 1);
-                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}`;
+                resDiv.innerHTML = `<b class="danger">АНОМАЛИЯ СОЖГЛА ПРЕДМЕТ!</b><br><small>Утеряно: ${droppedName}</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Даже болт не помог...</i></small>" : ""}${retryHint}`;
             }
         }
         saveState(); return;
@@ -2163,7 +2335,7 @@ function handleDeadScan(qrCode) {
 
         player.hunger = MAX_HUNGER;
         player.inventory = [];
-        player.quests.active = null;
+        player.quests.active = []; // null ломал acceptQuest() после возрождения
         player.infectionTime = 0; player.zombieTime = 0;
         // Возрождение отменяет незавершённый запрос на лечение.
         player.pendingHealId = null;
@@ -2192,8 +2364,10 @@ function handleDeadScan(qrCode) {
 function dropItem(index, isSafe = false) { if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
 
 function useMedkit(index, id, isSafe = false) {
-    // Лечение медикаментом излечивает вирус инфицирования
-    if (player.infectionTime) {
+    // Лечение медикаментом излечивает вирус инфицирования — но не при «Ядре Синтеза» в рюкзаке
+    if (player.infectionTime && hasSynthCore()) {
+        showBanner("☣ ЯДРО СИНТЕЗА ПОДАВЛЯЕТ ЛЕЧЕНИЕ! Вирус не купирован.", 'var(--bandit-color)');
+    } else if (player.infectionTime) {
         player.infectionTime = 0;
         showBanner("ВИРУС КУПИРОВАН МЕДИКАМЕНТОМ!", 'var(--quest-color)');
     }
@@ -2251,10 +2425,7 @@ function useFood(index, id, isSafe = false) {
     if (it.radCure && player.karma_score < 3) {
         player.rads = Math.max(0, player.rads - it.radCure);
     }
-    let barRep = (player.npcRep && player.npcRep['npc_bar']) || 0;
-    let barLvl = getNpcRepLevel(barRep);
-    let maxHunger = MAX_HUNGER + (barLvl * 10);
-    player.hunger = Math.min(maxHunger, player.hunger + (it.feed || 0));
+    player.hunger = Math.min(getMaxHunger(), player.hunger + (it.feed || 0));
     let maxHp = getEffectiveMaxHp();
     if (player.hp > maxHp) player.hp = maxHp;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
@@ -2334,7 +2505,7 @@ function applySafeBox() {
 function renderInventory() {
     const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
     player.inventory.forEach((id, i) => {
-        let it = ITEMS_DB[id], acts = `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> <button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
+        let it = ITEMS_DB[id], acts = (it.cat === 'quest' ? '' : `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> `) + `<button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
 
         let statsDesc = [];
         if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
@@ -2349,7 +2520,8 @@ function renderInventory() {
 
         if (player.safeBoxUnlocked) acts = `<button onclick="moveToSafe(${i})" class="btn-safe" style="margin-right:5px">В СЕЙФ</button> ` + acts;
 
-        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
+        let descText = it.desc && it.cat !== 'eq' ? `<br><small style="color:var(--hero-color)">${it.desc}</small>` : '';
+        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small>${descText}</div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
     });
     if (player.safeBoxUnlocked) {
         document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';
@@ -2425,7 +2597,7 @@ function createRandomQuest() {
 
 function renderQuests() {
     const container = document.getElementById('quests-container');
-    container.innerHTML = '';
+    container.innerHTML = renderStoryBlock();
 
     if (!player.quests.choices || player.quests.choices.length === 0) {
         generateQuestChoices();
@@ -2566,6 +2738,330 @@ function abandonQuest(index) {
 /* ===== next js file ===== */
 
 // ============================================================
+// ЛОГИКА СЮЖЕТНОЙ ЦЕПОЧКИ «ПУТЬ К ЭПИЦЕНТРУ»
+// ============================================================
+// Состояние хранится в player.story:
+//   stage          — номер текущего квеста (1..4), 5 — цепочка пройдена
+//   q1             — продано профильных предметов каждому NPC { npc_med: 2, ... }
+//   q2             — список разных видов оружия, проданных в квесте 2
+//   coordsKnown    — Доктор сообщил координаты станции (квест 4)
+//   synthStartedAt — время запуска синтеза (0 — не запущен)
+//   extendedStock  — у торговцев расширенный ассортимент (награда квеста 1)
+//   announced      — этапы, о выполнении которых игрок уже уведомлён
+// ============================================================
+
+function getStory() {
+    if (!player.story || typeof player.story !== 'object') player.story = {};
+    let st = player.story;
+    if (!st.stage) st.stage = 1;
+    if (!st.q1) st.q1 = {};
+    if (!Array.isArray(st.q2)) st.q2 = [];
+    if (!st.announced) st.announced = {};
+    if (!st.synthStartedAt) st.synthStartedAt = 0;
+    return st;
+}
+
+// «Ядро Синтеза» действует, только пока лежит в рюкзаке (не в сейфе)
+function hasSynthCore() {
+    return Array.isArray(player.inventory) && player.inventory.includes('anom_4');
+}
+
+function storyCapsulesMissing() {
+    return Object.values(STORY_FIELD_ANOMALIES).filter(id => !player.inventory.includes(id));
+}
+
+// Выполнено ли условие текущего квеста (награду ещё можно не забрать)
+function isStoryStageDone(stage) {
+    let st = getStory();
+    if (stage === 1) return STORY_Q1_NPCS.every(npc => (st.q1[npc] || 0) >= STORY_Q1_ITEMS_PER_NPC);
+    if (stage === 2) return st.q2.length >= STORY_Q2_WEAPON_KINDS;
+    if (stage === 3) return storyCapsulesMissing().length === 0;
+    return false;
+}
+
+// Однократное уведомление о выполнении условия квеста
+function announceStoryProgress() {
+    let st = getStory();
+    if (st.stage >= 1 && st.stage <= 3 && isStoryStageDone(st.stage) && !st.announced[st.stage]) {
+        st.announced[st.stage] = true;
+        playSound('quest');
+        showBanner(`📜 «${STORY_QUESTS[st.stage].name}» выполнен! Заберите награду во вкладке квестов.`, 'var(--hero-color)');
+    }
+}
+
+// Вызывается из торговли при продаже предмета NPC
+function onStoryItemSold(npcCode, itemId) {
+    let st = getStory();
+    let item = ITEMS_DB[itemId];
+    let npc = NPC_DB[npcCode];
+    if (!item || !npc) return;
+
+    if (st.stage === 1 && STORY_Q1_NPCS.includes(npcCode) && npc.buys && npc.buys.includes(item.cat)) {
+        let have = st.q1[npcCode] || 0;
+        if (have < STORY_Q1_ITEMS_PER_NPC) {
+            st.q1[npcCode] = have + 1;
+            showBanner(`📜 Первый день: ${npc.name} ${st.q1[npcCode]}/${STORY_Q1_ITEMS_PER_NPC}`, 'var(--quest-color)');
+        }
+    }
+
+    if (st.stage === 2 && item.cat === 'weapon' && !st.q2.includes(itemId)) {
+        st.q2.push(itemId);
+        showBanner(`📜 Лёгкие деньги: оружие ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`, 'var(--quest-color)');
+    }
+    announceStoryProgress();
+}
+
+// Какие виды оружия из рюкзака ещё не засчитаны в квесте 2 (по одному индексу на вид)
+function storyUncountedWeaponIdx() {
+    let st = getStory();
+    let seen = {};
+    let result = [];
+    player.inventory.forEach((id, i) => {
+        let it = ITEMS_DB[id];
+        if (it && it.cat === 'weapon' && !st.q2.includes(id) && !seen[id]) {
+            seen[id] = true;
+            result.push(i);
+        }
+    });
+    return result;
+}
+
+// «Сдача квеста» у торговца: продать разом по одному экземпляру каждого нового вида оружия
+function turnInStoryWeapons() {
+    let st = getStory();
+    let npc = NPC_DB[currentTradeNpc];
+    if (st.stage !== 2 || !npc || !npc.buys || !npc.buys.includes('weapon')) return;
+    let idxs = storyUncountedWeaponIdx();
+    if (idxs.length === 0) return alert("В рюкзаке нет нового оружия для квеста.");
+
+    let ids = idxs.map(i => player.inventory[i]);
+    let total = 0;
+    // Удаляем с конца, чтобы индексы не съезжали
+    idxs.sort((a, b) => b - a).forEach(i => player.inventory.splice(i, 1));
+    ids.forEach(id => {
+        total += Math.max(1, Math.floor(ITEMS_DB[id].val * 1.5));
+        if (!st.q2.includes(id)) st.q2.push(id);
+    });
+    player.score += total;
+    playSound('sell');
+    announceStoryProgress();
+    saveState();
+    renderTradeView();
+    alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} 💎\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
+}
+
+// Квест 3: успешное извлечение артефакта из полевой аномалии.
+// Возвращает id капсулы, которую нужно выдать, или null.
+function storyCapsuleForAnomaly(anomCode) {
+    let st = getStory();
+    if (st.stage !== 3) return null;
+    let capsule = STORY_FIELD_ANOMALIES[anomCode];
+    if (!capsule) return null;
+    if (player.inventory.includes(capsule) || (player.safeBox || []).includes(capsule)) return null;
+    return capsule;
+}
+
+// Квест 4: Доктор Кроу сообщает координаты станции
+function onStoryNpcVisit(npcCode) {
+    let st = getStory();
+    if (st.stage === 4 && npcCode === 'npc_med' && !st.coordsKnown) {
+        st.coordsKnown = true;
+        saveState();
+        playSound('quest');
+        alert(`🩺 ДОКТОР КРОУ:\n«Раз уж ты собрал капсулы — вот координаты. Никому ни слова.»\n\n📍 ${SYNTH_STATION_COORDS}`);
+    }
+}
+
+function formatMs(ms) {
+    let sec = Math.max(0, Math.ceil(ms / 1000));
+    let m = Math.floor(sec / 60), s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
+// Сканирование QR-кода Станции синтеза
+function handleSynthStationScan(resDiv) {
+    let st = getStory();
+    if (st.stage === STORY_FINAL_STAGE) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:var(--text-dim)'>Станция синтеза выработала ресурс. Ядро уже у вас.</span>";
+    }
+    if (st.stage < 4) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:yellow'>Станция обесточена. Вам здесь пока нечего делать.</span>";
+    }
+    if (!st.coordsKnown) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:yellow'>Терминал станции требует код доступа. Поговорите с Доктором Кроу.</span>";
+    }
+    let missing = storyCapsulesMissing();
+    if (missing.length > 0) {
+        if (st.synthStartedAt) st.synthStartedAt = 0; // капсулы потеряны — синтез сорван
+        saveState();
+        playSound('error');
+        return resDiv.innerHTML = `<span class='danger'>Для синтеза нужны все 3 капсулы энергии в рюкзаке.</span><br><small>Не хватает: ${missing.map(id => ITEMS_DB[id].name).join(', ')}</small>`;
+    }
+
+    let now = Date.now();
+    if (!st.synthStartedAt) {
+        st.synthStartedAt = now;
+        st.synthAnnounced = false;
+        saveState();
+        playSound('use');
+        return resDiv.innerHTML = `<b style="color:var(--trade-color)">⚗ СИНТЕЗ ЗАПУЩЕН</b><br><small>Оставайтесь на точке ${formatMs(SYNTH_DURATION_MS)}. Не умирайте и не возвращайтесь на Базу — иначе процесс сорвётся. Затем отсканируйте станцию снова.</small>`;
+    }
+
+    let left = SYNTH_DURATION_MS - (now - st.synthStartedAt);
+    if (left > 0) {
+        playSound('scan');
+        return resDiv.innerHTML = `<b style="color:var(--trade-color)">⚗ СИНТЕЗ ИДЁТ</b><br><small>Осталось: ${formatMs(left)}. Не покидайте точку.</small>`;
+    }
+
+    // Синтез завершён: капсулы сплавляются в Ядро
+    Object.values(STORY_FIELD_ANOMALIES).forEach(id => {
+        let idx = player.inventory.indexOf(id);
+        if (idx !== -1) player.inventory.splice(idx, 1);
+    });
+    player.inventory.push('anom_4');
+    player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
+    st.stage = STORY_FINAL_STAGE;
+    st.synthStartedAt = 0;
+    player.hunger = getMaxHunger(); // Ядро насыщает
+    saveState();
+    playSound('quest');
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">💎 ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} 💎).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+}
+
+// Тик из heartbeat-цикла: срыв или завершение синтеза
+function storyTick() {
+    let st = player.story;
+    if (!st || !st.synthStartedAt) return;
+    if (player.hp <= 0 || player.inBase) {
+        st.synthStartedAt = 0;
+        saveState();
+        playSound('error');
+        showBanner('⚗ СИНТЕЗ СОРВАН: вы покинули станцию. Запустите процесс заново.', 'var(--bandit-color)');
+        return;
+    }
+    if (!st.synthAnnounced && Date.now() - st.synthStartedAt >= SYNTH_DURATION_MS) {
+        st.synthAnnounced = true;
+        saveState();
+        playSound('quest');
+        showBanner('⚗ СИНТЕЗ ЗАВЕРШЁН! Отсканируйте QR-код станции, чтобы забрать Ядро.', 'var(--hero-color)');
+    }
+}
+
+// Выдача награды за квесты 1–3 и переход к следующему
+function claimStoryReward() {
+    let st = getStory();
+    let stage = st.stage;
+    if (stage < 1 || stage > 3 || !isStoryStageDone(stage)) return;
+    let msg = '';
+
+    if (stage === 1) {
+        player.npcRep = player.npcRep || {};
+        STORY_Q1_NPCS.forEach(npc => { player.npcRep[npc] = (player.npcRep[npc] || 0) + 20; });
+        st.extendedStock = true;
+        msg = `Репутация +1 уровень у всех 4 торговцев.\nАссортимент торговцев расширен до ${TRADE_STOCK_SIZE_EXTENDED} позиций.`;
+    } else if (stage === 2) {
+        let rewardItem = ITEMS_DB[STORY_Q2_REWARD_ITEM];
+        let need = rewardItem.size * STORY_Q2_REWARD_QTY;
+        let used = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+        if (used + need > player.maxSize) {
+            playSound('error');
+            return alert(`Нет места в рюкзаке для награды (нужно ${need} кг свободного веса).`);
+        }
+        for (let i = 0; i < STORY_Q2_REWARD_QTY; i++) player.inventory.push(STORY_Q2_REWARD_ITEM);
+        msg = `Получено: ${rewardItem.name} ×${STORY_Q2_REWARD_QTY}.\nБолт тратится при сканировании аномалии и повышает шанс успеха.`;
+    } else if (stage === 3) {
+        let owned = player.equipment === 'eq_anom' || (player.eqPurchased && player.eqPurchased['eq_anom']);
+        if (owned) {
+            player.score += STORY_Q3_COMPENSATION;
+            msg = `Детектор «Велес» у вас уже был — учёные выплатили компенсацию: ${STORY_Q3_COMPENSATION} 💎.`;
+        } else {
+            if (player.equipment && !confirm(`Детектор «Велес» займёт слот снаряжения вместо «${ITEMS_DB[player.equipment].name}» (оно пропадёт). Продолжить?\n\nОтмена — забрать награду позже.`)) {
+                return;
+            }
+            player.equipment = 'eq_anom';
+            msg = 'Получен легендарный детектор «Велес» (экипирован).';
+        }
+        msg += '\n\nКапсулы энергии оставьте в рюкзаке — Доктор Кроу знает, что с ними делать.';
+    }
+
+    st.stage = stage + 1;
+    playSound('quest');
+    saveState();
+    renderQuests();
+    alert(`📜 КВЕСТ «${STORY_QUESTS[stage].name}» ЗАВЕРШЁН!\n\n${msg}`);
+}
+
+// Разметка блока сюжетной цепочки для вкладки квестов
+function renderStoryBlock() {
+    let st = getStory();
+    let html = `<h3 style="color:var(--hero-color); border-bottom:1px dashed #555; padding-bottom:5px; margin-bottom:12px;">🗺 СЮЖЕТ: ПУТЬ К ЭПИЦЕНТРУ (${Math.min(st.stage, 4)}/4)</h3>`;
+
+    for (let n = 1; n < Math.min(st.stage, STORY_FINAL_STAGE); n++) {
+        html += `<div style="font-size:0.9rem; color:var(--term-green); margin-bottom:4px;">✔ ${n}. ${STORY_QUESTS[n].name}</div>`;
+    }
+    if (st.stage >= STORY_FINAL_STAGE) {
+        html += `<div style="font-size:0.9rem; color:var(--term-green); margin-bottom:4px;">✔ 4. ${STORY_QUESTS[4].name}</div>`;
+        html += `<div class="quest-card" style="border-color:var(--hero-color); margin:8px 0 16px 0;"><b style="color:var(--hero-color)">Цепочка пройдена.</b><br><small>${ITEMS_DB['anom_4'].desc}</small></div>`;
+        return html;
+    }
+
+    let q = STORY_QUESTS[st.stage];
+    let progress = '';
+    if (st.stage === 1) {
+        progress = STORY_Q1_NPCS.map(npc => {
+            let have = Math.min(st.q1[npc] || 0, STORY_Q1_ITEMS_PER_NPC);
+            return `<div style="color:${have >= STORY_Q1_ITEMS_PER_NPC ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${NPC_DB[npc].name}: ${have}/${STORY_Q1_ITEMS_PER_NPC}</div>`;
+        }).join('');
+    } else if (st.stage === 2) {
+        let have = Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS);
+        progress = `<div style="color:${have >= STORY_Q2_WEAPON_KINDS ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• Разных видов оружия продано: ${have}/${STORY_Q2_WEAPON_KINDS}</div>`;
+        let inBag = storyUncountedWeaponIdx().length;
+        if (inBag > 0) progress += `<div style="color:var(--text-dim); padding-left:10px; font-size:0.85rem;">В рюкзаке новых видов: ${inBag}</div>`;
+    } else if (st.stage === 3) {
+        progress = Object.entries(STORY_FIELD_ANOMALIES).map(([anom, cap]) => {
+            let ok = player.inventory.includes(cap);
+            return `<div style="color:${ok ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${ITEMS_DB[cap].name} (${anom}): ${ok ? 'в рюкзаке' : 'нет'}</div>`;
+        }).join('');
+    } else if (st.stage === 4) {
+        let steps = [];
+        steps.push(`${st.coordsKnown ? '✔' : '•'} Координаты от Доктора Кроу${st.coordsKnown ? `: <span style="color:#fff">${SYNTH_STATION_COORDS}</span>` : ''}`);
+        let missing = storyCapsulesMissing();
+        steps.push(`${missing.length === 0 ? '✔' : '•'} Капсулы энергии в рюкзаке: ${3 - missing.length}/3`);
+        if (st.synthStartedAt) {
+            let left = SYNTH_DURATION_MS - (Date.now() - st.synthStartedAt);
+            steps.push(left > 0 ? `⚗ Синтез идёт, осталось ${formatMs(left)}` : '✔ Синтез завершён — отсканируйте станцию');
+        } else {
+            steps.push('• Запустите синтез на станции (15 мин)');
+        }
+        progress = steps.map(s => `<div style="color:#ccc; padding-left:10px; margin-bottom:3px;">${s}</div>`).join('');
+    }
+
+    let done = isStoryStageDone(st.stage);
+    let btn = '';
+    if (st.stage <= 3) {
+        btn = done
+            ? `<button class="btn-quest" style="margin-top:8px; border-color:var(--hero-color); color:var(--hero-color);" onclick="claimStoryReward()">ПОЛУЧИТЬ НАГРАДУ</button>`
+            : `<button class="btn-quest" style="margin-top:8px; opacity:0.5; cursor:not-allowed;" disabled>В ПРОЦЕССЕ</button>`;
+    }
+
+    html += `<div class="quest-card" style="border-color:var(--hero-color); background:rgba(255,215,0,0.03); margin:8px 0 16px 0;">
+        <h4 style="color:var(--hero-color); margin-bottom:5px;">Квест ${st.stage}: «${q.name}»</h4>
+        <p style="font-size:0.9rem; color:var(--text-dim); margin-bottom:6px;">${q.desc}</p>
+        <div style="font-size:0.95rem; margin-bottom:6px;"><b>Задание:</b> ${q.task}</div>
+        ${progress}
+        <div style="font-size:0.9rem; margin-top:8px;"><b>Награда:</b> <span style="color:var(--hero-color)">${q.reward}</span></div>
+        ${btn}
+    </div>`;
+    return html;
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
 // ЛОГИКА ТОРГОВЛИ И РЕПУТАЦИИ
 // ============================================================
 
@@ -2648,10 +3144,13 @@ function openTrade(npcCode) {
             }
         }
     }
+    onStoryNpcVisit(npcCode);
+
     currentTradeStock = [];
     if (!npc.isBase) {
-        let allowed = Object.keys(ITEMS_DB).filter(id => npc.sells.includes(ITEMS_DB[id].cat));
-        for (let i = 0; i < 8; i++) {
+        let allowed = Object.keys(ITEMS_DB).filter(id => npc.sells.includes(ITEMS_DB[id].cat) && !ITEMS_DB[id].noScan);
+        let stockSize = getStory().extendedStock ? TRADE_STOCK_SIZE_EXTENDED : TRADE_STOCK_SIZE;
+        for (let i = 0; i < stockSize; i++) {
             if (allowed.length === 0) break;
             let randId = allowed[Math.floor(Math.random() * allowed.length)];
             let basePrice = Math.floor(ITEMS_DB[randId].val * (1.5 + Math.random()));
@@ -2745,7 +3244,14 @@ function renderTradeView() {
 
     const sellList = document.getElementById('trade-sell-list'); sellList.innerHTML = ""; let hasItems = false;
     document.getElementById('title-trade-sell').innerText = npc.isBase ? (npc.reqKarma === 'bandit' ? "БАРЫГА СКУПАЕТ (ЦЕНА х0.7)" : "СКУПАЕТ (СТАНДАРТНАЯ ЦЕНА х1)") : "СКУПАЕТ У ВАС (ЦЕНА х1.5)";
+    // Квест «Лёгкие деньги»: сдать разом все новые виды оружия
+    let st = getStory();
+    if (st.stage === 2 && !npc.isBase && npc.buys.includes('weapon')) {
+        let newKinds = storyUncountedWeaponIdx().length;
+        sellList.innerHTML += `<div class="item" style="border-color:var(--hero-color)"><div class="item-info"><b style="color:var(--hero-color)">📜 Квест «Лёгкие деньги»</b><br><small>Оружие: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS} | Новых видов в рюкзаке: ${newKinds}</small></div><button class="btn-trade" style="color:var(--hero-color); border-color:var(--hero-color)" onclick="turnInStoryWeapons()" ${newKinds ? '' : 'disabled'}>СДАТЬ ОРУЖИЕ</button></div>`;
+    }
     player.inventory.forEach((id, i) => {
+        if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} 💎</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
@@ -2765,6 +3271,8 @@ function buyEquipment(eqId) {
     playSound('sell');
     player.score -= item.val;
     player.equipment = eqId;
+    player.eqPurchased = player.eqPurchased || {};
+    player.eqPurchased[eqId] = true;
     saveState();
     renderTradeView();
     alert(`Приобретено снаряжение: ${item.name}!`);
@@ -2778,6 +3286,8 @@ function buyItem(i) {
         playSound('sell');
         player.score -= s.price;
         player.equipment = s.id;
+        player.eqPurchased = player.eqPurchased || {};
+        player.eqPurchased[s.id] = true;
         currentTradeStock.splice(i, 1);
         saveState();
         renderTradeView();
@@ -2794,12 +3304,21 @@ function buyItem(i) {
     renderTradeView();
 }
 
-function sellItem(i, price) { playSound('sell'); player.inventory.splice(i, 1); player.score += price; saveState(); renderTradeView(); }
+function sellItem(i, price) {
+    let id = player.inventory[i];
+    playSound('sell'); player.inventory.splice(i, 1); player.score += price;
+    onStoryItemSold(currentTradeNpc, id);
+    saveState(); renderTradeView();
+}
 
 function sellAllToBase() {
-    if (player.inventory.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
-    let mult = NPC_DB[currentTradeNpc].mult; let total = player.inventory.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
-    player.score += total; player.inventory = []; alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+    // Сюжетные предметы (капсулы энергии) остаются в рюкзаке
+    let toSell = player.inventory.filter(id => ITEMS_DB[id].cat !== 'quest');
+    if (toSell.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
+    let mult = NPC_DB[currentTradeNpc].mult; let total = toSell.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
+    player.score += total; player.inventory = player.inventory.filter(id => ITEMS_DB[id].cat === 'quest');
+    toSell.forEach(id => onStoryItemSold(currentTradeNpc, id));
+    alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
 }
 
 function buyHeal() {
@@ -2936,20 +3455,107 @@ function upgradeShelter() {
 /* ===== next js file ===== */
 
 // ============================================================
-// СИСТЕМА ДЕШИФРОВАНИЯ (ВЗЛОМ)
+// СИСТЕМА ДЕШИФРОВАНИЯ (ВЗЛОМ) — в стиле терминалов Fallout
+// ============================================================
+// Экран показывает дамп памяти: адреса и строки мусорных символов,
+// среди которых спрятаны слова-кандидаты. Одно из них — пароль.
+// После неверной попытки терминал сообщает СОВПАДЕНИЕ: сколько букв
+// стоят на тех же местах, что и в пароле.
+// Парные скобки ( ) [ ] { } < > в одной строке — бонус: убирают
+// ложное слово или восстанавливают попытки.
 // ============================================================
 
+const HACK_MAX_ATTEMPTS = 4;
+const HACK_ROW_WIDTH = 12;          // символов в строке дампа
+const HACK_JUNK = "!@#$%^&*-_=+;:'\",./?|\\~`";
+const HACK_BRACKETS = [['(', ')'], ['[', ']'], ['{', '}'], ['<', '>']];
+
+// Словари по длине слова. Сложность устройства = длина слов и их количество.
+const HACK_WORDS = {
+    5: ["АНГАР", "БАРАК", "ВИРУС", "ЗАВОД", "ЗАМОК", "ЗАПАС", "ЗОМБИ", "ЛАЗЕР", "РАДАР", "РАЦИЯ", "СКЛАД", "ТУМАН",
+        "КАРТА", "ШАХТА", "ВЕТЕР", "ГРОЗА", "ЖЕТОН", "КАПЛЯ", "СЛИЗЬ", "ДОЗОР", "ОТРЯД", "ВЗРЫВ", "СХРОН"],
+    6: ["БУНКЕР", "ВЫБРОС", "СИГНАЛ", "ПАТРОН", "ФОНАРЬ", "ГИЛЬЗА", "ПЕЧАТЬ", "СИРЕНА", "КОМПАС", "СИНТЕЗ", "МУТАНТ",
+        "ОРУЖИЕ", "АПТЕКА", "ПРИБОР", "ЗАТВОР", "МАЯЧОК", "РЕЙДЕР", "СТРАЖА", "КАНАЛЫ", "ЛОГОВО", "БАРЬЕР", "ЗАСАДА", "ТАЙНИК"],
+    8: ["АНОМАЛИЯ", "ДЕТЕКТОР", "ПРОТОКОЛ", "ТЕРМИНАЛ", "КОНТРАКТ", "ДОЗИМЕТР", "КАРАНТИН", "ТОРГОВЕЦ", "ПЕРИМЕТР",
+        "ЛАБОРАНТ", "ЭПИЦЕНТР", "АРТЕФАКТ", "РЕАКТОРЫ", "ИНЖЕНЕРЫ", "ЗАЩИТНИК", "САНИТАРЫ", "СТАЛКЕРЫ", "МАРОДЕРЫ", "ВЕРТОЛЕТ"]
+};
+
+// Профили устройств по префиксу QR-кода
+const HACK_DEVICES = {
+    usb_:  { title: "ФЛЕШКА",   level: "ЛЁГКИЙ",  wordLen: 5, words: 8,  rows: 12, brackets: 3, reward: [100, 300] },
+    term_: { title: "ТЕРМИНАЛ", level: "СРЕДНИЙ", wordLen: 6, words: 10, rows: 14, brackets: 3, reward: [100, 300] },
+    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", wordLen: 8, words: 12, rows: 16, brackets: 4, reward: [300, 600] }
+};
+
 let currentHackCode = "";
-let hackAttemptsLeft = 4;
+let hackAttemptsLeft = HACK_MAX_ATTEMPTS;
 let hackSecretWord = "";
 let hackWordsList = [];
+let hackDump = [];        // строки дампа: массив токенов {t:'junk'|'word'|'br', ...}
+let hackTried = {};       // слово → совпадение
+let hackRemoved = {};     // слово → true (убрано скобками)
+let hackBracketUsed = {}; // id скобки → true
+let hackFinished = false;
+let hackAddrBase = 0;
 
-const HACK_WORDS_POOL = [
-    ["REACTOR", "RESTORE", "REFUGEE", "ROBOTIC", "RADICAL", "RECLAIM", "REPLICA", "RECOVER"],
-    ["MODULE", "MUTANT", "MATRIX", "MARKET", "MAGNET", "MORTAL", "METHOD", "MANUAL"],
-    ["SHELTER", "STALKER", "STORMER", "SCANNER", "SOLDIER", "SYSTEMS", "SCHEMES", "SURGEON"],
-    ["BUNKERED", "BATTERY", "BIOMASS", "BANDITS", "BARRIER", "BOOTING", "BIOSENS", "BULLSEYE"]
-];
+function getHackDevice(code) {
+    if (code.startsWith(QR_PREFIX_SAFE)) return HACK_DEVICES.safe_;
+    if (code.startsWith(QR_PREFIX_TERM)) return HACK_DEVICES.term_;
+    return HACK_DEVICES.usb_;
+}
+
+function hackRand(n) { return Math.floor(Math.random() * n); }
+
+function hackJunk(len) {
+    let s = "";
+    for (let i = 0; i < len; i++) s += HACK_JUNK[hackRand(HACK_JUNK.length)];
+    return s;
+}
+
+function hackEsc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Сколько букв стоят на тех же местах
+function hackLikeness(a, b) {
+    let n = 0;
+    for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] === b[i]) n++;
+    return n;
+}
+
+// Строит дамп: каждое слово занимает свою строку, в части пустых строк — пары скобок
+function buildHackDump(dev) {
+    let totalRows = dev.rows * 2;
+    let rowIdx = [...Array(totalRows).keys()].sort(() => Math.random() - 0.5);
+    let wordRows = {};
+    hackWordsList.forEach((w, i) => { wordRows[rowIdx[i]] = w; });
+    let bracketRows = rowIdx.slice(hackWordsList.length, hackWordsList.length + dev.brackets);
+
+    let dump = [];
+    let brId = 0;
+    for (let r = 0; r < totalRows; r++) {
+        let tokens = [];
+        if (wordRows[r] !== undefined) {
+            let w = wordRows[r];
+            let before = hackRand(HACK_ROW_WIDTH - w.length + 1);
+            tokens.push({ t: 'junk', s: hackJunk(before) });
+            tokens.push({ t: 'word', w: w });
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH - w.length - before) });
+        } else if (bracketRows.includes(r)) {
+            let pair = HACK_BRACKETS[hackRand(HACK_BRACKETS.length)];
+            let inner = 1 + hackRand(4);
+            let len = inner + 2;
+            let before = hackRand(HACK_ROW_WIDTH - len + 1);
+            tokens.push({ t: 'junk', s: hackJunk(before) });
+            tokens.push({ t: 'br', id: brId++, s: pair[0] + hackJunk(inner) + pair[1] });
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH - len - before) });
+        } else {
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH) });
+        }
+        dump.push(tokens);
+    }
+    return dump;
+}
 
 function startHacking(code) {
     let now = Date.now();
@@ -2968,68 +3574,116 @@ function startHacking(code) {
         }
     }
 
+    let dev = getHackDevice(code);
     currentHackCode = code;
-    hackAttemptsLeft = 4;
+    hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+    hackTried = {};
+    hackRemoved = {};
+    hackBracketUsed = {};
+    hackFinished = false;
+    hackAddrBase = 0xF000 + hackRand(0x800) * 2;
 
-    // Выбираем случайный набор слов
-    let wordSet = HACK_WORDS_POOL[Math.floor(Math.random() * HACK_WORDS_POOL.length)];
-    hackWordsList = [...wordSet].sort(() => 0.5 - Math.random());
-    hackSecretWord = hackWordsList[Math.floor(Math.random() * hackWordsList.length)];
+    let pool = [...HACK_WORDS[dev.wordLen]].sort(() => Math.random() - 0.5);
+    hackWordsList = pool.slice(0, dev.words);
+    hackSecretWord = hackWordsList[hackRand(hackWordsList.length)];
+    hackDump = buildHackDump(dev);
 
-    // Рендерим UI дешифратора
-    document.getElementById('hack-system-name').innerText = code.toUpperCase();
+    document.getElementById('hack-system-name').innerText = `${dev.title} ${code.toUpperCase()}`;
+    document.getElementById('hack-level').innerText = `${dev.level} · слова из ${dev.wordLen} букв`;
+    document.getElementById('hack-console').innerHTML = '';
+    hackLog('Обнаружено шифрование. Подключение дешифратора...', 'dim');
+    hackLog('Выберите слово-пароль в дампе памяти.', 'dim');
+    document.getElementById('hack-actions').innerHTML = '';
+    if (code.startsWith(QR_PREFIX_SAFE)) {
+        hackLog('Внимание: схрон чужой. Вскрытие снизит Карму на 1.', 'warn');
+    }
+
+    renderHackDump();
     updateHackAttemptsUI();
-
-    // Очищаем консоль и пишем лог
-    const consoleEl = document.getElementById('hack-console');
-    consoleEl.innerHTML = `<div>[СИСТЕМА]: Обнаружено шифрование памяти.</div>
-                           <div>[СИСТЕМА]: Инициализация дешифратора...</div>
-                           <div>[СИСТЕМА]: Выберите правильный ключ доступа:</div>`;
-
-    // Рендерим кнопки слов
-    const gridEl = document.getElementById('hack-words-grid');
-    gridEl.innerHTML = "";
-    hackWordsList.forEach(w => {
-        gridEl.innerHTML += `<button onclick="submitHackWord('${w}')" style="font-size:0.95rem; font-family:monospace; padding:6px 2px; text-align:center;">${w}</button>`;
-    });
-
     switchView('hacking');
     playSound('radio');
 }
 
+function hackLog(text, kind) {
+    const consoleEl = document.getElementById('hack-console');
+    let color = { ok: 'var(--term-green)', err: 'var(--bandit-color)', warn: 'var(--rad-color)', bonus: 'var(--trade-color)', dim: 'var(--text-dim)' }[kind] || '#ccc';
+    consoleEl.innerHTML += `<div style="color:${color}">&gt; ${hackEsc(text)}</div>`;
+    consoleEl.scrollTop = consoleEl.scrollHeight;
+}
+
+function renderHackDump() {
+    const grid = document.getElementById('hack-words-grid');
+    let html = '';
+    hackDump.forEach((tokens, r) => {
+        let addr = '0x' + (hackAddrBase + r * HACK_ROW_WIDTH).toString(16).toUpperCase();
+        let line = '';
+        tokens.forEach(tok => {
+            if (tok.t === 'junk') {
+                line += hackEsc(tok.s);
+            } else if (tok.t === 'word') {
+                let w = tok.w;
+                if (hackRemoved[w]) {
+                    line += `<span class="hk-removed">${'.'.repeat(w.length)}</span>`;
+                } else if (hackTried[w] !== undefined) {
+                    line += `<span class="hk-word hk-tried" title="Совпадение ${hackTried[w]}/${w.length}">${w}<sup>${hackTried[w]}</sup></span>`;
+                } else if (hackFinished) {
+                    line += `<span class="hk-word${w === hackSecretWord ? ' hk-secret' : ''}">${w}</span>`;
+                } else {
+                    line += `<span class="hk-word" role="button" onclick="submitHackWord('${w}')">${w}</span>`;
+                }
+            } else if (tok.t === 'br') {
+                if (hackBracketUsed[tok.id] || hackFinished) {
+                    line += `<span class="hk-br-used">${hackEsc(tok.s)}</span>`;
+                } else {
+                    line += `<span class="hk-br" role="button" onclick="useHackBracket(${tok.id})">${hackEsc(tok.s)}</span>`;
+                }
+            }
+        });
+        html += `<div class="hk-row"><span class="hk-addr">${addr}</span>${line}</div>`;
+    });
+    grid.innerHTML = html;
+    updateHackCandidates();
+}
+
+// Подсказка: сколько слов ещё не противоречат полученным совпадениям
+function updateHackCandidates() {
+    const el = document.getElementById('hack-candidates');
+    if (!el) return;
+    let tried = Object.keys(hackTried);
+    if (tried.length === 0 || hackFinished) { el.innerText = ''; return; }
+    let left = hackWordsList.filter(w => !hackRemoved[w] && hackTried[w] === undefined &&
+        tried.every(t => hackLikeness(w, t) === hackTried[t]));
+    el.innerText = `Подходят под все совпадения: ${left.length} слов(а)`;
+}
+
 function updateHackAttemptsUI() {
     const attemptsEl = document.getElementById('hack-attempts');
-    let dots = "";
-    for (let i = 0; i < 4; i++) {
-        if (i < hackAttemptsLeft) {
-            dots += "⬤ ";
-        } else {
-            dots += "◯ ";
-        }
-    }
-    attemptsEl.innerText = dots.trim();
+    let boxes = '';
+    for (let i = 0; i < HACK_MAX_ATTEMPTS; i++) boxes += (i < hackAttemptsLeft ? '■ ' : '□ ');
+    attemptsEl.innerText = `${boxes.trim()}  (${hackAttemptsLeft})`;
     attemptsEl.style.color = hackAttemptsLeft <= 1 ? "var(--bandit-color)" : "var(--trade-color)";
+    const warnEl = document.getElementById('hack-lock-warning');
+    if (warnEl) warnEl.style.display = (hackAttemptsLeft === 1 && !hackFinished) ? 'block' : 'none';
 }
 
 function submitHackWord(word) {
-    if (hackAttemptsLeft <= 0) return;
-    playSound('scan');
-    const consoleEl = document.getElementById('hack-console');
+    if (hackAttemptsLeft <= 0 || hackFinished) return;
+    if (hackTried[word] !== undefined) return; // уже пробовали
 
     if (word === hackSecretWord) {
-        // ПОБЕДА!
-        playSound('sell');
+        hackFinished = true;
+        playSound('quest');
+        hackLog(word, 'ok');
+        hackLog('Пароль принят. Доступ разрешён.', 'ok');
 
         // Начисление случайной награды
-        let minC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 300 : 100;
-        let maxC = currentHackCode.startsWith(QR_PREFIX_SAFE) ? 600 : 300;
-        let creditsReward = Math.floor(Math.random() * (maxC - minC + 1)) + minC;
-
+        let dev = getHackDevice(currentHackCode);
+        let creditsReward = dev.reward[0] + hackRand(dev.reward[1] - dev.reward[0] + 1);
         player.score += creditsReward;
 
         // Выдаем случайную полезную деталь
         let junkKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat === 'junk' || ITEMS_DB[k].cat === 'gear');
-        let itemRewardCode = junkKeys[Math.floor(Math.random() * junkKeys.length)];
+        let itemRewardCode = junkKeys[hackRand(junkKeys.length)];
         let itemName = ITEMS_DB[itemRewardCode].name;
 
         let invSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
@@ -3040,46 +3694,68 @@ function submitHackWord(word) {
             player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
         }
 
+        // Схрон — чужое имущество: вскрытие снижает Карму, как и обыск тела
+        let isStash = currentHackCode.startsWith(QR_PREFIX_SAFE);
+        if (isStash) player.karma_score--;
+
         // Блокируем код от повторного взлома
         player.scannedCodes[currentHackCode] = Date.now();
         saveState();
 
-        consoleEl.innerHTML += `<div style="color:var(--term-green); margin-top:5px;">> Доступ разрешен! Ключ совпал.</div>
-                                <div style="color:var(--trade-color)">> Получено: ${creditsReward} 💎</div>
-                                ${gotItem ? `<div style="color:var(--quest-color)">> Извлечена деталь: ${itemName}</div>` : `<div style="color:var(--bandit-color)">> Извлечена деталь: ${itemName} (нет места в рюкзаке!)</div>`}`;
+        hackLog(`Получено: ${creditsReward} 💎`, 'bonus');
+        hackLog(gotItem ? `Извлечено: ${itemName}` : `Извлечено: ${itemName} — нет места в рюкзаке!`, gotItem ? 'ok' : 'err');
+        if (isStash) {
+            hackLog('Вы обчистили чужой схрон: −1 к Карме.', 'err');
+            setTimeout(() => playSound('karma'), 700);
+        }
 
-        // Отключаем кнопки
-        document.getElementById('hack-words-grid').innerHTML = `<button onclick="switchView('scan')" class="btn-hero" style="grid-column: span 2; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ГОТОВО)</button>`;
-    } else {
-        // НЕВЕРНО - считаем совпадение символов на тех же позициях
-        hackAttemptsLeft--;
+        renderHackDump();
         updateHackAttemptsUI();
-
-        let similarity = 0;
-        let minLen = Math.min(word.length, hackSecretWord.length);
-        for (let i = 0; i < minLen; i++) {
-            if (word[i] === hackSecretWord[i]) {
-                similarity++;
-            }
-        }
-
-        consoleEl.innerHTML += `<div style="color:var(--bandit-color); margin-top:3px;">> ${word} - ОТКАЗ. Сходство: ${similarity}/${minLen}</div>`;
-        consoleEl.scrollTop = consoleEl.scrollHeight;
-
-        if (hackAttemptsLeft <= 0) {
-            // ПРОИГРЫШ / БЛОКИРОВКА
-            playSound('error');
-            player.scannedCodes[currentHackCode] = Date.now(); // Блокируем на 2 часа
-            saveState();
-
-            consoleEl.innerHTML += `<div style="color:var(--bandit-color); font-weight:bold; margin-top:5px;">> СИСТЕМА ЗАБЛОКИРОВАНА. ИДЕТ СБРОС ДАННЫХ...</div>`;
-            document.getElementById('hack-words-grid').innerHTML = `<button onclick="switchView('scan')" class="btn-danger" style="grid-column: span 2; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ЗАБЛОКИРОВАНО)</button>`;
-        }
+        document.getElementById('hack-actions').innerHTML = `<button onclick="switchView('scan')" class="btn-hero" style="width:100%; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ГОТОВО)</button>`;
+        return;
     }
+
+    // Неверно — показываем совпадение букв на своих местах
+    hackAttemptsLeft--;
+    let likeness = hackLikeness(word, hackSecretWord);
+    if (hackWordsList.includes(word)) hackTried[word] = likeness;
+    playSound('error');
+    hackLog(word, 'err');
+    hackLog(`Отказ в доступе. Совпадение: ${likeness}/${hackSecretWord.length}`, 'err');
+
+    if (hackAttemptsLeft <= 0) {
+        hackFinished = true;
+        player.scannedCodes[currentHackCode] = Date.now(); // Блокируем на 2 часа
+        saveState();
+        setTimeout(() => playSound('hazard'), 400);
+        hackLog('ТЕРМИНАЛ ЗАБЛОКИРОВАН на 2 часа.', 'err');
+        hackLog(`Пароль был: ${hackSecretWord}`, 'dim');
+        document.getElementById('hack-actions').innerHTML = `<button onclick="switchView('scan')" class="btn-danger" style="width:100%; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ЗАБЛОКИРОВАНО)</button>`;
+    }
+    renderHackDump();
+    updateHackAttemptsUI();
+}
+
+// Бонусные скобки: 75% — убрать ложное слово, 25% (или если убирать нечего) — вернуть попытки
+function useHackBracket(id) {
+    if (hackFinished || hackBracketUsed[id]) return;
+    hackBracketUsed[id] = true;
+    let duds = hackWordsList.filter(w => w !== hackSecretWord && !hackRemoved[w] && hackTried[w] === undefined);
+    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === HACK_MAX_ATTEMPTS)) {
+        let w = duds[hackRand(duds.length)];
+        hackRemoved[w] = true;
+        hackLog(`Ложное слово удалено: ${w}`, 'bonus');
+    } else {
+        hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+        hackLog('Защита сброшена: попытки восстановлены.', 'bonus');
+    }
+    playSound('use');
+    renderHackDump();
+    updateHackAttemptsUI();
 }
 
 function abortHacking() {
-    if (confirm("Вы уверены, что хотите прервать дешифрование? Прогресс будет утерян.")) {
+    if (hackFinished || confirm("Прервать дешифрование? Прогресс будет утерян, но блокировки не будет.")) {
         switchView('scan');
     }
 }
@@ -3619,6 +4295,8 @@ function startHeartbeatLoop() {
                 showBanner(`⚖ АРЕСТ! Ваш ПДА заблокирован военными еще на ${remMin} мин.`, 'var(--bandit-color)');
             }
         }
+
+        storyTick(); // синтез в квесте «Станция синтеза»
 
         if (!player.inBase && player.hp > 0 && (!player.arrestedUntil || Date.now() >= player.arrestedUntil)) {
             // Начисление зарплаты (Рабочий: +3💎/мин, Военный: +5💎/мин)
@@ -4551,6 +5229,8 @@ function updateHUD() {
             document.getElementById('rad-val').innerText = player.rads;
             document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
         }
+        let maxHunger = getMaxHunger();
+        if (player.hunger > maxHunger) player.hunger = maxHunger; // например, Ядро убрали из рюкзака
         if (document.getElementById('hunger-val')) {
             document.getElementById('hunger-val').innerText = player.hunger;
             document.getElementById('hunger-val').className = player.hunger <= 20 ? 'danger' : '';
@@ -4656,9 +5336,10 @@ function checkDeathState() {
             player.isCurrentlyDead = true;
             player.stats.deaths = (player.stats.deaths || 0) + 1;
 
-            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%
+            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%.
+            // «Ядро Синтеза» в рюкзаке — заражение гарантировано.
             if (!player.infectionTime && !player.zombieTime) {
-                if (Math.random() < 0.33) {
+                if (hasSynthCore() || Math.random() < 0.33) {
                     player.infectionTime = Date.now();
                     playSound('hazard');
                     showBanner("ИНФЕЦИРОВАН ВИРУСОМ!", 'yellow');

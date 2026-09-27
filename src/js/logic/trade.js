@@ -81,10 +81,13 @@ function openTrade(npcCode) {
             }
         }
     }
+    onStoryNpcVisit(npcCode);
+
     currentTradeStock = [];
     if (!npc.isBase) {
-        let allowed = Object.keys(ITEMS_DB).filter(id => npc.sells.includes(ITEMS_DB[id].cat));
-        for (let i = 0; i < 8; i++) {
+        let allowed = Object.keys(ITEMS_DB).filter(id => npc.sells.includes(ITEMS_DB[id].cat) && !ITEMS_DB[id].noScan);
+        let stockSize = getStory().extendedStock ? TRADE_STOCK_SIZE_EXTENDED : TRADE_STOCK_SIZE;
+        for (let i = 0; i < stockSize; i++) {
             if (allowed.length === 0) break;
             let randId = allowed[Math.floor(Math.random() * allowed.length)];
             let basePrice = Math.floor(ITEMS_DB[randId].val * (1.5 + Math.random()));
@@ -178,7 +181,14 @@ function renderTradeView() {
 
     const sellList = document.getElementById('trade-sell-list'); sellList.innerHTML = ""; let hasItems = false;
     document.getElementById('title-trade-sell').innerText = npc.isBase ? (npc.reqKarma === 'bandit' ? "БАРЫГА СКУПАЕТ (ЦЕНА х0.7)" : "СКУПАЕТ (СТАНДАРТНАЯ ЦЕНА х1)") : "СКУПАЕТ У ВАС (ЦЕНА х1.5)";
+    // Квест «Лёгкие деньги»: сдать разом все новые виды оружия
+    let st = getStory();
+    if (st.stage === 2 && !npc.isBase && npc.buys.includes('weapon')) {
+        let newKinds = storyUncountedWeaponIdx().length;
+        sellList.innerHTML += `<div class="item" style="border-color:var(--hero-color)"><div class="item-info"><b style="color:var(--hero-color)">📜 Квест «Лёгкие деньги»</b><br><small>Оружие: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS} | Новых видов в рюкзаке: ${newKinds}</small></div><button class="btn-trade" style="color:var(--hero-color); border-color:var(--hero-color)" onclick="turnInStoryWeapons()" ${newKinds ? '' : 'disabled'}>СДАТЬ ОРУЖИЕ</button></div>`;
+    }
     player.inventory.forEach((id, i) => {
+        if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} 💎</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
@@ -198,6 +208,8 @@ function buyEquipment(eqId) {
     playSound('sell');
     player.score -= item.val;
     player.equipment = eqId;
+    player.eqPurchased = player.eqPurchased || {};
+    player.eqPurchased[eqId] = true;
     saveState();
     renderTradeView();
     alert(`Приобретено снаряжение: ${item.name}!`);
@@ -211,6 +223,8 @@ function buyItem(i) {
         playSound('sell');
         player.score -= s.price;
         player.equipment = s.id;
+        player.eqPurchased = player.eqPurchased || {};
+        player.eqPurchased[s.id] = true;
         currentTradeStock.splice(i, 1);
         saveState();
         renderTradeView();
@@ -227,12 +241,21 @@ function buyItem(i) {
     renderTradeView();
 }
 
-function sellItem(i, price) { playSound('sell'); player.inventory.splice(i, 1); player.score += price; saveState(); renderTradeView(); }
+function sellItem(i, price) {
+    let id = player.inventory[i];
+    playSound('sell'); player.inventory.splice(i, 1); player.score += price;
+    onStoryItemSold(currentTradeNpc, id);
+    saveState(); renderTradeView();
+}
 
 function sellAllToBase() {
-    if (player.inventory.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
-    let mult = NPC_DB[currentTradeNpc].mult; let total = player.inventory.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
-    player.score += total; player.inventory = []; alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+    // Сюжетные предметы (капсулы энергии) остаются в рюкзаке
+    let toSell = player.inventory.filter(id => ITEMS_DB[id].cat !== 'quest');
+    if (toSell.length === 0) return alert("Рюкзак пуст!"); playSound('sell');
+    let mult = NPC_DB[currentTradeNpc].mult; let total = toSell.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
+    player.score += total; player.inventory = player.inventory.filter(id => ITEMS_DB[id].cat === 'quest');
+    toSell.forEach(id => onStoryItemSold(currentTradeNpc, id));
+    alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
 }
 
 function buyHeal() {

@@ -16,7 +16,14 @@ function getMaxHp() {
     if (player.shelterLevel >= 4) {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }
+    if (hasSynthCore()) baseMaxHp += 50; // «Ядро Синтеза» в рюкзаке
     return baseMaxHp;
+}
+
+// Максимальная сытость: база + Бармен Джо (+10 за уровень) + «Ядро Синтеза» (+50)
+function getMaxHunger() {
+    let barLvl = getNpcRepLevel((player.npcRep && player.npcRep['npc_bar']) || 0);
+    return MAX_HUNGER + (barLvl * 10) + (hasSynthCore() ? 50 : 0);
 }
 
 // Реальный потолок HP с учётом радиации (радиация съедает максимум здоровья).
