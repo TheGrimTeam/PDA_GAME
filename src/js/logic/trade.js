@@ -129,8 +129,8 @@ function renderTradeView() {
     let isMed = (currentTradeNpc === 'npc_med');
     let healCost = getHealCost(currentTradeNpc);
 
-    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} ¢)`;
-    document.getElementById('btn-medic-heal-action').innerText = healBtnText;
+    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ — <span style="white-space:nowrap">${healCost} ${CAP}</span>`;
+    document.getElementById('btn-medic-heal-action').innerHTML = healBtnText;
     document.getElementById('medic-heal-box').style.display = npc.canHeal ? 'block' : 'none';
 
     document.getElementById('base-sell-all-box').style.display = npc.isBase ? 'block' : 'none';
@@ -165,7 +165,7 @@ function renderTradeView() {
                     <div class="item-info">
                         <b>${item.name}</b><br>
                         <small style="color:var(--trade-color)">${item.desc}</small><br>
-                        <small>Цена: ${price} ¢</small>
+                        <small>Цена: ${price} ${CAP}</small>
                     </div>
                     ${btnHtml}
                 </div>
@@ -175,7 +175,7 @@ function renderTradeView() {
         if (currentTradeStock.length === 0) {
             buyList.innerHTML = "<p>Нет товаров на продажу</p>";
         } else {
-            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ¢</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
+            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ${CAP}</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
     }
 
@@ -191,7 +191,7 @@ function renderTradeView() {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
-            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ¢</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
+            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
     if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";

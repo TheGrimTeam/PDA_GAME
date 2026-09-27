@@ -58,7 +58,8 @@ test.describe('Regression: инфекция, подсумок, крышки', ()
     await game.patchPlayer({ score: 1250 });
     await game.page.evaluate(() => (window as any).updateHUD());
     await expect(game.page.locator('#hud')).toContainText('КРЫШКИ');
-    await expect(game.page.locator('#hud')).toContainText('1250 ¢');
+    await expect(game.page.locator('#score-val')).toHaveText('1250');
+    await expect(game.page.locator('#hud .cap')).toBeVisible(); // значок крышки
     await expect(game.page.locator('#hud')).not.toContainText('КРЕДИТЫ');
   });
 

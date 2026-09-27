@@ -42,7 +42,7 @@
                         <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
             <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
                 <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
-                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 ¢ за первое фото!</b></p>
+                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 <span class="cap"></span> за первое фото!</b></p>
 
                 <div style="margin-bottom: 10px;">
                     <label style="font-size:0.9rem; color:var(--term-green); display:block; margin-bottom:4px; text-align:center; font-weight:bold;">🎨 ВЫБЕРИТЕ РЕЖИМ ФИЛЬТРА ПДА:</label>
@@ -74,7 +74,7 @@
 
                 <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
                 <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
-                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">¢ Управление крышками (за квесты):</label>
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;"><span class="cap"></span> Управление крышками (за квесты):</label>
                     <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
                         <input type="number" id="admin-credit-amount" placeholder="Сумма крышек" style="width:100%; box-sizing:border-box; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:8px; border-radius:3px; font-size:1rem;">
                         <div style="display:flex; gap:6px; width:100%;">
@@ -93,8 +93,8 @@
                 <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
                 <div style="display:flex; gap:5px; margin-bottom:8px;">
                     <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
-                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3¢/мин)</button>
-                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5¢/мин)</button>
+                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3<span class="cap"></span>/мин)</button>
+                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5<span class="cap"></span>/мин)</button>
                 </div>
                 <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
             </div>

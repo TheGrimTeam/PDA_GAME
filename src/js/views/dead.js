@@ -114,7 +114,7 @@ function showSurvivorQRModal() {
     if (isZomb) {
         corpseDesc.innerHTML = "<span style='color:var(--bandit-color)'>🧟 ВЫ ЗОМБИ! Покажите этот QR-код другим игрокам. За вашу ликвидацию или охоту они получат награду.</span>";
     } else {
-        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 ¢).</span>";
+        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 " + CAP + ").</span>";
     }
 
     document.getElementById('btn-scan-heal-item').style.display = "none";

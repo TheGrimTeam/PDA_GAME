@@ -51,7 +51,7 @@ function spinSlots() {
     if ((player.score || 0) < currentSlotBet) {
         playSound('error');
         let log = document.getElementById('slot-result-log');
-        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРЫШЕК ¢!</span>";
+        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРЫШЕК " + CAP + "!</span>";
         return;
     }
 
@@ -94,7 +94,7 @@ function resolveSlots() {
         if (sym1.payout > 0) {
             winAmount = Math.round(currentSlotBet * sym1.payout);
             playSound('karma');
-            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
+            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' ' + CAP + '</span>';
         } else {
             player.rads = Math.min(MAX_RADS, (player.rads || 0) + 5);
             playSound('death');
@@ -105,7 +105,7 @@ function resolveSlots() {
         if (matchingSym.payout > 0) {
             winAmount = Math.round(currentSlotBet * 1.5);
             playSound('sell');
-            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
+            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' ' + CAP + '</span>';
         } else {
             playSound('error');
             if (log) log.innerHTML = '<span style="color:#888;">Пусто! Пара черепов 💀 принесла лишь пыль.</span>';

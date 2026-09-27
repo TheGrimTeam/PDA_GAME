@@ -15,7 +15,7 @@ const HACK_PAUSE_MS = 700; // пауза после попадания/пром�
 const HACK_DEVICES = {
     usb_:  { title: "ФЛЕШКА",   level: "ЛЁГКИЙ",  zones: [24, 18, 13], speeds: [45, 65, 90],   reward: [100, 300] },
     term_: { title: "ТЕРМИНАЛ", level: "СРЕДНИЙ", zones: [20, 14, 10], speeds: [55, 80, 110],  reward: [100, 300] },
-    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", zones: [16, 11, 7],  speeds: [65, 95, 130],  reward: [300, 600] }
+    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", zones: [18, 14, 11], speeds: [55, 75, 95],   reward: [300, 600] }
 };
 
 let currentHackCode = "";

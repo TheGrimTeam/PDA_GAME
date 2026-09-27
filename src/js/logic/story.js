@@ -189,7 +189,7 @@ function handleSynthStationScan(resDiv) {
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
     playSound('quest');
-    resDiv.innerHTML = `<b style="color:var(--hero-color)">¢ ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ¢).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">${CAP} ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ${CAP}).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
 }
 
 // Тик из heartbeat-цикла: срыв или завершение синтеза

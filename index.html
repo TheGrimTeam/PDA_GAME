@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Wasteland PDA [Alfa 0.2]</title>
+    <title>Wasteland PDA [Alfa 0.3]</title>
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#39ff14">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -689,6 +689,19 @@ input, textarea, select {
     border-radius: 0 !important;
 }
 
+/* ===== Крышка — значок валюты (своя отрисовка в стиле крышки от газировки) ===== */
+.cap {
+    display: inline-block;
+    width: 1.05em;
+    height: 1.05em;
+    vertical-align: -0.18em;
+    margin: 0 0.05em;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E %3Cdefs%3E%3CradialGradient id='r' cx='40%25' cy='35%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23e0473c'/%3E%3Cstop offset='1' stop-color='%238e1c16'/%3E%3C/radialGradient%3E %3CradialGradient id='g' cx='40%25' cy='35%25' r='70%25'%3E%3Cstop offset='0' stop-color='%23e2b77a'/%3E%3Cstop offset='1' stop-color='%238a5a2b'/%3E%3C/radialGradient%3E%3C/defs%3E %3Cpolygon points='32.0,1.0 36.1,4.8 41.1,2.4 43.9,7.2 49.5,6.4 50.7,11.8 56.2,12.7 55.8,18.2 60.9,20.7 58.8,25.9 62.9,29.7 59.4,34.1 62.2,38.9 57.6,42.0 58.8,47.5 53.5,49.1 53.1,54.7 47.5,54.7 45.5,59.9 40.1,58.3 36.6,62.7 32.0,59.5 27.4,62.7 23.9,58.3 18.5,59.9 16.5,54.7 10.9,54.7 10.5,49.1 5.2,47.5 6.4,42.0 1.8,38.9 4.6,34.1 1.1,29.7 5.2,25.9 3.1,20.7 8.2,18.3 7.8,12.7 13.3,11.8 14.5,6.4 20.1,7.2 22.9,2.4 27.9,4.8' fill='url%28%23g%29' stroke='%235a3a1a' stroke-width='1'/%3E %3Ccircle cx='32' cy='32' r='24' fill='%23111'/%3E %3Ccircle cx='32' cy='32' r='21' fill='url%28%23r%29'/%3E %3Cpath d='M15 38 C24 30 38 26 50 27 C40 29 28 33 18 41 Z' fill='%23f2efe6'/%3E %3Cpath d='M22 24 q4-5 8 0 q4 5 8 0' stroke='%23f2efe6' stroke-width='3' fill='none' stroke-linecap='round'/%3E %3C/svg%3E") center / contain no-repeat;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.6));
+    text-shadow: none;
+}
+.cap-lg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+
     </style>
 </head>
 <body>
@@ -718,7 +731,7 @@ input, textarea, select {
                 <span class="pb-lbl">РАД</span>
                 <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
                 <span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span>
-                <span class="pb-caps"><span class="pb-lbl">КРЫШКИ</span> <span id="score-val">0</span> ¢</span>
+                <span class="pb-caps"><span class="pb-lbl">КРЫШКИ</span> <span id="score-val">0</span> <span class="cap cap-lg" title="крышки"></span></span>
             </div>
             <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
             <div class="hud-row pb-quick">
@@ -737,7 +750,7 @@ input, textarea, select {
         <div id="screen-content">
                     <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
         <div id="view-base" class="view">
-            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.2]</span></h2>
+            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.3]</span></h2>
             <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color); background:rgba(255,0,0,0.05);">
                 <h4 style="color:var(--rad-color); margin-bottom:8px; border-bottom:1px dashed var(--rad-color); padding-bottom:4px; text-align:center;">⚠️ СИСТЕМА УКРЫТИЯ (ВЫБРОС)</h4>
                 <div id="blowout-status-text" style="font-size:0.9rem; color:#ccc; text-align:center;">Статус: Спокойно (Авто-выброс раз в час)</div>
@@ -753,7 +766,7 @@ input, textarea, select {
             </div>
 
             <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
-                <div style="margin-bottom:5px;">Крышки: <span id="base-score" style="color:var(--quest-color);">0</span> ¢</div>
+                <div style="margin-bottom:5px;">Крышки: <span id="base-score" style="color:var(--quest-color);">0</span> <span class="cap"></span></div>
                 <div>Статус / Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
             </div>
 
@@ -856,7 +869,7 @@ input, textarea, select {
                 <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-safe-items"></span></p>
                 <button id="btn-upgrade-safe" onclick="applySafeBox()" class="btn-safe" style="width:100%; display:none;">СОЗДАТЬ ПОДСУМОК</button>
                 <p style="font-size:0.9rem; color:var(--text-dim); text-align:center; margin:10px 0 6px;">Не можете найти детали? Подсумок можно купить.</p>
-                <button id="btn-buy-safe" onclick="buySafeBox()" class="btn-safe" style="width:100%;">КУПИТЬ ЗА <span id="safe-box-price">1000</span> ¢</button>
+                <button id="btn-buy-safe" onclick="buySafeBox()" class="btn-safe" style="width:100%;">КУПИТЬ ЗА <span id="safe-box-price">1000</span> <span class="cap"></span></button>
             </div>
             <div id="upgrade-box" style="border: 1px dashed var(--term-green); padding: 10px; margin-top: 20px;">
                 <h4 style="color:var(--term-green); text-align:center;">МОДУЛЬ РАСШИРЕНИЯ (+5 МЕСТ)</h4>
@@ -1023,7 +1036,7 @@ input, textarea, select {
                         <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
             <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
                 <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
-                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 ¢ за первое фото!</b></p>
+                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 <span class="cap"></span> за первое фото!</b></p>
 
                 <div style="margin-bottom: 10px;">
                     <label style="font-size:0.9rem; color:var(--term-green); display:block; margin-bottom:4px; text-align:center; font-weight:bold;">🎨 ВЫБЕРИТЕ РЕЖИМ ФИЛЬТРА ПДА:</label>
@@ -1055,7 +1068,7 @@ input, textarea, select {
 
                 <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
                 <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
-                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">¢ Управление крышками (за квесты):</label>
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;"><span class="cap"></span> Управление крышками (за квесты):</label>
                     <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
                         <input type="number" id="admin-credit-amount" placeholder="Сумма крышек" style="width:100%; box-sizing:border-box; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:8px; border-radius:3px; font-size:1rem;">
                         <div style="display:flex; gap:6px; width:100%;">
@@ -1074,8 +1087,8 @@ input, textarea, select {
                 <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
                 <div style="display:flex; gap:5px; margin-bottom:8px;">
                     <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
-                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3¢/мин)</button>
-                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5¢/мин)</button>
+                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3<span class="cap"></span>/мин)</button>
+                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5<span class="cap"></span>/мин)</button>
                 </div>
                 <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
             </div>
@@ -1130,8 +1143,8 @@ input, textarea, select {
 
                 <!-- Информация об игре -->
                 <div style="display:flex; justify-content:space-between; font-size:0.95rem; color:#ccc; margin-bottom:10px;">
-                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> ¢</div>
-                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> ¢</div>
+                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> <span class="cap"></span></div>
+                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> <span class="cap"></span></div>
                 </div>
 
                 <!-- Панель управления ставками -->
@@ -1197,7 +1210,7 @@ input, textarea, select {
             <h3 id="trade-npc-name" class="trade-text">ТОРГОВЕЦ</h3>
             <div id="medic-heal-box" style="display:none; text-align:center; border:1px dashed #ff3333; padding:10px; margin-bottom:15px;">
                 <p style="margin-bottom:5px;">Медицинские услуги</p>
-                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ ЗА ¢</button>
+                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ ЗА <span class="cap"></span></button>
             </div>
             <div id="base-sell-all-box" style="display:none; text-align:center; border:1px dashed #ffcc00; padding:10px; margin-bottom:15px;">
                 <p style="margin-bottom:5px; color:#ffcc00;" id="base-sell-desc">Сдать весь лут Корпорации</p>
@@ -1256,6 +1269,9 @@ var QRCode;!function(){function a(a){this.mode=c.MODE_8BIT_BYTE,this.data=a,this
 // Здесь собраны базовые числовые лимиты, префиксы QR-кодов,
 // цвета интерфейса и прочие неизменяемые значения.
 // ============================================================
+
+// --- Значок валюты (крышка) для HTML-разметки; в alert/confirm используется текстовый «¢»
+const CAP = '<span class="cap" title="крышки"></span>';
 
 // --- Цвета интерфейса (используются в JS-логике) ---
 const COLOR_TERM_GREEN = '#39ff14';
@@ -1364,7 +1380,7 @@ ITEMS_DB['eq_gas'] = { name: "Противогаз ГП-5", val: 250, size: 0, c
 ITEMS_DB['eq_hunger'] = { name: "Био-синтезатор питания", val: 300, size: 0, cat: 'eq', desc: "Защита от голода: снижает расход сытости в 3 раза." };
 ITEMS_DB['eq_storm'] = { name: "Плащ «Шторм»", val: 400, size: 0, cat: 'eq', desc: "Защита от стихий: иммунитет к бурям и спорам." };
 ITEMS_DB['eq_anom'] = { name: "Детектор «Велес»", val: 500, size: 0, cat: 'eq', desc: "Аномалии: повышает шанс успешного взятия аномалии." };
-ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 ¢." };
+ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 " + CAP + "." };
 ITEMS_DB['eq_pass_base'] = { name: "Поддельный ID базы", val: 600, size: 0, cat: 'eq', desc: "Позволяет бандитам заходить на Базу Выживших." };
 ITEMS_DB['eq_pass_camp'] = { name: "Вексель Бандитов", val: 600, size: 0, cat: 'eq', desc: "Позволяет выжившим заходить в Лагерь Бандитов." };
 
@@ -1468,13 +1484,13 @@ const STORY_QUESTS = {
         name: "Калибровка датчиков",
         desc: "Учёным требуются свежие полевые данные об аномальной активности. Для этого придётся отправиться на полигоны.",
         task: "Успешно извлеките артефакт из каждой из 3 полевых аномалий. Каждая даст капсулу энергии — держите все 3 капсулы в рюкзаке, они понадобятся для финала.",
-        reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 ¢."
+        reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 " + CAP + "."
     },
     4: {
         name: "Станция синтеза",
         desc: "Получив у Доктора засекреченные координаты, вы узнаёте о заброшенной лаборатории, способной сплавлять нестабильную энергию.",
         task: "1) Узнайте координаты у Доктора Кроу. 2) Отсканируйте QR-код станции, чтобы запустить синтез. 3) Оставайтесь на точке 15 минут (не умирайте и не возвращайтесь на Базу). 4) Отсканируйте станцию ещё раз.",
-        reward: "«Ядро Синтеза» — артефакт ценой 7500 ¢: +50 к макс. HP и сытости, пока лежит в рюкзаке. Цена могущества: смерть с Ядром — 100% заражение, а лекарства бессильны."
+        reward: "«Ядро Синтеза» — артефакт ценой 7500 " + CAP + ": +50 к макс. HP и сытости, пока лежит в рюкзаке. Цена могущества: смерть с Ядром — 100% заражение, а лекарства бессильны."
     }
 };
 const STORY_FINAL_STAGE = 5; // все квесты пройдены
@@ -1585,7 +1601,7 @@ const RADIO_MSGS = [
     "...я нашел тайник! Клянусь, там полно снаряжения.",
     "[Свист эфира] ...Михалыч опять просит хлам.",
     "Внимание. Зафиксирован всплеск радиации.",
-    "📻 [ПОМЕХИ] Слышал легенду? Если быстро нажать 5 раз по надписи 'ГРИМ-СЕТЬ: БАЗА [Alfa 0.2]' на экране Базы, то получишь статус суперпользователя...",
+    "📻 [ПОМЕХИ] Слышал легенду? Если быстро нажать 5 раз по надписи 'ГРИМ-СЕТЬ: БАЗА [Alfa 0.3]' на экране Базы, то получишь статус суперпользователя...",
     "...не доверяйте Бармену, он разбавляет Нюка-Колу.",
     "[Перехват] Отряд Альфа, продолжайте патрулирование.",
     "Кто-нибудь, помогите! У меня нет еды...",
@@ -2184,11 +2200,11 @@ function handleScan(qrCode) {
             playSound('use');
             saveState();
             renderProfile();
-            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано крышек: ${cost} ¢</small>`;
+            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано крышек: ${cost} ${CAP}</small>`;
             alert(`Оружие (${wName}) успешно отремонтировано на Базе за ${cost} ¢!`);
         } else {
             playSound('error');
-            resDiv.innerHTML = `<span class='danger'>Недостаточно крышек для ремонта! (${cost} ¢ требуется)</span>`;
+            resDiv.innerHTML = `<span class='danger'>Недостаточно крышек для ремонта! (${cost} ${CAP} требуется)</span>`;
             alert(`Недостаточно крышек! Требуется: ${cost} ¢`);
         }
         return;
@@ -2388,7 +2404,7 @@ function handleScan(qrCode) {
             corpseTitle = "ВОЕННОГО";
             titleColor = "var(--rad-color)";
             if (isBanditRobber) {
-                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 ¢ за ликвидацию военного!</small>`;
+                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 ${CAP} за ликвидацию военного!</small>`;
             } else {
                 karmaMsg = "<small class='danger'>Ограблен военный офицер. Карма снижена!</small>";
             }
@@ -2449,7 +2465,7 @@ function handleScan(qrCode) {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
                 if (capsule) player.inventory.push(capsule);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ¢)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
                 if (capsule) announceStoryProgress();
             }
         } else {
@@ -2831,8 +2847,8 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
-                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 ¢)</button>
+                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} ${CAP}</b></span>
+                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 ${CAP})</button>
             </div></div>`;
             container.innerHTML += html;
         });
@@ -2862,7 +2878,7 @@ function renderQuests() {
         }
 
         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-            <span>Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
+            <span>Награда: <b style="color:var(--trade-color);">${q.reward} ${CAP}</b></span>
             <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px;" onclick="acceptQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
         </div></div>`;
         container.innerHTML += html;
@@ -2895,7 +2911,7 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span>Награда: <b style="color:var(--hero-color);">${q.reward} ¢</b></span>
+                <span>Награда: <b style="color:var(--hero-color);">${q.reward} ${CAP}</b></span>
                 <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px; border-color:var(--hero-color); color:var(--hero-color);" onclick="acceptSpecialQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
             </div></div>`;
             container.innerHTML += html;
@@ -3137,7 +3153,7 @@ function handleSynthStationScan(resDiv) {
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
     playSound('quest');
-    resDiv.innerHTML = `<b style="color:var(--hero-color)">¢ ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ¢).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">${CAP} ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ${CAP}).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
 }
 
 // Тик из heartbeat-цикла: срыв или завершение синтеза
@@ -3401,8 +3417,8 @@ function renderTradeView() {
     let isMed = (currentTradeNpc === 'npc_med');
     let healCost = getHealCost(currentTradeNpc);
 
-    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} ¢)`;
-    document.getElementById('btn-medic-heal-action').innerText = healBtnText;
+    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ — <span style="white-space:nowrap">${healCost} ${CAP}</span>`;
+    document.getElementById('btn-medic-heal-action').innerHTML = healBtnText;
     document.getElementById('medic-heal-box').style.display = npc.canHeal ? 'block' : 'none';
 
     document.getElementById('base-sell-all-box').style.display = npc.isBase ? 'block' : 'none';
@@ -3437,7 +3453,7 @@ function renderTradeView() {
                     <div class="item-info">
                         <b>${item.name}</b><br>
                         <small style="color:var(--trade-color)">${item.desc}</small><br>
-                        <small>Цена: ${price} ¢</small>
+                        <small>Цена: ${price} ${CAP}</small>
                     </div>
                     ${btnHtml}
                 </div>
@@ -3447,7 +3463,7 @@ function renderTradeView() {
         if (currentTradeStock.length === 0) {
             buyList.innerHTML = "<p>Нет товаров на продажу</p>";
         } else {
-            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ¢</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
+            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ${CAP}</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
     }
 
@@ -3463,7 +3479,7 @@ function renderTradeView() {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
-            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ¢</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
+            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
     if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
@@ -3680,7 +3696,7 @@ const HACK_PAUSE_MS = 700; // пауза после попадания/пром�
 const HACK_DEVICES = {
     usb_:  { title: "ФЛЕШКА",   level: "ЛЁГКИЙ",  zones: [24, 18, 13], speeds: [45, 65, 90],   reward: [100, 300] },
     term_: { title: "ТЕРМИНАЛ", level: "СРЕДНИЙ", zones: [20, 14, 10], speeds: [55, 80, 110],  reward: [100, 300] },
-    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", zones: [16, 11, 7],  speeds: [65, 95, 130],  reward: [300, 600] }
+    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", zones: [18, 14, 11], speeds: [55, 75, 95],   reward: [300, 600] }
 };
 
 let currentHackCode = "";
@@ -4836,7 +4852,7 @@ function spinSlots() {
     if ((player.score || 0) < currentSlotBet) {
         playSound('error');
         let log = document.getElementById('slot-result-log');
-        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРЫШЕК ¢!</span>";
+        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРЫШЕК " + CAP + "!</span>";
         return;
     }
 
@@ -4879,7 +4895,7 @@ function resolveSlots() {
         if (sym1.payout > 0) {
             winAmount = Math.round(currentSlotBet * sym1.payout);
             playSound('karma');
-            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
+            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' ' + CAP + '</span>';
         } else {
             player.rads = Math.min(MAX_RADS, (player.rads || 0) + 5);
             playSound('death');
@@ -4890,7 +4906,7 @@ function resolveSlots() {
         if (matchingSym.payout > 0) {
             winAmount = Math.round(currentSlotBet * 1.5);
             playSound('sell');
-            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
+            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' ' + CAP + '</span>';
         } else {
             playSound('error');
             if (log) log.innerHTML = '<span style="color:#888;">Пусто! Пара черепов 💀 принесла лишь пыль.</span>';
@@ -4940,7 +4956,7 @@ function initiateP2PTrade(idx) {
     let contentEl = document.getElementById('trade-modal-content');
     contentEl.innerHTML = `
         <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ВЫ ПРОДАЕТЕ: <b style="color:var(--trade-color)">${item.name}</b></div>
-        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ¢</b></div>
+        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ${CAP}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
             1. Покажите этот QR-код покупателю для оплаты.<br>
             2. НЕ ЗАКРЫВАЙТЕ это окно.<br>
@@ -5006,7 +5022,7 @@ function showP2PConfirmQR(itemId, price, txId, isRepeat) {
         ${title}
         <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ¢.
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ${CAP}.
         </p>
     `;
 
@@ -5177,7 +5193,7 @@ function handleBanditScan(code) {
     player.score += 100;
     playSound('sell');
     saveState();
-    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ¢</small>`;
+    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ${CAP}</small>`;
 }
 
 function returnToBase() {
@@ -5589,7 +5605,7 @@ function showSurvivorQRModal() {
     if (isZomb) {
         corpseDesc.innerHTML = "<span style='color:var(--bandit-color)'>🧟 ВЫ ЗОМБИ! Покажите этот QR-код другим игрокам. За вашу ликвидацию или охоту они получат награду.</span>";
     } else {
-        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 ¢).</span>";
+        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 " + CAP + ").</span>";
     }
 
     document.getElementById('btn-scan-heal-item').style.display = "none";

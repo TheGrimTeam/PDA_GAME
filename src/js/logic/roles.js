@@ -84,7 +84,7 @@ function handleBanditScan(code) {
     player.score += 100;
     playSound('sell');
     saveState();
-    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ¢</small>`;
+    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ${CAP}</small>`;
 }
 
 function returnToBase() {

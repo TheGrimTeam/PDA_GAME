@@ -26,7 +26,7 @@ function initiateP2PTrade(idx) {
     let contentEl = document.getElementById('trade-modal-content');
     contentEl.innerHTML = `
         <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ВЫ ПРОДАЕТЕ: <b style="color:var(--trade-color)">${item.name}</b></div>
-        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ¢</b></div>
+        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ${CAP}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
             1. Покажите этот QR-код покупателю для оплаты.<br>
             2. НЕ ЗАКРЫВАЙТЕ это окно.<br>
@@ -92,7 +92,7 @@ function showP2PConfirmQR(itemId, price, txId, isRepeat) {
         ${title}
         <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ¢.
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ${CAP}.
         </p>
     `;
 
