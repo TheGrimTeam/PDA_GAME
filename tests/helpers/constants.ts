@@ -15,7 +15,7 @@ export const STORAGE_KEY_NOTES = 'wasteland_notes';
 // --- Игровые лимиты ---
 export const MAX_HP_BASE = 100;
 export const MAX_HUNGER = 100;
-export const MAX_RADS = 60;
+export const MAX_RADS = 100;
 export const MAX_BACKPACK_SIZE = 30;
 
 // --- Тайминги игровых циклов (мс) ---

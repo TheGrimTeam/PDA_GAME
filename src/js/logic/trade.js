@@ -104,8 +104,8 @@ function getHealCost(npcCode) {
     let npc = NPC_DB[npcCode];
     let healCost = (npc && npc.healCost) || 500;
 
-    // Скидка от Торгового чипа
-    if (player.equipment === 'eq_trade') healCost = Math.round(healCost * 0.7);
+    // Торговый чип: лечение по фиксированной цене
+    if (player.equipment === 'eq_trade') healCost = EQ_TRADE_HEAL_COST;
 
     // Скидка по репутации (10% за уровень, на Ур. 10 — бесплатно)
     let rep = (player.npcRep && player.npcRep[npcCode]) || 0;

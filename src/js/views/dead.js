@@ -21,7 +21,7 @@ function checkDeathState() {
             player.isCurrentlyDead = true;
             player.stats.deaths = (player.stats.deaths || 0) + 1;
 
-            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 15%
+            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%
             if (!player.infectionTime && !player.zombieTime) {
                 if (Math.random() < 0.33) {
                     player.infectionTime = Date.now();

@@ -50,7 +50,7 @@
 |---|---|---|
 | Базовое здоровье | 100 HP | [`constants.js`](src/js/config/constants.js) |
 | Максимальный голод | 100 | [`constants.js`](src/js/config/constants.js) |
-| Максимальная радиация | 100 | [`constants.js`](src/js/config/constants.js) |
+| Максимальная радиация | 100 (при 100% — мгновенная смерть) | [`constants.js`](src/js/config/constants.js), [`updateHUD()`](src/js/views/navigation.js) |
 | Размер рюкзака | 30 | [`constants.js`](src/js/config/constants.js) |
 | Активных квестов одновременно | не более 2 | [`acceptQuest()`](src/js/logic/quests.js) |
 | Слотов обычных квестов | 5 | [`renderQuests()`](src/js/logic/quests.js) |
@@ -96,7 +96,8 @@
 | 10 | Лечение **бесплатно** |
 
 Стоимость лечения рассчитывается единой функцией [`getHealCost()`](src/js/logic/trade.js) от базовой цены `npc.healCost`
-и дополнительно снижается на **30%** при экипированном Торговом чипе `eq_trade`.
+С экипированным Торговым чипом `eq_trade` лечение стоит фиксированные **35 💎** (`EQ_TRADE_HEAL_COST`),
+скидка по репутации применяется поверх.
 Целевой NPC особого контракта **«🕊 Пацифист»** (5 стимуляторов, 3 антирадина, 2 аптечки → 3120 💎).
 
 #### Инженер Михалыч (`npc_eng`) ⚙️
@@ -440,8 +441,9 @@ npm run check:build    # проверка актуальности index.html о
 ### 6. P2P-обмен между игроками
 
 1. Игрок А формирует предложение → QR `p2ptrade:sell:...` ([`p2p.js`](src/js/logic/p2p.js)).
-2. Игрок Б сканирует → подтверждение `p2ptrade:confirm:...`.
-3. Обмен фиксируется в `player.processedTradeTxs`.
+2. Игрок Б сканирует → подтверждение `p2ptrade:confirm:...`. Оплата фиксируется в `player.processedBuyTxs`:
+   повторный скан того же кода продажи не списывает кредиты, а заново показывает код подтверждения.
+3. Обмен фиксируется у продавца в `player.processedTradeTxs`.
 
 **Пример:** обмен 3 аптечек на 1 артефакт между двумя ПДА.
 

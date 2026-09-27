@@ -165,7 +165,7 @@ function startEventLoop() {
             for (let wName in player.weapons) {
                 let w = player.weapons[wName];
                 if (w.active && w.durability > 0) {
-                    let wear = Math.floor(Math.random() * 3) + 1;
+                    let baseWear = Math.floor(Math.random() * 3) + 1;
 
                     // Снижение износа оружия у Торговца Сидоровича (10% за каждый уровень, вплоть до 100% при Ур. 10)
                     let tradRep = (player.npcRep && player.npcRep['npc_trad']) || 0;
@@ -175,7 +175,7 @@ function startEventLoop() {
                     if (player.shelterLevel >= 3) {
                         wearMult = wearMult * 0.9;
                     }
-                    wear = Math.round(wear * wearMult);
+                    let wear = takeWhole('wear:' + wName, baseWear * wearMult);
 
                     w.durability = Math.max(0, w.durability - wear);
                     changed = true;
@@ -190,17 +190,17 @@ function startEventLoop() {
         if (player.equipment === 'eq_hunger') hungerLoss = 1;
         // Убежище 1 ур: сытость тратится на 10% медленнее (коэффициент 0.9)
         if (player.shelterLevel >= 1) {
-            hungerLoss = Math.max(1, Math.round(hungerLoss * 0.9));
+            hungerLoss = hungerLoss * 0.9;
         }
-        player.hunger = Math.max(0, player.hunger - hungerLoss);
+        player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
 
         if (player.karma_score < 3) {
-            let radGain = Math.max(1, Math.round(2 * getRadMultiplier()));
+            let radGain = 2 * getRadMultiplier();
             // Убежище 2 ур: радиация накапливается на 10% медленнее (коэффициент 0.9)
             if (player.shelterLevel >= 2) {
-                radGain = Math.max(1, Math.round(radGain * 0.9));
+                radGain = radGain * 0.9;
             }
-            player.rads = Math.min(MAX_RADS, player.rads + radGain);
+            player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
         } else {
             player.rads = 0;
         }
@@ -227,7 +227,8 @@ function startEventLoop() {
                             showBanner('🛡 ШТОРМОВОЙ КОМПЕНСАТОР ОТРАЗИЛ БУРЮ', 'var(--trade-color)');
                             return;
                         }
-                        let radGain = Math.max(2, Math.round(15 * getRadMultiplier()));
+                        // Свинцовый плащ: 15 × 0.5 = +7 РАД (округление вниз в пользу игрока)
+                        let radGain = Math.max(2, Math.floor(15 * getRadMultiplier()));
                         if (player.karma_score < 3) {
                             player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {

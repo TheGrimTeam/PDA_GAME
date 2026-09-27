@@ -32,6 +32,14 @@ function switchView(viewName) {
 function updateHUD() {
     try {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
+        // 100% РАД — мгновенная смерть (правило игры)
+        if (player.rads >= MAX_RADS && player.hp > 0) {
+            player.hp = 0;
+            showBanner('☢ СМЕРТЕЛЬНАЯ ДОЗА РАДИАЦИИ!', COLOR_BANDIT);
+            checkDeathState(); // повторно вызовет updateHUD уже с hp = 0
+            saveState();       // сохраняем смерть, чтобы после перезагрузки она не засчиталась повторно
+            return;
+        }
         let baseMaxHp = getMaxHp();
         let maxHp = getEffectiveMaxHp();
         if (player.hp > maxHp) {

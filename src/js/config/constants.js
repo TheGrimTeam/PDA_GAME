@@ -35,10 +35,11 @@ const QR_PREFIX_ANOM = 'anom_';
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
 const MAX_HUNGER = 100;
-const MAX_RADS = 60;   // максимальный уровень радиации (потолок накопления)
+const MAX_RADS = 100;  // 100% РАД — мгновенная смерть
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
+const EQ_TRADE_HEAL_COST = 35;              // лечение у Доктора Кроу с Торговым чипом
 const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 

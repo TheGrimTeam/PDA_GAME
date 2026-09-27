@@ -78,6 +78,27 @@ function closeTradeModal() {
     renderInventory();
 }
 
+// Показ покупателю QR-кода подтверждения оплаты
+function showP2PConfirmQR(itemId, price, txId, isRepeat) {
+    let item = ITEMS_DB[itemId];
+    document.getElementById('trade-modal').style.display = 'flex';
+    document.getElementById('trade-qr-container').style.display = 'block';
+
+    let contentEl = document.getElementById('trade-modal-content');
+    let title = isRepeat
+        ? `<div style="font-size:1.2rem; color:var(--rad-color); font-weight:bold; margin-bottom:10px;">СДЕЛКА УЖЕ ОПЛАЧЕНА</div>`
+        : `<div style="font-size:1.2rem; color:var(--term-green); font-weight:bold; margin-bottom:10px;">ПОКУПКА СОВЕРШЕНА!</div>`;
+    contentEl.innerHTML = `
+        ${title}
+        <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
+        <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
+        </p>
+    `;
+
+    generateQR('trade-qr-container', `p2ptrade:confirm:${txId}:${price}:${itemId}`);
+}
+
 function handleP2PTradeScan(code) {
     let parts = code.split(":");
     let action = parts[1]; // sell или confirm
@@ -90,6 +111,15 @@ function handleP2PTradeScan(code) {
 
         let item = ITEMS_DB[itemId];
         if (!item) return alert("Неизвестный предмет!");
+
+        // Повторный скан того же кода продажи: не списываем кредиты второй раз,
+        // а заново показываем код подтверждения (вдруг продавец не успел его считать)
+        player.processedBuyTxs = player.processedBuyTxs || {};
+        if (player.processedBuyTxs[txId]) {
+            playSound('error');
+            showP2PConfirmQR(itemId, price, txId, true);
+            return;
+        }
 
         if (player.score < price) {
             playSound('error');
@@ -106,24 +136,13 @@ function handleP2PTradeScan(code) {
             // Производим списание и зачисление
             player.score -= price;
             player.inventory.push(itemId);
+            player.processedBuyTxs[txId] = Date.now();
             player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
             playSound('sell');
             saveState();
 
             // Показываем покупателю код подтверждения
-            document.getElementById('trade-modal').style.display = 'flex';
-            document.getElementById('trade-qr-container').style.display = 'block';
-
-            let contentEl = document.getElementById('trade-modal-content');
-            contentEl.innerHTML = `
-                <div style="font-size:1.2rem; color:var(--term-green); font-weight:bold; margin-bottom:10px;">ПОКУПКА СОВЕРШЕНА!</div>
-                <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
-                <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-                    Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
-                </p>
-            `;
-
-            generateQR('trade-qr-container', `p2ptrade:confirm:${txId}:${price}:${itemId}`);
+            showP2PConfirmQR(itemId, price, txId, false);
         }
     }
     else if (action === "confirm") {

@@ -1060,10 +1060,11 @@ const QR_PREFIX_ANOM = 'anom_';
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
 const MAX_HUNGER = 100;
-const MAX_RADS = 60;   // максимальный уровень радиации (потолок накопления)
+const MAX_RADS = 100;  // 100% РАД — мгновенная смерть
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
+const EQ_TRADE_HEAL_COST = 35;              // лечение у Доктора Кроу с Торговым чипом
 const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
@@ -1221,6 +1222,8 @@ if (!Array.isArray(player.safeBoxQuest)) player.safeBoxQuest = genQ(3, 5);
 if (player.equipment === undefined) player.equipment = null;
 if (!player.npcRep) player.npcRep = {};
 if (!player.processedTradeTxs) player.processedTradeTxs = {};
+if (!player.processedBuyTxs) player.processedBuyTxs = {};
+if (!player.fractions) player.fractions = {};
 if (player.pendingHealId === undefined) player.pendingHealId = null;
 if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
 if (!player.processedHealTxs) player.processedHealTxs = {};
@@ -1531,7 +1534,9 @@ function getEffectiveMaxHp() {
 
 function getRadMultiplier() {
     let mult = 1.0;
-    let hasMask = player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0;
+    // Противогаз работает и как предмет арсенала, и как надетое спецснаряжение eq_gas
+    let hasMask = (player.equipment === 'eq_gas') ||
+        (player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0);
     let hasCloak = (player.equipment === 'eq_rad');
 
     if (hasCloak && hasMask) {
@@ -1542,6 +1547,18 @@ function getRadMultiplier() {
         mult = 0.5; // -50% радиации
     }
     return Math.max(0.15, mult); // Полного абсолютного иммунитета без читов нет, но защита максимальная
+}
+
+// Накопитель дробных приращений: возвращает целую часть накопленного значения,
+// а остаток сохраняет в player.fractions[key] до следующего тика.
+// Нужен, чтобы процентные бонусы (−10% и т.п.) к маленьким целым величинам
+// (2 РАД/мин, 3 ЕДА/мин, 1–3% износа) не терялись при округлении.
+function takeWhole(key, amount) {
+    if (!player.fractions || typeof player.fractions !== 'object') player.fractions = {};
+    let total = (player.fractions[key] || 0) + amount;
+    let whole = Math.floor(total + 1e-9);
+    player.fractions[key] = total - whole;
+    return whole;
 }
 
 function formatSurvivalTime(seconds) {
@@ -1613,8 +1630,9 @@ function processOfflineTime() {
             // Радиация за оффлайн минуты
             let totalRadGain = 0;
             if (player.karma_score < 3) {
-                let radGainPerMin = Math.max(1, Math.round(2 * getRadMultiplier()));
-                totalRadGain = diffMinutes * radGainPerMin;
+                let radGainPerMin = 2 * getRadMultiplier();
+                if (player.shelterLevel >= 2) radGainPerMin = radGainPerMin * 0.9; // Убежище 2 ур.
+                totalRadGain = takeWhole('rads', diffMinutes * radGainPerMin);
                 player.rads = Math.min(MAX_RADS, player.rads + totalRadGain);
             }
 
@@ -2653,8 +2671,8 @@ function getHealCost(npcCode) {
     let npc = NPC_DB[npcCode];
     let healCost = (npc && npc.healCost) || 500;
 
-    // Скидка от Торгового чипа
-    if (player.equipment === 'eq_trade') healCost = Math.round(healCost * 0.7);
+    // Торговый чип: лечение по фиксированной цене
+    if (player.equipment === 'eq_trade') healCost = EQ_TRADE_HEAL_COST;
 
     // Скидка по репутации (10% за уровень, на Ур. 10 — бесплатно)
     let rep = (player.npcRep && player.npcRep[npcCode]) || 0;
@@ -3645,7 +3663,7 @@ function startEventLoop() {
             for (let wName in player.weapons) {
                 let w = player.weapons[wName];
                 if (w.active && w.durability > 0) {
-                    let wear = Math.floor(Math.random() * 3) + 1;
+                    let baseWear = Math.floor(Math.random() * 3) + 1;
 
                     // Снижение износа оружия у Торговца Сидоровича (10% за каждый уровень, вплоть до 100% при Ур. 10)
                     let tradRep = (player.npcRep && player.npcRep['npc_trad']) || 0;
@@ -3655,7 +3673,7 @@ function startEventLoop() {
                     if (player.shelterLevel >= 3) {
                         wearMult = wearMult * 0.9;
                     }
-                    wear = Math.round(wear * wearMult);
+                    let wear = takeWhole('wear:' + wName, baseWear * wearMult);
 
                     w.durability = Math.max(0, w.durability - wear);
                     changed = true;
@@ -3670,17 +3688,17 @@ function startEventLoop() {
         if (player.equipment === 'eq_hunger') hungerLoss = 1;
         // Убежище 1 ур: сытость тратится на 10% медленнее (коэффициент 0.9)
         if (player.shelterLevel >= 1) {
-            hungerLoss = Math.max(1, Math.round(hungerLoss * 0.9));
+            hungerLoss = hungerLoss * 0.9;
         }
-        player.hunger = Math.max(0, player.hunger - hungerLoss);
+        player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
 
         if (player.karma_score < 3) {
-            let radGain = Math.max(1, Math.round(2 * getRadMultiplier()));
+            let radGain = 2 * getRadMultiplier();
             // Убежище 2 ур: радиация накапливается на 10% медленнее (коэффициент 0.9)
             if (player.shelterLevel >= 2) {
-                radGain = Math.max(1, Math.round(radGain * 0.9));
+                radGain = radGain * 0.9;
             }
-            player.rads = Math.min(MAX_RADS, player.rads + radGain);
+            player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
         } else {
             player.rads = 0;
         }
@@ -3707,7 +3725,8 @@ function startEventLoop() {
                             showBanner('🛡 ШТОРМОВОЙ КОМПЕНСАТОР ОТРАЗИЛ БУРЮ', 'var(--trade-color)');
                             return;
                         }
-                        let radGain = Math.max(2, Math.round(15 * getRadMultiplier()));
+                        // Свинцовый плащ: 15 × 0.5 = +7 РАД (округление вниз в пользу игрока)
+                        let radGain = Math.max(2, Math.floor(15 * getRadMultiplier()));
                         if (player.karma_score < 3) {
                             player.rads = Math.min(MAX_RADS, player.rads + radGain);
                         } else {
@@ -4130,6 +4149,27 @@ function closeTradeModal() {
     renderInventory();
 }
 
+// Показ покупателю QR-кода подтверждения оплаты
+function showP2PConfirmQR(itemId, price, txId, isRepeat) {
+    let item = ITEMS_DB[itemId];
+    document.getElementById('trade-modal').style.display = 'flex';
+    document.getElementById('trade-qr-container').style.display = 'block';
+
+    let contentEl = document.getElementById('trade-modal-content');
+    let title = isRepeat
+        ? `<div style="font-size:1.2rem; color:var(--rad-color); font-weight:bold; margin-bottom:10px;">СДЕЛКА УЖЕ ОПЛАЧЕНА</div>`
+        : `<div style="font-size:1.2rem; color:var(--term-green); font-weight:bold; margin-bottom:10px;">ПОКУПКА СОВЕРШЕНА!</div>`;
+    contentEl.innerHTML = `
+        ${title}
+        <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
+        <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
+        </p>
+    `;
+
+    generateQR('trade-qr-container', `p2ptrade:confirm:${txId}:${price}:${itemId}`);
+}
+
 function handleP2PTradeScan(code) {
     let parts = code.split(":");
     let action = parts[1]; // sell или confirm
@@ -4142,6 +4182,15 @@ function handleP2PTradeScan(code) {
 
         let item = ITEMS_DB[itemId];
         if (!item) return alert("Неизвестный предмет!");
+
+        // Повторный скан того же кода продажи: не списываем кредиты второй раз,
+        // а заново показываем код подтверждения (вдруг продавец не успел его считать)
+        player.processedBuyTxs = player.processedBuyTxs || {};
+        if (player.processedBuyTxs[txId]) {
+            playSound('error');
+            showP2PConfirmQR(itemId, price, txId, true);
+            return;
+        }
 
         if (player.score < price) {
             playSound('error');
@@ -4158,24 +4207,13 @@ function handleP2PTradeScan(code) {
             // Производим списание и зачисление
             player.score -= price;
             player.inventory.push(itemId);
+            player.processedBuyTxs[txId] = Date.now();
             player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
             playSound('sell');
             saveState();
 
             // Показываем покупателю код подтверждения
-            document.getElementById('trade-modal').style.display = 'flex';
-            document.getElementById('trade-qr-container').style.display = 'block';
-
-            let contentEl = document.getElementById('trade-modal-content');
-            contentEl.innerHTML = `
-                <div style="font-size:1.2rem; color:var(--term-green); font-weight:bold; margin-bottom:10px;">ПОКУПКА СОВЕРШЕНА!</div>
-                <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
-                <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-                    Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
-                </p>
-            `;
-
-            generateQR('trade-qr-container', `p2ptrade:confirm:${txId}:${price}:${itemId}`);
+            showP2PConfirmQR(itemId, price, txId, false);
         }
     }
     else if (action === "confirm") {
@@ -4481,6 +4519,14 @@ function switchView(viewName) {
 function updateHUD() {
     try {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
+        // 100% РАД — мгновенная смерть (правило игры)
+        if (player.rads >= MAX_RADS && player.hp > 0) {
+            player.hp = 0;
+            showBanner('☢ СМЕРТЕЛЬНАЯ ДОЗА РАДИАЦИИ!', COLOR_BANDIT);
+            checkDeathState(); // повторно вызовет updateHUD уже с hp = 0
+            saveState();       // сохраняем смерть, чтобы после перезагрузки она не засчиталась повторно
+            return;
+        }
         let baseMaxHp = getMaxHp();
         let maxHp = getEffectiveMaxHp();
         if (player.hp > maxHp) {
@@ -4610,7 +4656,7 @@ function checkDeathState() {
             player.isCurrentlyDead = true;
             player.stats.deaths = (player.stats.deaths || 0) + 1;
 
-            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 15%
+            // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%
             if (!player.infectionTime && !player.zombieTime) {
                 if (Math.random() < 0.33) {
                     player.infectionTime = Date.now();

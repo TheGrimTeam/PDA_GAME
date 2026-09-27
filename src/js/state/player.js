@@ -37,6 +37,8 @@ if (!Array.isArray(player.safeBoxQuest)) player.safeBoxQuest = genQ(3, 5);
 if (player.equipment === undefined) player.equipment = null;
 if (!player.npcRep) player.npcRep = {};
 if (!player.processedTradeTxs) player.processedTradeTxs = {};
+if (!player.processedBuyTxs) player.processedBuyTxs = {};
+if (!player.fractions) player.fractions = {};
 if (player.pendingHealId === undefined) player.pendingHealId = null;
 if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
 if (!player.processedHealTxs) player.processedHealTxs = {};

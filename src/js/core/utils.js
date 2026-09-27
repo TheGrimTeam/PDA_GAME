@@ -27,7 +27,9 @@ function getEffectiveMaxHp() {
 
 function getRadMultiplier() {
     let mult = 1.0;
-    let hasMask = player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0;
+    // Противогаз работает и как предмет арсенала, и как надетое спецснаряжение eq_gas
+    let hasMask = (player.equipment === 'eq_gas') ||
+        (player.weapons && player.weapons["Противогаз ГП-5"] && player.weapons["Противогаз ГП-5"].active && player.weapons["Противогаз ГП-5"].durability > 0);
     let hasCloak = (player.equipment === 'eq_rad');
 
     if (hasCloak && hasMask) {
@@ -38,6 +40,18 @@ function getRadMultiplier() {
         mult = 0.5; // -50% радиации
     }
     return Math.max(0.15, mult); // Полного абсолютного иммунитета без читов нет, но защита максимальная
+}
+
+// Накопитель дробных приращений: возвращает целую часть накопленного значения,
+// а остаток сохраняет в player.fractions[key] до следующего тика.
+// Нужен, чтобы процентные бонусы (−10% и т.п.) к маленьким целым величинам
+// (2 РАД/мин, 3 ЕДА/мин, 1–3% износа) не терялись при округлении.
+function takeWhole(key, amount) {
+    if (!player.fractions || typeof player.fractions !== 'object') player.fractions = {};
+    let total = (player.fractions[key] || 0) + amount;
+    let whole = Math.floor(total + 1e-9);
+    player.fractions[key] = total - whole;
+    return whole;
 }
 
 function formatSurvivalTime(seconds) {
@@ -109,8 +123,9 @@ function processOfflineTime() {
             // Радиация за оффлайн минуты
             let totalRadGain = 0;
             if (player.karma_score < 3) {
-                let radGainPerMin = Math.max(1, Math.round(2 * getRadMultiplier()));
-                totalRadGain = diffMinutes * radGainPerMin;
+                let radGainPerMin = 2 * getRadMultiplier();
+                if (player.shelterLevel >= 2) radGainPerMin = radGainPerMin * 0.9; // Убежище 2 ур.
+                totalRadGain = takeWhole('rads', diffMinutes * radGainPerMin);
                 player.rads = Math.min(MAX_RADS, player.rads + totalRadGain);
             }
 
