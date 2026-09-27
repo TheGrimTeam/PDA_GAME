@@ -14,20 +14,20 @@ function adminModifyCredits(isAdd) {
     let input = document.getElementById('admin-credit-amount');
     let amount = parseInt(input ? input.value : 0);
     if (isNaN(amount) || amount <= 0) {
-        alert("Пожалуйста, введите корректное число кредитов!");
+        alert("Пожалуйста, введите корректное число крышек!");
         return;
     }
     if (!isAdd) {
         if ((player.score || 0) < amount) {
-            if (!confirm(`У игрока всего ${player.score || 0}💎. Списать выбранную сумму в минус?`)) return;
+            if (!confirm(`У игрока всего ${player.score || 0}¢. Списать выбранную сумму в минус?`)) return;
         }
         player.score = Math.max(0, (player.score || 0) - amount);
         playSound('sell');
-        showBanner(`💸 Администратор списал ${amount} 💎`, 'var(--bandit-color)');
+        showBanner(`💸 Администратор списал ${amount} ¢`, 'var(--bandit-color)');
     } else {
         player.score = (player.score || 0) + amount;
         playSound('karma');
-        showBanner(`💎 Администратор начислил ${amount} 💎`, 'var(--term-green)');
+        showBanner(`¢ Администратор начислил ${amount} ¢`, 'var(--term-green)');
     }
     saveState();
     renderProfile();
@@ -80,11 +80,11 @@ function handleBanditScan(code) {
     let parts = code.split(":");
     let banditName = parts[1];
 
-    // Премия 100 кредитов
+    // Премия 100 крышек
     player.score += 100;
     playSound('sell');
     saveState();
-    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 💎</small>`;
+    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ¢</small>`;
 }
 
 function returnToBase() {

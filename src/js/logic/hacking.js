@@ -239,7 +239,7 @@ function finishHackSuccess() {
     player.scannedCodes[currentHackCode] = Date.now();
     saveState();
 
-    hackLog(`Получено: ${creditsReward} 💎`, 'bonus');
+    hackLog(`Получено: ${creditsReward} ¢`, 'bonus');
     hackLog(gotItem ? `Извлечено: ${itemName}` : `Извлечено: ${itemName} — нет места в рюкзаке!`, gotItem ? 'ok' : 'err');
     if (isStash) {
         hackLog('Вы обчистили чужой схрон: −1 к Карме.', 'err');

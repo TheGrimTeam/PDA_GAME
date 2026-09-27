@@ -32,7 +32,7 @@ test.describe('Integration: арест бандита', () => {
     await scanDirect(pageA, QR.banditId('bandit-1'));
 
     const playerA = await new GamePage(pageA).playerState();
-    // handleBanditScan: военному начисляется премия 100 кредитов.
+    // handleBanditScan: военному начисляется премия 100 крышек.
     expect(playerA.score).toBe(100);
   });
 

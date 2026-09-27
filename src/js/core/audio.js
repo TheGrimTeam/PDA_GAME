@@ -31,11 +31,12 @@ function runGeigerLoop() {
     playGeigerClick();
     let r = player.rads;
     let minDelay, maxDelay;
-    if (r < 15) {
+    // Пороги — доли от потолка радиации MAX_RADS
+    if (r < MAX_RADS * 0.25) {
         minDelay = 8000; maxDelay = 24000; // Очень редкие одиночные щелчки (раз в 8-24 сек)
-    } else if (r < 30) {
+    } else if (r < MAX_RADS * 0.5) {
         minDelay = 3600; maxDelay = 10000; // Редкий предупреждающий треск (раз в 4-10 сек)
-    } else if (r < 45) {
+    } else if (r < MAX_RADS * 0.75) {
         minDelay = 1600; maxDelay = 4400;  // Умеренные щелчки (раз в 2-4 сек)
     } else {
         minDelay = 500; maxDelay = 1400;   // Заметный треск при сильном заражении (раз в 0.5 - 1.4 сек)

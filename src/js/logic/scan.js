@@ -90,12 +90,12 @@ function handleScan(qrCode) {
             playSound('use');
             saveState();
             renderProfile();
-            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано кредитов: ${cost} 💎</small>`;
-            alert(`Оружие (${wName}) успешно отремонтировано на Базе за ${cost} 💎!`);
+            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано крышек: ${cost} ¢</small>`;
+            alert(`Оружие (${wName}) успешно отремонтировано на Базе за ${cost} ¢!`);
         } else {
             playSound('error');
-            resDiv.innerHTML = `<span class='danger'>Недостаточно кредитов для ремонта! (${cost} 💎 требуется)</span>`;
-            alert(`Недостаточно кредитов! Требуется: ${cost} 💎`);
+            resDiv.innerHTML = `<span class='danger'>Недостаточно крышек для ремонта! (${cost} ¢ требуется)</span>`;
+            alert(`Недостаточно крышек! Требуется: ${cost} ¢`);
         }
         return;
     }
@@ -294,7 +294,7 @@ function handleScan(qrCode) {
             corpseTitle = "ВОЕННОГО";
             titleColor = "var(--rad-color)";
             if (isBanditRobber) {
-                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 💎 за ликвидацию военного!</small>`;
+                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 ¢ за ликвидацию военного!</small>`;
             } else {
                 karmaMsg = "<small class='danger'>Ограблен военный офицер. Карма снижена!</small>";
             }
@@ -355,7 +355,7 @@ function handleScan(qrCode) {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
                 if (capsule) player.inventory.push(capsule);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ¢)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
                 if (capsule) announceStoryProgress();
             }
         } else {
@@ -433,7 +433,8 @@ function handleDeadScan(qrCode) {
         player.hunger = MAX_HUNGER;
         player.inventory = [];
         player.quests.active = []; // null ломал acceptQuest() после возрождения
-        player.infectionTime = 0; player.zombieTime = 0;
+        // Инфекцию НЕ снимаем: вылечить её может только сам игрок медикаментом
+        // (useMedkit). Таймер заражения продолжает идти и после возрождения.
         // Возрождение отменяет незавершённый запрос на лечение.
         player.pendingHealId = null;
         player.pendingHealAt = 0;

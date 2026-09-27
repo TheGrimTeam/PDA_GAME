@@ -145,13 +145,13 @@ function sellEquipment() {
     if (!player.equipment || !ITEMS_DB[player.equipment]) return;
     let item = ITEMS_DB[player.equipment];
     let sellPrice = Math.floor(item.val / 2);
-    if (confirm(`Продать ${item.name} за ${sellPrice} 💎?`)) {
+    if (confirm(`Продать ${item.name} за ${sellPrice} ¢?`)) {
         playSound('sell');
         player.score += sellPrice;
         player.equipment = null;
         saveState();
         renderProfile();
-        alert(`Успешно продано за ${sellPrice} 💎!`);
+        alert(`Успешно продано за ${sellPrice} ¢!`);
     }
 }
 
@@ -341,7 +341,7 @@ function handlePdaPhotoCaptured(event) {
             ctx.fillText(dateText, width - ctx.measureText(dateText).width - 20, Math.floor(headerH * 0.65));
 
             ctx.fillText(`OPERATOR: ${callsign}`, 20, height - Math.floor(footerH * 0.35));
-            let statsStr = `HP:${player.hp}/${maxHp} | RAD:${player.rads}% | HUNGER:${player.hunger}%`;
+            let statsStr = `HP:${player.hp}/${maxHp} | RAD:${player.rads}/${MAX_RADS} | HUNGER:${player.hunger}%`;
             ctx.fillText(statsStr, width - ctx.measureText(statsStr).width - 20, height - Math.floor(footerH * 0.35));
 
             ctx.strokeRect(12, 12, width - 24, height - 24);
@@ -368,7 +368,7 @@ function handlePdaPhotoCaptured(event) {
                 player.score = (player.score || 0) + 100;
                 saveState();
                 renderProfile();
-                showBanner("📸 НАГРАДА! +100 💎 ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
+                showBanner("📸 НАГРАДА! +100 ¢ ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
             } else {
                 showBanner("📸 ФОТО УСПЕШНО ОБРАБОТАНО И СОХРАНЕНО!", 'var(--term-green)');
             }

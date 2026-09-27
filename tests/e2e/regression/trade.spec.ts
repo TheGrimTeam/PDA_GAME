@@ -28,7 +28,7 @@ test.describe('Regression: торговля', () => {
     await expect(game.page.locator('#trade-npc-name')).not.toBeEmpty();
   });
 
-  test('RG-26: покупка предмета buyItem списывает кредиты', async ({ game }) => {
+  test('RG-26: покупка предмета buyItem списывает крышки', async ({ game }) => {
     await scanDirect(game.page, QR.npc('npc_eng'));
     await game.expectViewActive('trade');
 
@@ -36,11 +36,11 @@ test.describe('Regression: торговля', () => {
     await game.page.evaluate(() => (window as any).buyItem(0));
     const after = await game.playerState();
 
-    // Либо покупка совершена (кредиты уменьшились), либо товар недоступен.
+    // Либо покупка совершена (крышки уменьшились), либо товар недоступен.
     expect(after.score).toBeLessThanOrEqual(before.score);
   });
 
-  test('RG-27: продажа предмета sellItem начисляет кредиты', async ({ game }) => {
+  test('RG-27: продажа предмета sellItem начисляет крышки', async ({ game }) => {
     await game.patchPlayer({ inventory: ['junk_1'], score: 100 });
     await scanDirect(game.page, QR.npc('npc_trad'));
     await game.expectViewActive('trade');

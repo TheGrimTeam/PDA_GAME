@@ -108,7 +108,7 @@ function turnInStoryWeapons() {
     announceStoryProgress();
     saveState();
     renderTradeView();
-    alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} 💎\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
+    alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} ¢\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
 }
 
 // Квест 3: успешное извлечение артефакта из полевой аномалии.
@@ -189,7 +189,7 @@ function handleSynthStationScan(resDiv) {
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
     playSound('quest');
-    resDiv.innerHTML = `<b style="color:var(--hero-color)">💎 ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} 💎).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">¢ ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ¢).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
 }
 
 // Тик из heartbeat-цикла: срыв или завершение синтеза
@@ -237,7 +237,7 @@ function claimStoryReward() {
         let owned = player.equipment === 'eq_anom' || (player.eqPurchased && player.eqPurchased['eq_anom']);
         if (owned) {
             player.score += STORY_Q3_COMPENSATION;
-            msg = `Детектор «Велес» у вас уже был — учёные выплатили компенсацию: ${STORY_Q3_COMPENSATION} 💎.`;
+            msg = `Детектор «Велес» у вас уже был — учёные выплатили компенсацию: ${STORY_Q3_COMPENSATION} ¢.`;
         } else {
             if (player.equipment && !confirm(`Детектор «Велес» займёт слот снаряжения вместо «${ITEMS_DB[player.equipment].name}» (оно пропадёт). Продолжить?\n\nОтмена — забрать награду позже.`)) {
                 return;

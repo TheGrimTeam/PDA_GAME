@@ -69,8 +69,8 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
-                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 💎)</button>
+                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
+                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 ¢)</button>
             </div></div>`;
             container.innerHTML += html;
         });
@@ -100,7 +100,7 @@ function renderQuests() {
         }
 
         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-            <span>Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
+            <span>Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
             <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px;" onclick="acceptQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
         </div></div>`;
         container.innerHTML += html;
@@ -133,7 +133,7 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span>Награда: <b style="color:var(--hero-color);">${q.reward} 💎</b></span>
+                <span>Награда: <b style="color:var(--hero-color);">${q.reward} ¢</b></span>
                 <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px; border-color:var(--hero-color); color:var(--hero-color);" onclick="acceptSpecialQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
             </div></div>`;
             container.innerHTML += html;
@@ -169,7 +169,7 @@ function acceptSpecialQuest(index) {
 }
 
 function abandonQuest(index) {
-    if (confirm("Отменить контракт за 10 кредитов?")) {
+    if (confirm("Отменить контракт за 10 крышек?")) {
         playSound('error');
         player.score = Math.max(0, player.score - 10);
         player.quests.active.splice(index, 1);

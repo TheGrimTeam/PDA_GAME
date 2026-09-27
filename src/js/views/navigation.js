@@ -32,14 +32,6 @@ function switchView(viewName) {
 function updateHUD() {
     try {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
-        // 100% РАД — мгновенная смерть (правило игры)
-        if (player.rads >= MAX_RADS && player.hp > 0) {
-            player.hp = 0;
-            showBanner('☢ СМЕРТЕЛЬНАЯ ДОЗА РАДИАЦИИ!', COLOR_BANDIT);
-            checkDeathState(); // повторно вызовет updateHUD уже с hp = 0
-            saveState();       // сохраняем смерть, чтобы после перезагрузки она не засчиталась повторно
-            return;
-        }
         let baseMaxHp = getMaxHp();
         let maxHp = getEffectiveMaxHp();
         if (player.hp > maxHp) {
@@ -62,7 +54,10 @@ function updateHUD() {
         if (document.getElementById('hp-max-val')) document.getElementById('hp-max-val').innerText = '/' + baseMaxHp;
         if (document.getElementById('rad-val')) {
             document.getElementById('rad-val').innerText = player.rads;
-            document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
+            document.getElementById('rad-val').style.color = player.rads >= MAX_RADS * 0.75 ? COLOR_RAD : '';
+            if (document.getElementById('rad-max-val')) document.getElementById('rad-max-val').innerText = '/' + MAX_RADS;
+            let radFill = document.getElementById('rad-fill');
+            if (radFill) radFill.style.width = Math.min(100, (player.rads / MAX_RADS) * 100) + '%';
         }
         let maxHunger = getMaxHunger();
         if (player.hunger > maxHunger) player.hunger = maxHunger; // например, Ядро убрали из рюкзака

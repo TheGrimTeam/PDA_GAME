@@ -9,7 +9,7 @@ function initiateP2PTrade(idx) {
     if (!item) return;
 
     let priceInput = prompt(`Вы собираетесь продать: ${item.name}.
-Введите стоимость в кредитах 💎:`, item.val);
+Введите стоимость в крышках ¢:`, item.val);
     if (priceInput === null) return;
     let price = parseInt(priceInput);
     if (isNaN(price) || price < 0) {
@@ -26,7 +26,7 @@ function initiateP2PTrade(idx) {
     let contentEl = document.getElementById('trade-modal-content');
     contentEl.innerHTML = `
         <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ВЫ ПРОДАЕТЕ: <b style="color:var(--trade-color)">${item.name}</b></div>
-        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} 💎</b></div>
+        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ¢</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
             1. Покажите этот QR-код покупателю для оплаты.<br>
             2. НЕ ЗАКРЫВАЙТЕ это окно.<br>
@@ -92,7 +92,7 @@ function showP2PConfirmQR(itemId, price, txId, isRepeat) {
         ${title}
         <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ¢.
         </p>
     `;
 
@@ -112,7 +112,7 @@ function handleP2PTradeScan(code) {
         let item = ITEMS_DB[itemId];
         if (!item) return alert("Неизвестный предмет!");
 
-        // Повторный скан того же кода продажи: не списываем кредиты второй раз,
+        // Повторный скан того же кода продажи: не списываем крышки второй раз,
         // а заново показываем код подтверждения (вдруг продавец не успел его считать)
         player.processedBuyTxs = player.processedBuyTxs || {};
         if (player.processedBuyTxs[txId]) {
@@ -123,7 +123,7 @@ function handleP2PTradeScan(code) {
 
         if (player.score < price) {
             playSound('error');
-            return alert(`Недостаточно кредитов! Требуется: ${price} 💎, у вас: ${player.score} 💎`);
+            return alert(`Недостаточно крышек! Требуется: ${price} ¢, у вас: ${player.score} ¢`);
         }
 
         let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
@@ -132,7 +132,7 @@ function handleP2PTradeScan(code) {
             return alert("Недостаточно места в рюкзаке для покупки этого предмета!");
         }
 
-        if (confirm(`Купить "${item.name}" у игрока ${sellerCallsign} за ${price} 💎?`)) {
+        if (confirm(`Купить "${item.name}" у игрока ${sellerCallsign} за ${price} ¢?`)) {
             // Производим списание и зачисление
             player.score -= price;
             player.inventory.push(itemId);
@@ -170,6 +170,6 @@ function handleP2PTradeScan(code) {
         saveState();
 
         alert(`🤝 Сделка успешно подтверждена!
-Вы передали предмет и получили: ${price} 💎`);
+Вы передали предмет и получили: ${price} ¢`);
     }
 }

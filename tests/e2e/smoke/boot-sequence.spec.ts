@@ -31,7 +31,7 @@ test.describe('Smoke: загрузка и старт', () => {
     expect(player.inBase).toBe(false);
   });
 
-  test('SM-05: HUD отображает HP, голод, радиацию и кредиты', async ({ game }) => {
+  test('SM-05: HUD отображает HP, голод, радиацию и крышки', async ({ game }) => {
     await expect(game.page.locator('#hud')).toBeVisible();
 
     for (const id of ['hp-val', 'hunger-val', 'rad-val', 'score-val']) {

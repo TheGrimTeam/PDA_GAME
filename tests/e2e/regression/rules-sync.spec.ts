@@ -55,15 +55,19 @@ test.describe('Regression: механики по правилам игры', () 
     expect(mult).toBeCloseTo(0.4);
   });
 
-  test('RG-73: 100% РАД — мгновенная смерть', async ({ game }) => {
+  test('RG-73: радиация упирается в 40 и сжигает максимум HP, но не убивает', async ({ game }) => {
     await game.page.evaluate(() => {
       const p = eval('player');
       p.rads = 100;
+      p.hp = 100;
       (window as any).saveState();
     });
     const player = await game.playerState();
-    expect(player.hp).toBe(0);
-    await game.expectViewActive('dead');
+    const maxHp = await game.page.evaluate(() => (window as any).getMaxHp());
+    expect(player.rads).toBe(40);
+    expect(player.hp).toBe(maxHp - 40); // эффективный максимум = максимум HP − радиация
+    expect(player.hp).toBeGreaterThan(0);
+    await expect(game.page.locator('#view-dead')).not.toHaveClass(/active/);
   });
 
   test('RG-74: Убежище 1 ур. — сытость тратится на 10% медленнее', async ({ game }) => {

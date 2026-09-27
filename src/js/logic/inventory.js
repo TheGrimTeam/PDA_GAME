@@ -73,7 +73,7 @@ function useFood(index, id, isSafe = false) {
 }
 
 function moveToSafe(index) { let id = player.inventory[index]; if (player.safeBox.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > 5) return alert("Нет места!"); playSound('scan'); player.safeBox.push(id); player.inventory.splice(index, 1); saveState(); renderInventory(); }
-function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[id].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
+function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
 
 function renderCraftBox(idReq, idBtn, questArr, callback) {
     let hasAll = true, txt = [], rc = {}, ic = {}; questArr.forEach(id => rc[id] = (rc[id] || 0) + 1); player.inventory.forEach(id => ic[id] = (ic[id] || 0) + 1);
@@ -143,6 +143,22 @@ function applySafeBox() {
     showBanner("🔒 Защищенный подсумок успешно создан!", 'var(--trade-color)');
 }
 
+// Покупка защищённого подсумка за крышки — для тех, кто не нашёл детали для крафта
+function buySafeBox() {
+    if (player.safeBoxUnlocked) return;
+    if (player.score < SAFE_BOX_PRICE) {
+        playSound('error');
+        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} ¢, у вас ${player.score} ¢.`);
+    }
+    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} ¢?`)) return;
+    player.score -= SAFE_BOX_PRICE;
+    player.safeBoxUnlocked = true;
+    playSound('upgrade');
+    saveState();
+    renderInventory();
+    showBanner("🔒 Защищенный подсумок куплен!", 'var(--trade-color)');
+}
+
 function renderInventory() {
     const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
     player.inventory.forEach((id, i) => {
@@ -185,6 +201,7 @@ function renderInventory() {
             acts = `<button onclick="moveToInv(${i})" style="color:var(--term-green); border-color:var(--term-green); margin-right:5px">В РЮКЗАК</button> ` + acts;
             safeList.innerHTML += `<div class="item" style="border-color:var(--trade-color)"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
         });
-    } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox); }
+    } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox);
+        let priceEl = document.getElementById('safe-box-price'); if (priceEl) priceEl.innerText = SAFE_BOX_PRICE; }
     renderCraftBox('req-items', 'btn-upgrade', player.upgradeQuest, applyUpgrade);
 }

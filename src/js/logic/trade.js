@@ -34,7 +34,7 @@ function openTrade(npcCode) {
                 if (have < need) allPresent = false;
             }
             if (allPresent) {
-                if (confirm(`Сдать контракт "${q.name || "Контракт"}" и получить ${q.reward} 💎?`)) {
+                if (confirm(`Сдать контракт "${q.name || "Контракт"}" и получить ${q.reward} ¢?`)) {
                     playSound('sell');
                     for (let reqCode in q.requirements) {
                         let need = q.requirements[reqCode];
@@ -74,7 +74,7 @@ function openTrade(npcCode) {
                     } else if (prevCount < 5 && player.completedQuestsCount >= 5) {
                         alert(`🎉 ВЫ ВЫПОЛНИЛИ 5 КВЕСТОВ СНАБЖЕНИЯ!\nВам стали доступны Особые Контракты («Мародер», «Пацифист», «Зона»)!`);
                     } else {
-                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} 💎\nРепутация у ${npc.name}: +25 очков.`);
+                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
                     }
                     break;
                 }
@@ -129,7 +129,7 @@ function renderTradeView() {
     let isMed = (currentTradeNpc === 'npc_med');
     let healCost = getHealCost(currentTradeNpc);
 
-    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} 💎)`;
+    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} ¢)`;
     document.getElementById('btn-medic-heal-action').innerText = healBtnText;
     document.getElementById('medic-heal-box').style.display = npc.canHeal ? 'block' : 'none';
 
@@ -165,7 +165,7 @@ function renderTradeView() {
                     <div class="item-info">
                         <b>${item.name}</b><br>
                         <small style="color:var(--trade-color)">${item.desc}</small><br>
-                        <small>Цена: ${price} 💎</small>
+                        <small>Цена: ${price} ¢</small>
                     </div>
                     ${btnHtml}
                 </div>
@@ -175,7 +175,7 @@ function renderTradeView() {
         if (currentTradeStock.length === 0) {
             buyList.innerHTML = "<p>Нет товаров на продажу</p>";
         } else {
-            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} 💎</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
+            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ¢</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
     }
 
@@ -191,7 +191,7 @@ function renderTradeView() {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
-            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} 💎</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
+            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ¢</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
     if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
@@ -199,7 +199,7 @@ function renderTradeView() {
 
 function buyEquipment(eqId) {
     let item = ITEMS_DB[eqId];
-    if (player.score < item.val) return alert("Мало кредитов!");
+    if (player.score < item.val) return alert("Мало крышек!");
     if (player.equipment) {
         if (!confirm(`Вы уверены? Это заменит экипированное снаряжение: ${ITEMS_DB[player.equipment].name}. Предыдущее снаряжение пропадет (лучше продайте его сначала в Профиле).`)) {
             return;
@@ -217,7 +217,7 @@ function buyEquipment(eqId) {
 
 function buyItem(i) {
     let s = currentTradeStock[i];
-    if (player.score < s.price) return alert("Мало кредитов!");
+    if (player.score < s.price) return alert("Мало крышек!");
     let item = ITEMS_DB[s.id];
     if (item && item.cat === 'eq') {
         playSound('sell');
@@ -255,7 +255,7 @@ function sellAllToBase() {
     let mult = NPC_DB[currentTradeNpc].mult; let total = toSell.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
     player.score += total; player.inventory = player.inventory.filter(id => ITEMS_DB[id].cat === 'quest');
     toSell.forEach(id => onStoryItemSold(currentTradeNpc, id));
-    alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+    alert(`Вещи проданы!\nПолучено: ${total} ¢`); saveState(); renderTradeView();
 }
 
 function buyHeal() {
@@ -263,7 +263,7 @@ function buyHeal() {
 
     let currentMaxHp = getMaxHp();
     if (player.hp >= currentMaxHp && player.rads === 0) return alert("Здоров!");
-    if (player.score < healCost) return alert("Мало кредитов!");
+    if (player.score < healCost) return alert("Мало крышек!");
     playSound('use');
     player.score -= healCost;
     player.rads = 0;

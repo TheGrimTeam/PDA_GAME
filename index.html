@@ -504,6 +504,191 @@ body.zombie-interface #hud {
     100% { opacity: 0.55; }
 }
 
+
+/* ===== next css file ===== */
+
+/* ============================================================
+   06-pipboy.css — оформление в духе Pip-Boy (Fallout)
+   ============================================================
+   Подключается последним и переопределяет базовые стили:
+   монохромный зелёный фосфор, плоские тонкие рамки без скруглений,
+   заголовки с линией вправо, сегментированная строка состояния,
+   вкладки внизу текстом. Чтобы вернуть прежний вид — уберите файл
+   из списка CSS_FILES в build.html.
+   ============================================================ */
+
+:root {
+    --term-green: #52ff8a;          /* фосфор */
+    --term-dark: #04120a;           /* фон экрана */
+    --pb-dim: rgba(82, 255, 138, 0.55);
+    --pb-line: rgba(82, 255, 138, 0.7);
+    --text-dim: rgba(82, 255, 138, 0.55);
+    /* Смысловые цвета оставлены, но приглушены под фосфорный экран */
+    --trade-color: #8dffc9;
+    --quest-color: #d8e36a;
+    --hero-color: #f0e68c;
+    --rad-color: #e8d34f;
+    --bandit-color: #ff5f4f;
+}
+
+html, body { background-color: #020a05; }
+
+#screen {
+    background: radial-gradient(ellipse at center, #0a2414 0%, var(--term-dark) 70%, #010603 100%);
+    border-radius: 18px;
+    box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85), inset 0 0 12px rgba(82, 255, 138, 0.12);
+    text-shadow: 0 0 3px rgba(82, 255, 138, 0.55);
+}
+
+/* Лёгкие горизонтальные строки кинескопа, как на Pip-Boy */
+.crt-overlay {
+    background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0px, rgba(0, 0, 0, 0.22) 1px, transparent 1px, transparent 3px);
+    background-size: 100% 3px;
+}
+
+/* ---------- Заголовки: текст слева, линия уходит вправо ---------- */
+h3 {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    text-align: left;
+    border-bottom: none;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+h3::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--pb-line);
+}
+
+/* ---------- Карточки: плоские рамки, уголок-скобка слева ---------- */
+.item, .quest-card, .profile-card {
+    border: 1px solid var(--pb-line);
+    border-radius: 0;
+    background: rgba(82, 255, 138, 0.03);
+    box-shadow: none;
+}
+.item::before, .quest-card::before, .profile-card::before {
+    width: 3px;
+    background: var(--term-green);
+    opacity: 0.8;
+}
+
+/* ---------- Кнопки: тонкая рамка, при нажатии — инверсия ---------- */
+button {
+    border-width: 1px;
+    border-radius: 0;
+    letter-spacing: 0.5px;
+    background: transparent;
+}
+button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
+
+/* ---------- Строка состояния ---------- */
+#hud {
+    background: transparent;
+    border-bottom: 1px solid var(--pb-line);
+    padding: 8px 10px 6px;
+    font-weight: normal;
+}
+.pb-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid var(--pb-line);
+    border-bottom: 1px solid var(--pb-line);
+    margin-bottom: 6px;
+}
+.pb-seg {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 4px;
+    padding: 2px 6px;
+    border-left: 1px solid var(--pb-line);
+    font-size: 1.05rem;
+    white-space: nowrap;
+}
+.pb-seg:first-child { border-left: none; padding-left: 2px; }
+.pb-lbl { font-size: 0.8rem; opacity: 0.75; letter-spacing: 0.5px; }
+.pb-dim { color: var(--pb-dim); font-size: 0.85em; }
+.pb-caps { color: var(--quest-color); white-space: nowrap; padding-left: 8px; border-left: 1px solid var(--pb-line); font-size: 1.05rem; }
+
+/* Шкала радиации с делениями, как RADS на Pip-Boy */
+.pb-rads {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    color: var(--rad-color);
+}
+.pb-radbar {
+    position: relative;
+    flex: 1;
+    height: 10px;
+    border: 1px solid var(--rad-color);
+    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.45) calc(10% - 1px) 10%);
+}
+.pb-radfill {
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 0;
+    background: rgba(232, 211, 79, 0.55);
+    box-shadow: 2px 0 0 var(--rad-color);
+    transition: width 0.4s ease;
+}
+.pb-radnum { min-width: 3.2em; text-align: right; font-size: 1rem; }
+
+/* Быстрые действия */
+.pb-quick { gap: 5px; margin: 0; }
+.pb-quick button {
+    flex: 1;
+    padding: 3px 2px;
+    font-size: 0.8rem;
+    min-height: 26px;
+    line-height: 1;
+    white-space: nowrap;
+}
+.pb-quick .pb-rad-btn { border-color: var(--rad-color); color: var(--rad-color); }
+
+/* ---------- Вкладки внизу: текст на общей линии, активная — в рамке ---------- */
+#nav-buttons {
+    background: transparent;
+    border: none;
+    border-top: 1px solid var(--pb-line);
+    border-radius: 0;
+    box-shadow: none;
+    padding: 8px 2px 2px;
+    gap: 4px 6px;
+}
+#nav-buttons button,
+#nav-buttons button:active {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0;
+    color: var(--pb-dim);
+    font-size: 0.95rem;
+    font-weight: normal;
+    padding: 6px 2px;
+    text-shadow: 0 0 3px rgba(82, 255, 138, 0.4);
+    transform: none;
+    box-shadow: none;
+}
+#nav-buttons button.active-nav {
+    background: rgba(82, 255, 138, 0.08);
+    border: 1px solid var(--term-green);
+    color: var(--term-green);
+    transform: none;
+    box-shadow: 0 0 8px rgba(82, 255, 138, 0.25);
+}
+
+/* Баннер событий — инверсная плашка */
+#event-banner { letter-spacing: 0.5px; }
+
+/* Поля ввода в тон экрану */
+input, textarea, select {
+    border-radius: 0 !important;
+}
+
     </style>
 </head>
 <body>
@@ -522,21 +707,25 @@ body.zombie-interface #hud {
 
         <!-- HUD — закреплённая шапка экрана, вне скроллируемого контента -->
             <div id="hud">
-            <div class="hud-row" style="margin-bottom: 5px;">
-                <div>HP:<span id="hp-val">100</span><span id="hp-max-val" style="font-size:0.85em; color:var(--term-green);">/100</span></div>
-                <div style="color:var(--rad-color)">РАД:<span id="rad-val">0</span>%</div>
-                <div>ЕДА:<span id="hunger-val">100</span>%</div>
-                <div>ВЕС:<span id="inv-val">0</span>/<span id="inv-max">15</span></div>
+            <!-- Строка состояния в стиле Pip-Boy: сегменты с разделителями -->
+            <div class="pb-stats">
+                <div class="pb-seg"><span class="pb-lbl">HP</span><span><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></span></div>
+                <div class="pb-seg"><span class="pb-lbl">ЕДА</span><span id="hunger-val">100</span></div>
+                <div class="pb-seg"><span class="pb-lbl">ВЕС</span><span><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></span></div>
+            </div>
+            <!-- Шкала радиации: заполнение «сжигает» максимум HP -->
+            <div class="pb-rads">
+                <span class="pb-lbl">РАД</span>
+                <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
+                <span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span>
+                <span class="pb-caps"><span class="pb-lbl">КРЫШКИ</span> <span id="score-val">0</span> ¢</span>
             </div>
             <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
-            <div class="hud-row" style="margin-top: 5px; gap: 6px; justify-content: space-between; margin-bottom: 5px;">
-                <button onclick="quickUseItem('hp')" style="padding: 2px 4px; font-size: 0.75rem; border-color: #fff; color: #fff; flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">❤️ ЗДОРОВЬЕ</button>
-                <button onclick="quickUseItem('rad')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--rad-color); color: var(--rad-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">☢️ РАДИАЦИЯ</button>
-                <button onclick="quickUseItem('food')" style="padding: 2px 4px; font-size: 0.75rem; border-color: var(--quest-color); color: var(--quest-color); flex: 1; min-height: 25px; line-height: 1; white-space: nowrap;">🍖 ЕДА</button>
-            </div>
-            <div class="hud-row">
-                <div style="color:var(--trade-color)">КРЕДИТЫ: <span id="score-val">0</span> 💎</div>
-                <button onclick="declareDeath()" style="padding: 2px 10px; font-size: 1rem;" class="btn-danger">💀 УБИТ</button>
+            <div class="hud-row pb-quick">
+                <button onclick="quickUseItem('hp')">❤ ЛЕЧЕНИЕ</button>
+                <button onclick="quickUseItem('rad')" class="pb-rad-btn">☢ АНТИРАД</button>
+                <button onclick="quickUseItem('food')">🍖 ЕДА</button>
+                <button onclick="declareDeath()" class="btn-danger">💀 УБИТ</button>
             </div>
         </div>
 
@@ -564,7 +753,7 @@ body.zombie-interface #hud {
             </div>
 
             <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
-                <div style="margin-bottom:5px;">Кредиты: <span id="base-score" style="color:var(--quest-color);">0</span> 💎</div>
+                <div style="margin-bottom:5px;">Крышки: <span id="base-score" style="color:var(--quest-color);">0</span> ¢</div>
                 <div>Статус / Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
             </div>
 
@@ -666,6 +855,8 @@ body.zombie-interface #hud {
                 <h4 style="color:var(--trade-color); text-align:center;">КРАФТ: ЗАЩИЩЕННЫЙ ПОДСУМОК</h4>
                 <p style="font-size:1rem; margin-bottom:10px;">Соберите детали:<br><span id="req-safe-items"></span></p>
                 <button id="btn-upgrade-safe" onclick="applySafeBox()" class="btn-safe" style="width:100%; display:none;">СОЗДАТЬ ПОДСУМОК</button>
+                <p style="font-size:0.9rem; color:var(--text-dim); text-align:center; margin:10px 0 6px;">Не можете найти детали? Подсумок можно купить.</p>
+                <button id="btn-buy-safe" onclick="buySafeBox()" class="btn-safe" style="width:100%;">КУПИТЬ ЗА <span id="safe-box-price">1000</span> ¢</button>
             </div>
             <div id="upgrade-box" style="border: 1px dashed var(--term-green); padding: 10px; margin-top: 20px;">
                 <h4 style="color:var(--term-green); text-align:center;">МОДУЛЬ РАСШИРЕНИЯ (+5 МЕСТ)</h4>
@@ -832,7 +1023,7 @@ body.zombie-interface #hud {
                         <!-- 📷 ТАКТИЧЕСКИЙ ФОТО-МОДУЛЬ (ФОТО ДЛЯ ЛИЧНОГО ДЕЛА) -->
             <div class="profile-card" style="border-color:var(--term-green); margin-top:15px; margin-bottom:25px;">
                 <h4 style="border-bottom: 1px dashed var(--term-green); padding-bottom: 4px; margin-bottom: 8px; color: var(--term-green); font-size: 1.15rem; text-align: center;">📷 ТАКТИЧЕСКОЕ ФОТО СТАЛКЕРА</h4>
-                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 💎 за первое фото!</b></p>
+                <p style="font-size:0.85rem; color:#aaa; text-align:center; margin-bottom:8px;">Сделайте фото на камеру телефона — ПДА наложит ретро-фильтр Зоны, штамп даты, позывного и характеристик выживания. <b>🎁 Награда: +100 ¢ за первое фото!</b></p>
 
                 <div style="margin-bottom: 10px;">
                     <label style="font-size:0.9rem; color:var(--term-green); display:block; margin-bottom:4px; text-align:center; font-weight:bold;">🎨 ВЫБЕРИТЕ РЕЖИМ ФИЛЬТРА ПДА:</label>
@@ -864,9 +1055,9 @@ body.zombie-interface #hud {
 
                 <!-- НАЧИСЛЕНИЕ / СПИСАНИЕ ВАЛЮТЫ -->
                 <div style="border:1px solid var(--trade-color); border-radius:4px; padding:6px; margin-bottom:10px; background:rgba(0,229,255,0.05);">
-                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">💎 Управление Кредитами (За Квесты):</label>
+                    <label style="font-size:0.9rem; color:var(--trade-color); display:block; margin-bottom:4px; font-weight:bold;">¢ Управление крышками (за квесты):</label>
                     <div style="display:flex; flex-direction:column; gap:6px; margin-bottom:6px;">
-                        <input type="number" id="admin-credit-amount" placeholder="Сумма кредитов" style="width:100%; box-sizing:border-box; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:8px; border-radius:3px; font-size:1rem;">
+                        <input type="number" id="admin-credit-amount" placeholder="Сумма крышек" style="width:100%; box-sizing:border-box; background:var(--term-dark); border:1px solid var(--trade-color); color:#fff; padding:8px; border-radius:3px; font-size:1rem;">
                         <div style="display:flex; gap:6px; width:100%;">
                             <button onclick="adminModifyCredits(true)" style="flex:1; border-color:var(--term-green); color:var(--term-green); padding:8px 4px; font-size:0.85rem; font-weight:bold; cursor:pointer;">+ НАЧИСЛИТЬ</button>
                             <button onclick="adminModifyCredits(false)" style="flex:1; border-color:var(--bandit-color); color:var(--bandit-color); padding:8px 4px; font-size:0.85rem; cursor:pointer;">- СПИСАТЬ</button>
@@ -883,8 +1074,8 @@ body.zombie-interface #hud {
                 <label style="font-size:0.9rem; color:var(--text-dim); display:block; margin-bottom:4px;">Назначить роль игроку:</label>
                 <div style="display:flex; gap:5px; margin-bottom:8px;">
                     <button onclick="adminSetRole('Безработный')" style="flex:1; font-size:0.85rem; padding:4px;">ГРАЖДАНСКИЙ</button>
-                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3💎/мин)</button>
-                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5💎/мин)</button>
+                    <button onclick="adminSetRole('Рабочий')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--trade-color); color:var(--trade-color);">РАБОЧИЙ (+3¢/мин)</button>
+                    <button onclick="adminSetRole('Военный')" style="flex:1; font-size:0.85rem; padding:4px; border-color:var(--quest-color); color:var(--quest-color);">ВОЕННЫЙ (+5¢/мин)</button>
                 </div>
                 <button onclick="adminLogout()" class="btn-danger" style="width:100%; margin-top:10px; font-size:0.95rem; padding:6px;">ВЫЙТИ ИЗ АДМИНИСТРИРОВАНИЯ</button>
             </div>
@@ -939,8 +1130,8 @@ body.zombie-interface #hud {
 
                 <!-- Информация об игре -->
                 <div style="display:flex; justify-content:space-between; font-size:0.95rem; color:#ccc; margin-bottom:10px;">
-                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> 💎</div>
-                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> 💎</div>
+                    <div>СТАВКА: <span id="slot-bet-val" style="color:var(--quest-color); font-weight:bold;">10</span> ¢</div>
+                    <div>БАЛАНС: <span id="slot-balance-val" style="color:var(--trade-color); font-weight:bold;">0</span> ¢</div>
                 </div>
 
                 <!-- Панель управления ставками -->
@@ -1006,7 +1197,7 @@ body.zombie-interface #hud {
             <h3 id="trade-npc-name" class="trade-text">ТОРГОВЕЦ</h3>
             <div id="medic-heal-box" style="display:none; text-align:center; border:1px dashed #ff3333; padding:10px; margin-bottom:15px;">
                 <p style="margin-bottom:5px;">Медицинские услуги</p>
-                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ ЗА 💎</button>
+                <button id="btn-medic-heal-action" onclick="buyHeal()" style="border-color:#ff3333; color:#ff3333; width:100%;">СНЯТЬ РАДЫ И ЛЕЧИТЬ ЗА ¢</button>
             </div>
             <div id="base-sell-all-box" style="display:none; text-align:center; border:1px dashed #ffcc00; padding:10px; margin-bottom:15px;">
                 <p style="margin-bottom:5px; color:#ffcc00;" id="base-sell-desc">Сдать весь лут Корпорации</p>
@@ -1096,10 +1287,11 @@ const QR_PREFIX_ANOM = 'anom_';
 // --- Игровые лимиты ---
 const MAX_HP_BASE = 100;
 const MAX_HUNGER = 100;
-const MAX_RADS = 100;  // 100% РАД — мгновенная смерть
+const MAX_RADS = 40;   // потолок радиации; радиация «сжигает» максимум HP (см. getEffectiveMaxHp)
 const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
+const SAFE_BOX_PRICE = 1000;                // покупка защищённого подсумка вместо крафта
 const EQ_TRADE_HEAL_COST = 35;              // лечение у Доктора Кроу с Торговым чипом
 const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
@@ -1172,7 +1364,7 @@ ITEMS_DB['eq_gas'] = { name: "Противогаз ГП-5", val: 250, size: 0, c
 ITEMS_DB['eq_hunger'] = { name: "Био-синтезатор питания", val: 300, size: 0, cat: 'eq', desc: "Защита от голода: снижает расход сытости в 3 раза." };
 ITEMS_DB['eq_storm'] = { name: "Плащ «Шторм»", val: 400, size: 0, cat: 'eq', desc: "Защита от стихий: иммунитет к бурям и спорам." };
 ITEMS_DB['eq_anom'] = { name: "Детектор «Велес»", val: 500, size: 0, cat: 'eq', desc: "Аномалии: повышает шанс успешного взятия аномалии." };
-ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 💎." };
+ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 ¢." };
 ITEMS_DB['eq_pass_base'] = { name: "Поддельный ID базы", val: 600, size: 0, cat: 'eq', desc: "Позволяет бандитам заходить на Базу Выживших." };
 ITEMS_DB['eq_pass_camp'] = { name: "Вексель Бандитов", val: 600, size: 0, cat: 'eq', desc: "Позволяет выжившим заходить в Лагерь Бандитов." };
 
@@ -1276,13 +1468,13 @@ const STORY_QUESTS = {
         name: "Калибровка датчиков",
         desc: "Учёным требуются свежие полевые данные об аномальной активности. Для этого придётся отправиться на полигоны.",
         task: "Успешно извлеките артефакт из каждой из 3 полевых аномалий. Каждая даст капсулу энергии — держите все 3 капсулы в рюкзаке, они понадобятся для финала.",
-        reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 💎."
+        reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 ¢."
     },
     4: {
         name: "Станция синтеза",
         desc: "Получив у Доктора засекреченные координаты, вы узнаёте о заброшенной лаборатории, способной сплавлять нестабильную энергию.",
         task: "1) Узнайте координаты у Доктора Кроу. 2) Отсканируйте QR-код станции, чтобы запустить синтез. 3) Оставайтесь на точке 15 минут (не умирайте и не возвращайтесь на Базу). 4) Отсканируйте станцию ещё раз.",
-        reward: "«Ядро Синтеза» — артефакт ценой 7500 💎: +50 к макс. HP и сытости, пока лежит в рюкзаке. Цена могущества: смерть с Ядром — 100% заражение, а лекарства бессильны."
+        reward: "«Ядро Синтеза» — артефакт ценой 7500 ¢: +50 к макс. HP и сытости, пока лежит в рюкзаке. Цена могущества: смерть с Ядром — 100% заражение, а лекарства бессильны."
     }
 };
 const STORY_FINAL_STAGE = 5; // все квесты пройдены
@@ -1440,11 +1632,12 @@ function runGeigerLoop() {
     playGeigerClick();
     let r = player.rads;
     let minDelay, maxDelay;
-    if (r < 15) {
+    // Пороги — доли от потолка радиации MAX_RADS
+    if (r < MAX_RADS * 0.25) {
         minDelay = 8000; maxDelay = 24000; // Очень редкие одиночные щелчки (раз в 8-24 сек)
-    } else if (r < 30) {
+    } else if (r < MAX_RADS * 0.5) {
         minDelay = 3600; maxDelay = 10000; // Редкий предупреждающий треск (раз в 4-10 сек)
-    } else if (r < 45) {
+    } else if (r < MAX_RADS * 0.75) {
         minDelay = 1600; maxDelay = 4400;  // Умеренные щелчки (раз в 2-4 сек)
     } else {
         minDelay = 500; maxDelay = 1400;   // Заметный треск при сильном заражении (раз в 0.5 - 1.4 сек)
@@ -1991,12 +2184,12 @@ function handleScan(qrCode) {
             playSound('use');
             saveState();
             renderProfile();
-            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано кредитов: ${cost} 💎</small>`;
-            alert(`Оружие (${wName}) успешно отремонтировано на Базе за ${cost} 💎!`);
+            resDiv.innerHTML = `<b style="color:var(--quest-color)">ОРУЖИЕ (${wName}) ОТРЕМОНТИРОВАНО!</b><br><small>Списано крышек: ${cost} ¢</small>`;
+            alert(`Оружие (${wName}) успешно отремонтировано на Базе за ${cost} ¢!`);
         } else {
             playSound('error');
-            resDiv.innerHTML = `<span class='danger'>Недостаточно кредитов для ремонта! (${cost} 💎 требуется)</span>`;
-            alert(`Недостаточно кредитов! Требуется: ${cost} 💎`);
+            resDiv.innerHTML = `<span class='danger'>Недостаточно крышек для ремонта! (${cost} ¢ требуется)</span>`;
+            alert(`Недостаточно крышек! Требуется: ${cost} ¢`);
         }
         return;
     }
@@ -2195,7 +2388,7 @@ function handleScan(qrCode) {
             corpseTitle = "ВОЕННОГО";
             titleColor = "var(--rad-color)";
             if (isBanditRobber) {
-                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 💎 за ликвидацию военного!</small>`;
+                karmaMsg = `<small style='color:var(--quest-color)'>💰 Контрабанда Синдиката: премия +150 ¢ за ликвидацию военного!</small>`;
             } else {
                 karmaMsg = "<small class='danger'>Ограблен военный офицер. Карма снижена!</small>";
             }
@@ -2256,7 +2449,7 @@ function handleScan(qrCode) {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
                 if (capsule) player.inventory.push(capsule);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} 💎)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ¢)</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
                 if (capsule) announceStoryProgress();
             }
         } else {
@@ -2334,7 +2527,8 @@ function handleDeadScan(qrCode) {
         player.hunger = MAX_HUNGER;
         player.inventory = [];
         player.quests.active = []; // null ломал acceptQuest() после возрождения
-        player.infectionTime = 0; player.zombieTime = 0;
+        // Инфекцию НЕ снимаем: вылечить её может только сам игрок медикаментом
+        // (useMedkit). Таймер заражения продолжает идти и после возрождения.
         // Возрождение отменяет незавершённый запрос на лечение.
         player.pendingHealId = null;
         player.pendingHealAt = 0;
@@ -2430,7 +2624,7 @@ function useFood(index, id, isSafe = false) {
 }
 
 function moveToSafe(index) { let id = player.inventory[index]; if (player.safeBox.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > 5) return alert("Нет места!"); playSound('scan'); player.safeBox.push(id); player.inventory.splice(index, 1); saveState(); renderInventory(); }
-function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[id].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
+function moveToInv(index) { let id = player.safeBox[index]; if (player.inventory.reduce((s, iId) => s + ITEMS_DB[iId].size, 0) + ITEMS_DB[id].size > player.maxSize) return alert("Нет места!"); playSound('scan'); player.inventory.push(id); player.safeBox.splice(index, 1); saveState(); renderInventory(); }
 
 function renderCraftBox(idReq, idBtn, questArr, callback) {
     let hasAll = true, txt = [], rc = {}, ic = {}; questArr.forEach(id => rc[id] = (rc[id] || 0) + 1); player.inventory.forEach(id => ic[id] = (ic[id] || 0) + 1);
@@ -2500,6 +2694,22 @@ function applySafeBox() {
     showBanner("🔒 Защищенный подсумок успешно создан!", 'var(--trade-color)');
 }
 
+// Покупка защищённого подсумка за крышки — для тех, кто не нашёл детали для крафта
+function buySafeBox() {
+    if (player.safeBoxUnlocked) return;
+    if (player.score < SAFE_BOX_PRICE) {
+        playSound('error');
+        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} ¢, у вас ${player.score} ¢.`);
+    }
+    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} ¢?`)) return;
+    player.score -= SAFE_BOX_PRICE;
+    player.safeBoxUnlocked = true;
+    playSound('upgrade');
+    saveState();
+    renderInventory();
+    showBanner("🔒 Защищенный подсумок куплен!", 'var(--trade-color)');
+}
+
 function renderInventory() {
     const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
     player.inventory.forEach((id, i) => {
@@ -2542,7 +2752,8 @@ function renderInventory() {
             acts = `<button onclick="moveToInv(${i})" style="color:var(--term-green); border-color:var(--term-green); margin-right:5px">В РЮКЗАК</button> ` + acts;
             safeList.innerHTML += `<div class="item" style="border-color:var(--trade-color)"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
         });
-    } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox); }
+    } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox);
+        let priceEl = document.getElementById('safe-box-price'); if (priceEl) priceEl.innerText = SAFE_BOX_PRICE; }
     renderCraftBox('req-items', 'btn-upgrade', player.upgradeQuest, applyUpgrade);
 }
 
@@ -2620,8 +2831,8 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
-                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 💎)</button>
+                <span style="font-size:0.95rem;">Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
+                <button class="btn-quest btn-danger" style="margin-top:0; width:auto; padding:4px 10px; font-size:0.9rem;" onclick="abandonQuest(${idx})">ОТМЕНИТЬ (-10 ¢)</button>
             </div></div>`;
             container.innerHTML += html;
         });
@@ -2651,7 +2862,7 @@ function renderQuests() {
         }
 
         html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-            <span>Награда: <b style="color:var(--trade-color);">${q.reward} 💎</b></span>
+            <span>Награда: <b style="color:var(--trade-color);">${q.reward} ¢</b></span>
             <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px;" onclick="acceptQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
         </div></div>`;
         container.innerHTML += html;
@@ -2684,7 +2895,7 @@ function renderQuests() {
             }
 
             html += `<div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
-                <span>Награда: <b style="color:var(--hero-color);">${q.reward} 💎</b></span>
+                <span>Награда: <b style="color:var(--hero-color);">${q.reward} ¢</b></span>
                 <button class="btn-quest" style="margin-top:0; width:auto; padding:4px 15px; border-color:var(--hero-color); color:var(--hero-color);" onclick="acceptSpecialQuest(${index})" ${isMaxActive ? 'disabled style="opacity:0.5; cursor:not-allowed;"' : ''}>ПРИНЯТЬ</button>
             </div></div>`;
             container.innerHTML += html;
@@ -2720,7 +2931,7 @@ function acceptSpecialQuest(index) {
 }
 
 function abandonQuest(index) {
-    if (confirm("Отменить контракт за 10 кредитов?")) {
+    if (confirm("Отменить контракт за 10 крышек?")) {
         playSound('error');
         player.score = Math.max(0, player.score - 10);
         player.quests.active.splice(index, 1);
@@ -2845,7 +3056,7 @@ function turnInStoryWeapons() {
     announceStoryProgress();
     saveState();
     renderTradeView();
-    alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} 💎\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
+    alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} ¢\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
 }
 
 // Квест 3: успешное извлечение артефакта из полевой аномалии.
@@ -2926,7 +3137,7 @@ function handleSynthStationScan(resDiv) {
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
     playSound('quest');
-    resDiv.innerHTML = `<b style="color:var(--hero-color)">💎 ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} 💎).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">¢ ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ¢).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
 }
 
 // Тик из heartbeat-цикла: срыв или завершение синтеза
@@ -2974,7 +3185,7 @@ function claimStoryReward() {
         let owned = player.equipment === 'eq_anom' || (player.eqPurchased && player.eqPurchased['eq_anom']);
         if (owned) {
             player.score += STORY_Q3_COMPENSATION;
-            msg = `Детектор «Велес» у вас уже был — учёные выплатили компенсацию: ${STORY_Q3_COMPENSATION} 💎.`;
+            msg = `Детектор «Велес» у вас уже был — учёные выплатили компенсацию: ${STORY_Q3_COMPENSATION} ¢.`;
         } else {
             if (player.equipment && !confirm(`Детектор «Велес» займёт слот снаряжения вместо «${ITEMS_DB[player.equipment].name}» (оно пропадёт). Продолжить?\n\nОтмена — забрать награду позже.`)) {
                 return;
@@ -3095,7 +3306,7 @@ function openTrade(npcCode) {
                 if (have < need) allPresent = false;
             }
             if (allPresent) {
-                if (confirm(`Сдать контракт "${q.name || "Контракт"}" и получить ${q.reward} 💎?`)) {
+                if (confirm(`Сдать контракт "${q.name || "Контракт"}" и получить ${q.reward} ¢?`)) {
                     playSound('sell');
                     for (let reqCode in q.requirements) {
                         let need = q.requirements[reqCode];
@@ -3135,7 +3346,7 @@ function openTrade(npcCode) {
                     } else if (prevCount < 5 && player.completedQuestsCount >= 5) {
                         alert(`🎉 ВЫ ВЫПОЛНИЛИ 5 КВЕСТОВ СНАБЖЕНИЯ!\nВам стали доступны Особые Контракты («Мародер», «Пацифист», «Зона»)!`);
                     } else {
-                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} 💎\nРепутация у ${npc.name}: +25 очков.`);
+                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
                     }
                     break;
                 }
@@ -3190,7 +3401,7 @@ function renderTradeView() {
     let isMed = (currentTradeNpc === 'npc_med');
     let healCost = getHealCost(currentTradeNpc);
 
-    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} 💎)`;
+    let healBtnText = healCost === 0 ? "СНЯТЬ РАДЫ И ЛЕЧИТЬ (БЕСПЛАТНО ПО РЕПУТАЦИИ)" : `СНЯТЬ РАДЫ И ЛЕЧИТЬ (${healCost} ¢)`;
     document.getElementById('btn-medic-heal-action').innerText = healBtnText;
     document.getElementById('medic-heal-box').style.display = npc.canHeal ? 'block' : 'none';
 
@@ -3226,7 +3437,7 @@ function renderTradeView() {
                     <div class="item-info">
                         <b>${item.name}</b><br>
                         <small style="color:var(--trade-color)">${item.desc}</small><br>
-                        <small>Цена: ${price} 💎</small>
+                        <small>Цена: ${price} ¢</small>
                     </div>
                     ${btnHtml}
                 </div>
@@ -3236,7 +3447,7 @@ function renderTradeView() {
         if (currentTradeStock.length === 0) {
             buyList.innerHTML = "<p>Нет товаров на продажу</p>";
         } else {
-            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} 💎</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
+            currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ¢</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
     }
 
@@ -3252,7 +3463,7 @@ function renderTradeView() {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
             hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
-            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} 💎</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
+            sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ¢</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
     if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
@@ -3260,7 +3471,7 @@ function renderTradeView() {
 
 function buyEquipment(eqId) {
     let item = ITEMS_DB[eqId];
-    if (player.score < item.val) return alert("Мало кредитов!");
+    if (player.score < item.val) return alert("Мало крышек!");
     if (player.equipment) {
         if (!confirm(`Вы уверены? Это заменит экипированное снаряжение: ${ITEMS_DB[player.equipment].name}. Предыдущее снаряжение пропадет (лучше продайте его сначала в Профиле).`)) {
             return;
@@ -3278,7 +3489,7 @@ function buyEquipment(eqId) {
 
 function buyItem(i) {
     let s = currentTradeStock[i];
-    if (player.score < s.price) return alert("Мало кредитов!");
+    if (player.score < s.price) return alert("Мало крышек!");
     let item = ITEMS_DB[s.id];
     if (item && item.cat === 'eq') {
         playSound('sell');
@@ -3316,7 +3527,7 @@ function sellAllToBase() {
     let mult = NPC_DB[currentTradeNpc].mult; let total = toSell.reduce((sum, id) => sum + Math.max(1, Math.floor(ITEMS_DB[id].val * mult)), 0);
     player.score += total; player.inventory = player.inventory.filter(id => ITEMS_DB[id].cat === 'quest');
     toSell.forEach(id => onStoryItemSold(currentTradeNpc, id));
-    alert(`Вещи проданы!\nПолучено: ${total} 💎`); saveState(); renderTradeView();
+    alert(`Вещи проданы!\nПолучено: ${total} ¢`); saveState(); renderTradeView();
 }
 
 function buyHeal() {
@@ -3324,7 +3535,7 @@ function buyHeal() {
 
     let currentMaxHp = getMaxHp();
     if (player.hp >= currentMaxHp && player.rads === 0) return alert("Здоров!");
-    if (player.score < healCost) return alert("Мало кредитов!");
+    if (player.score < healCost) return alert("Мало крышек!");
     playSound('use');
     player.score -= healCost;
     player.rads = 0;
@@ -3693,7 +3904,7 @@ function finishHackSuccess() {
     player.scannedCodes[currentHackCode] = Date.now();
     saveState();
 
-    hackLog(`Получено: ${creditsReward} 💎`, 'bonus');
+    hackLog(`Получено: ${creditsReward} ¢`, 'bonus');
     hackLog(gotItem ? `Извлечено: ${itemName}` : `Извлечено: ${itemName} — нет места в рюкзаке!`, gotItem ? 'ok' : 'err');
     if (isStash) {
         hackLog('Вы обчистили чужой схрон: −1 к Карме.', 'err');
@@ -4253,7 +4464,7 @@ function startHeartbeatLoop() {
         storyTick(); // синтез в квесте «Станция синтеза»
 
         if (!player.inBase && player.hp > 0 && (!player.arrestedUntil || Date.now() >= player.arrestedUntil)) {
-            // Начисление зарплаты (Рабочий: +3💎/мин, Военный: +5💎/мин)
+            // Начисление зарплаты (Рабочий: +3¢/мин, Военный: +5¢/мин)
             if (player.role === 'Рабочий' || player.role === 'Военный') {
                 player.salaryTimer = (player.salaryTimer || 0) + 5;
                 if (player.salaryTimer >= 60) {
@@ -4261,7 +4472,7 @@ function startHeartbeatLoop() {
                     player.score += pay;
                     player.salaryTimer = 0;
                     playSound('sell');
-                    showBanner(`💼 ЖАЛОВАНИЕ (${player.role.toUpperCase()}): +${pay} 💎`, 'var(--trade-color)');
+                    showBanner(`💼 ЖАЛОВАНИЕ (${player.role.toUpperCase()}): +${pay} ¢`, 'var(--trade-color)');
                     saveState();
                 }
             }
@@ -4625,7 +4836,7 @@ function spinSlots() {
     if ((player.score || 0) < currentSlotBet) {
         playSound('error');
         let log = document.getElementById('slot-result-log');
-        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРИСТАЛЛОВ 💎!</span>";
+        if (log) log.innerHTML = "<span style='color:var(--bandit-color); font-weight:bold;'>НЕДОСТАТОЧНО КРЫШЕК ¢!</span>";
         return;
     }
 
@@ -4668,7 +4879,7 @@ function resolveSlots() {
         if (sym1.payout > 0) {
             winAmount = Math.round(currentSlotBet * sym1.payout);
             playSound('karma');
-            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
+            if (log) log.innerHTML = '<span style="color:var(--term-green); font-weight:bold;">ДЖЕКПОТ! 3x ' + sym1.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
         } else {
             player.rads = Math.min(MAX_RADS, (player.rads || 0) + 5);
             playSound('death');
@@ -4679,7 +4890,7 @@ function resolveSlots() {
         if (matchingSym.payout > 0) {
             winAmount = Math.round(currentSlotBet * 1.5);
             playSound('sell');
-            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' 💎</span>';
+            if (log) log.innerHTML = '<span style="color:var(--trade-color);">Победа! Пара ' + matchingSym.char + '! Выигрыш: +' + winAmount + ' ¢</span>';
         } else {
             playSound('error');
             if (log) log.innerHTML = '<span style="color:#888;">Пусто! Пара черепов 💀 принесла лишь пыль.</span>';
@@ -4712,7 +4923,7 @@ function initiateP2PTrade(idx) {
     if (!item) return;
 
     let priceInput = prompt(`Вы собираетесь продать: ${item.name}.
-Введите стоимость в кредитах 💎:`, item.val);
+Введите стоимость в крышках ¢:`, item.val);
     if (priceInput === null) return;
     let price = parseInt(priceInput);
     if (isNaN(price) || price < 0) {
@@ -4729,7 +4940,7 @@ function initiateP2PTrade(idx) {
     let contentEl = document.getElementById('trade-modal-content');
     contentEl.innerHTML = `
         <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ВЫ ПРОДАЕТЕ: <b style="color:var(--trade-color)">${item.name}</b></div>
-        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} 💎</b></div>
+        <div style="font-size:1.15rem; color:#fff; margin-bottom:10px;">ЦЕНА: <b style="color:var(--quest-color)">${price} ¢</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
             1. Покажите этот QR-код покупателю для оплаты.<br>
             2. НЕ ЗАКРЫВАЙТЕ это окно.<br>
@@ -4795,7 +5006,7 @@ function showP2PConfirmQR(itemId, price, txId, isRepeat) {
         ${title}
         <div style="font-size:1.1rem; color:#fff; margin-bottom:10px;">Вы приобрели: <b>${item.name}</b></div>
         <p style="font-size:0.95rem; color:var(--text-dim); line-height:1.3; margin-bottom:10px;">
-            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} 💎.
+            Покажите этот QR-код продавцу. Сканируя его, он подтвердит передачу, удалит вещь из рюкзака и получит ваши ${price} ¢.
         </p>
     `;
 
@@ -4815,7 +5026,7 @@ function handleP2PTradeScan(code) {
         let item = ITEMS_DB[itemId];
         if (!item) return alert("Неизвестный предмет!");
 
-        // Повторный скан того же кода продажи: не списываем кредиты второй раз,
+        // Повторный скан того же кода продажи: не списываем крышки второй раз,
         // а заново показываем код подтверждения (вдруг продавец не успел его считать)
         player.processedBuyTxs = player.processedBuyTxs || {};
         if (player.processedBuyTxs[txId]) {
@@ -4826,7 +5037,7 @@ function handleP2PTradeScan(code) {
 
         if (player.score < price) {
             playSound('error');
-            return alert(`Недостаточно кредитов! Требуется: ${price} 💎, у вас: ${player.score} 💎`);
+            return alert(`Недостаточно крышек! Требуется: ${price} ¢, у вас: ${player.score} ¢`);
         }
 
         let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
@@ -4835,7 +5046,7 @@ function handleP2PTradeScan(code) {
             return alert("Недостаточно места в рюкзаке для покупки этого предмета!");
         }
 
-        if (confirm(`Купить "${item.name}" у игрока ${sellerCallsign} за ${price} 💎?`)) {
+        if (confirm(`Купить "${item.name}" у игрока ${sellerCallsign} за ${price} ¢?`)) {
             // Производим списание и зачисление
             player.score -= price;
             player.inventory.push(itemId);
@@ -4873,7 +5084,7 @@ function handleP2PTradeScan(code) {
         saveState();
 
         alert(`🤝 Сделка успешно подтверждена!
-Вы передали предмет и получили: ${price} 💎`);
+Вы передали предмет и получили: ${price} ¢`);
     }
 }
 
@@ -4896,20 +5107,20 @@ function adminModifyCredits(isAdd) {
     let input = document.getElementById('admin-credit-amount');
     let amount = parseInt(input ? input.value : 0);
     if (isNaN(amount) || amount <= 0) {
-        alert("Пожалуйста, введите корректное число кредитов!");
+        alert("Пожалуйста, введите корректное число крышек!");
         return;
     }
     if (!isAdd) {
         if ((player.score || 0) < amount) {
-            if (!confirm(`У игрока всего ${player.score || 0}💎. Списать выбранную сумму в минус?`)) return;
+            if (!confirm(`У игрока всего ${player.score || 0}¢. Списать выбранную сумму в минус?`)) return;
         }
         player.score = Math.max(0, (player.score || 0) - amount);
         playSound('sell');
-        showBanner(`💸 Администратор списал ${amount} 💎`, 'var(--bandit-color)');
+        showBanner(`💸 Администратор списал ${amount} ¢`, 'var(--bandit-color)');
     } else {
         player.score = (player.score || 0) + amount;
         playSound('karma');
-        showBanner(`💎 Администратор начислил ${amount} 💎`, 'var(--term-green)');
+        showBanner(`¢ Администратор начислил ${amount} ¢`, 'var(--term-green)');
     }
     saveState();
     renderProfile();
@@ -4962,11 +5173,11 @@ function handleBanditScan(code) {
     let parts = code.split(":");
     let banditName = parts[1];
 
-    // Премия 100 кредитов
+    // Премия 100 крышек
     player.score += 100;
     playSound('sell');
     saveState();
-    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 💎</small>`;
+    document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ¢</small>`;
 }
 
 function returnToBase() {
@@ -5036,7 +5247,7 @@ function repairWeaponAtBase(wName) {
     let cost = getRepairCost(wName);
     if (cost === 0) return alert("Оружие полностью исправно!");
     if (player.score < cost) {
-        return alert(`Недостаточно кредитов! Стоимость ремонта на базе: ${cost} 💎`);
+        return alert(`Недостаточно крышек! Стоимость ремонта на базе: ${cost} ¢`);
     }
 
     pendingRepairWeapon = wName;
@@ -5151,14 +5362,6 @@ function switchView(viewName) {
 function updateHUD() {
     try {
         if (player.rads > MAX_RADS) player.rads = MAX_RADS;
-        // 100% РАД — мгновенная смерть (правило игры)
-        if (player.rads >= MAX_RADS && player.hp > 0) {
-            player.hp = 0;
-            showBanner('☢ СМЕРТЕЛЬНАЯ ДОЗА РАДИАЦИИ!', COLOR_BANDIT);
-            checkDeathState(); // повторно вызовет updateHUD уже с hp = 0
-            saveState();       // сохраняем смерть, чтобы после перезагрузки она не засчиталась повторно
-            return;
-        }
         let baseMaxHp = getMaxHp();
         let maxHp = getEffectiveMaxHp();
         if (player.hp > maxHp) {
@@ -5181,7 +5384,10 @@ function updateHUD() {
         if (document.getElementById('hp-max-val')) document.getElementById('hp-max-val').innerText = '/' + baseMaxHp;
         if (document.getElementById('rad-val')) {
             document.getElementById('rad-val').innerText = player.rads;
-            document.getElementById('rad-val').style.color = player.rads >= 50 ? COLOR_RAD : '';
+            document.getElementById('rad-val').style.color = player.rads >= MAX_RADS * 0.75 ? COLOR_RAD : '';
+            if (document.getElementById('rad-max-val')) document.getElementById('rad-max-val').innerText = '/' + MAX_RADS;
+            let radFill = document.getElementById('rad-fill');
+            if (radFill) radFill.style.width = Math.min(100, (player.rads / MAX_RADS) * 100) + '%';
         }
         let maxHunger = getMaxHunger();
         if (player.hunger > maxHunger) player.hunger = maxHunger; // например, Ядро убрали из рюкзака
@@ -5383,7 +5589,7 @@ function showSurvivorQRModal() {
     if (isZomb) {
         corpseDesc.innerHTML = "<span style='color:var(--bandit-color)'>🧟 ВЫ ЗОМБИ! Покажите этот QR-код другим игрокам. За вашу ликвидацию или охоту они получат награду.</span>";
     } else {
-        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 💎).</span>";
+        corpseDesc.innerHTML = "<span style='color:var(--rad-color)'>☣️ Статус выжившего. Покажите этот код для сканирования и получения бонуса (+250 ¢).</span>";
     }
 
     document.getElementById('btn-scan-heal-item').style.display = "none";
@@ -5901,13 +6107,13 @@ function sellEquipment() {
     if (!player.equipment || !ITEMS_DB[player.equipment]) return;
     let item = ITEMS_DB[player.equipment];
     let sellPrice = Math.floor(item.val / 2);
-    if (confirm(`Продать ${item.name} за ${sellPrice} 💎?`)) {
+    if (confirm(`Продать ${item.name} за ${sellPrice} ¢?`)) {
         playSound('sell');
         player.score += sellPrice;
         player.equipment = null;
         saveState();
         renderProfile();
-        alert(`Успешно продано за ${sellPrice} 💎!`);
+        alert(`Успешно продано за ${sellPrice} ¢!`);
     }
 }
 
@@ -6097,7 +6303,7 @@ function handlePdaPhotoCaptured(event) {
             ctx.fillText(dateText, width - ctx.measureText(dateText).width - 20, Math.floor(headerH * 0.65));
 
             ctx.fillText(`OPERATOR: ${callsign}`, 20, height - Math.floor(footerH * 0.35));
-            let statsStr = `HP:${player.hp}/${maxHp} | RAD:${player.rads}% | HUNGER:${player.hunger}%`;
+            let statsStr = `HP:${player.hp}/${maxHp} | RAD:${player.rads}/${MAX_RADS} | HUNGER:${player.hunger}%`;
             ctx.fillText(statsStr, width - ctx.measureText(statsStr).width - 20, height - Math.floor(footerH * 0.35));
 
             ctx.strokeRect(12, 12, width - 24, height - 24);
@@ -6124,7 +6330,7 @@ function handlePdaPhotoCaptured(event) {
                 player.score = (player.score || 0) + 100;
                 saveState();
                 renderProfile();
-                showBanner("📸 НАГРАДА! +100 💎 ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
+                showBanner("📸 НАГРАДА! +100 ¢ ЗА ПЕРВОЕ ФОТО В ЛИЧНОМ ДЕЛЕ!", 'var(--term-green)');
             } else {
                 showBanner("📸 ФОТО УСПЕШНО ОБРАБОТАНО И СОХРАНЕНО!", 'var(--term-green)');
             }

@@ -56,7 +56,7 @@ function repairWeaponAtBase(wName) {
     let cost = getRepairCost(wName);
     if (cost === 0) return alert("Оружие полностью исправно!");
     if (player.score < cost) {
-        return alert(`Недостаточно кредитов! Стоимость ремонта на базе: ${cost} 💎`);
+        return alert(`Недостаточно крышек! Стоимость ремонта на базе: ${cost} ¢`);
     }
 
     pendingRepairWeapon = wName;

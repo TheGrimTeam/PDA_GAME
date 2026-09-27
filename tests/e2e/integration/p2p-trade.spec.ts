@@ -11,9 +11,9 @@ import { QR } from '../../helpers/qr-codes';
  *   продажа:  p2ptrade:sell:<sellerCallsign>:<itemId>:<price>:<txId>
  *   подтверждение: p2ptrade:confirm:<txId>:<price>:<itemId>
  *
- * Покупатель сканирует sell → confirm() → списание кредитов, добавление
+ * Покупатель сканирует sell → confirm() → списание крышек, добавление
  * предмета, генерация confirm-QR. Продавец сканирует confirm → удаление
- * предмета, зачисление кредитов, запись в processedTradeTxs.
+ * предмета, зачисление крышек, запись в processedTradeTxs.
  */
 
 test.describe('Integration: P2P-обмен', () => {
@@ -67,7 +67,7 @@ test.describe('Integration: P2P-обмен', () => {
     await scanDirect(pageB, QR.p2pSell('SELLER', 'food_1', 50, txId));
 
     const playerB = await new GamePage(pageB).playerState();
-    // Покупатель списал 50 кредитов и получил предмет.
+    // Покупатель списал 50 крышек и получил предмет.
     expect(playerB.score).toBe(50);
     expect(playerB.inventory).toContain('food_1');
   });
@@ -85,7 +85,7 @@ test.describe('Integration: P2P-обмен', () => {
     await scanDirect(pageA, QR.p2pConfirm(txId, 50, 'food_1'));
 
     const playerA = await new GamePage(pageA).playerState();
-    // Продавец удалил предмет, получил 50 кредитов и записал txId.
+    // Продавец удалил предмет, получил 50 крышек и записал txId.
     expect(playerA.inventory).not.toContain('food_1');
     expect(playerA.score).toBe(150);
     expect(playerA.processedTradeTxs[txId]).toBeTruthy();
@@ -135,7 +135,7 @@ test.describe('Integration: P2P-обмен', () => {
     await scanDirect(pageB, QR.p2pSell('SELLER', 'food_1', 9999, txId));
 
     const playerB = await new GamePage(pageB).playerState();
-    // Сделка не состоялась: кредиты не изменились, предмет не добавлен.
+    // Сделка не состоялась: крышки не изменились, предмет не добавлен.
     expect(playerB.score).toBe(10);
     expect(playerB.inventory).not.toContain('food_1');
   });
