@@ -487,6 +487,36 @@ body.zombie-interface #hud {
 .hk-sync-btn:disabled { opacity: 0.4; }
 .hk-console { font-family: monospace; background: #000; border: 1px solid var(--term-green); max-height: 140px; overflow-y: auto; padding: 8px; font-size: 0.9rem; line-height: 1.25; margin-top: 10px; }
 
+/* ===== ВЗЛОМ СХРОНА: дамп памяти ===== */
+.hk-dump { column-count: 2; column-gap: 10px; font-family: monospace; font-size: 0.78rem; line-height: 1.5; background: #000; border: 1px solid var(--term-green); padding: 6px; white-space: pre; overflow-x: auto; }
+.hk-row { break-inside: avoid; }
+.hk-addr { color: var(--text-dim); margin-right: 5px; }
+.hk-word { color: #fff; background: rgba(57,255,20,0.15); cursor: pointer; border-radius: 2px; }
+.hk-word:active, .hk-word:hover { background: var(--term-green); color: #000; }
+.hk-tried { color: var(--bandit-color); background: transparent; text-decoration: line-through; cursor: default; }
+.hk-tried:hover { background: transparent; color: var(--bandit-color); }
+.hk-tried sup { text-decoration: none; display: inline-block; color: var(--rad-color); font-weight: bold; margin-left: 1px; }
+.hk-secret { color: #000; background: var(--term-green); }
+.hk-removed { color: #333; }
+.hk-br { color: var(--trade-color); cursor: pointer; text-decoration: underline; }
+.hk-br:active, .hk-br:hover { background: var(--trade-color); color: #000; }
+.hk-br-used { color: #444; }
+.hk-candidates { font-size: 0.85rem; color: var(--rad-color); min-height: 1.1em; margin: 4px 0; }
+
+/* ===== ВЗЛОМ ТЕРМИНАЛА: отмычка ===== */
+.lk-svg { display: block; width: 100%; max-width: 360px; margin: 0 auto; touch-action: none; }
+.lk-arc { fill: none; stroke: var(--term-green); stroke-width: 1.5; stroke-dasharray: 2 5; opacity: 0.7; }
+.lk-base { stroke: var(--term-green); stroke-width: 1; opacity: 0.4; }
+.lk-cyl { fill: #0b2414; stroke: var(--term-green); stroke-width: 2; }
+.lk-cyl-inner { fill: none; stroke: var(--term-green); stroke-width: 1; opacity: 0.5; }
+.lk-hole { fill: #000; stroke: var(--term-green); stroke-width: 1; }
+.lk-pin { stroke: #e8e8d0; stroke-width: 3; stroke-linecap: round; filter: drop-shadow(0 0 3px rgba(255,255,255,0.6)); }
+.lk-svg.lk-broken { animation: lk-shake 0.4s ease-out; }
+@keyframes lk-shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-6px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+.lk-info { text-align: center; font-size: 1rem; margin: 4px 0 6px; }
+.lk-slider { width: 100%; accent-color: var(--term-green); height: 28px; }
+#lock-turn-btn { touch-action: none; -webkit-touch-callout: none; }
+
 
 /* ===== next css file ===== */
 
@@ -1167,36 +1197,79 @@ input, textarea, select {
 
 <!-- ===== next view ===== -->
 
-        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ, ФЛЕШЕК И СХРОНОВ (мини-игра «Синхронизация») -->
+        <!-- 7. ВЗЛОМ: флешка — «Синхронизация», терминал — «Отмычка», схрон — «Подбор кода» -->
         <div id="view-hacking" class="view">
             <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 10px;">📟 ВЗЛОМ</h3>
             <div class="profile-card hk-header">
                 <div>УСТРОЙСТВО: <span id="hack-system-name" style="color:#fff; font-weight:bold;">БЛОК ПАМЯТИ</span></div>
-                <div>ЗАЩИТА: <span id="hack-level" style="color:#fff;"></span></div>
-                <div>КОНТУРЫ: <span id="hack-stage" style="color:var(--term-green); font-weight:bold;"></span></div>
-                <div>ПОПЫТКИ: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
+                <div>СЛОЖНОСТЬ: <span id="hack-level" style="color:#fff;"></span></div>
+                <div><span id="hack-attempts-label">ПОПЫТКИ</span>: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
                 <div id="hack-lock-warning" class="hk-lock-warning" style="display:none;">!!! ПОСЛЕДНЯЯ ПОПЫТКА — ДАЛЬШЕ БЛОКИРОВКА НА 2 ЧАСА !!!</div>
             </div>
 
-            <details class="hk-help">
-                <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
-                <ol>
-                    <li>По шкале бегает сканер. Нажмите <b>«СИНХРОНИЗАЦИЯ»</b>, когда он внутри <b style="color:var(--term-green)">зелёной зоны</b>.</li>
-                    <li>Нужно пройти <b>3 уровня</b>. С каждым уровнем зона уже, а сканер быстрее.</li>
-                    <li>Промах сжигает одну попытку. Уровень при этом не сбрасывается.</li>
-                    <li>4 промаха — устройство блокируется на 2 часа. Прервать взлом можно без блокировки.</li>
-                </ol>
-            </details>
-
-            <div id="hack-track" class="hk-track">
-                <div id="hack-zone" class="hk-zone"></div>
-                <div id="hack-runner" class="hk-runner"></div>
+            <!-- ФЛЕШКА: СИНХРОНИЗАЦИЯ -->
+            <div id="hack-panel-sync" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>По шкале бегает сканер. Нажмите <b>«СИНХРОНИЗАЦИЯ»</b>, когда он внутри <b style="color:var(--term-green)">зелёной зоны</b>.</li>
+                        <li>Нужно пройти <b>3 уровня</b>: с каждым зона уже, а сканер быстрее.</li>
+                        <li>Промах сжигает попытку, пройденный уровень сохраняется.</li>
+                        <li>4 промаха — блокировка на 2 часа. Прервать взлом можно без блокировки.</li>
+                    </ol>
+                </details>
+                <div style="margin-bottom:6px;">КОНТУРЫ: <span id="hack-stage" style="color:var(--term-green); font-weight:bold;"></span></div>
+                <div id="hack-track" class="hk-track">
+                    <div id="hack-zone" class="hk-zone"></div>
+                    <div id="hack-runner" class="hk-runner"></div>
+                </div>
+                <button id="hack-sync-btn" class="hk-sync-btn" onclick="hackSync()">СИНХРОНИЗАЦИЯ</button>
             </div>
-            <button id="hack-sync-btn" class="hk-sync-btn" onclick="hackSync()">СИНХРОНИЗАЦИЯ</button>
 
-            <div class="profile-card hk-console" id="hack-console">
-                <!-- Журнал взлома -->
+            <!-- ТЕРМИНАЛ: ОТМЫЧКА -->
+            <div id="hack-panel-lock" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>Поставьте шпильку под углом: ползунком или ведя пальцем по дуге.</li>
+                        <li>Удерживайте <b>«ПОВЕРНУТЬ»</b>. Чем дальше поддаётся замок, тем ближе шпилька к нужной точке.</li>
+                        <li>Если замок упёрся, отпустите кнопку и сдвиньте шпильку. Давить в упоре нельзя: через секунду шпилька сломается.</li>
+                        <li>Замок провернулся до конца — терминал вскрыт. 4 сломанные шпильки — блокировка на 2 часа.</li>
+                    </ol>
+                </details>
+                <svg id="lock-svg" class="lk-svg" viewBox="0 0 200 146" aria-label="Замок и шпилька">
+                    <path d="M12 100 A88 88 0 0 1 188 100" class="lk-arc"/>
+                    <path d="M12 100 L188 100" class="lk-base"/>
+                    <g id="lock-cyl">
+                        <circle cx="100" cy="100" r="40" class="lk-cyl"/>
+                        <circle cx="100" cy="100" r="31" class="lk-cyl-inner"/>
+                        <circle cx="100" cy="92" r="6" class="lk-hole"/>
+                        <rect x="97" y="92" width="6" height="17" class="lk-hole"/>
+                    </g>
+                    <line id="lock-pin" x1="100" y1="100" x2="100" y2="12" class="lk-pin"/>
+                </svg>
+                <div class="lk-info">ШПИЛЬКА: <span id="lock-angle-val">90°</span> · ПОВОРОТ: <span id="lock-rot-val">0%</span></div>
+                <input type="range" id="lock-angle" class="lk-slider" min="0" max="180" step="1" value="90" oninput="lockSetAngle(this.value)">
+                <button id="lock-turn-btn" class="hk-sync-btn">ПОВЕРНУТЬ (УДЕРЖИВАТЬ)</button>
             </div>
+
+            <!-- СХРОН: ПОДБОР КОДА -->
+            <div id="hack-panel-words" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>Код — одно из слов (6 букв), спрятанных в дампе памяти. Нажмите на слово, чтобы ввести его.</li>
+                        <li>Если слово неверное, терминал покажет <b>СОВПАДЕНИЕ</b> — сколько букв стоят <b>на тех же местах</b>, что и в коде. Число появится рядом со словом.</li>
+                        <li><b>Пример:</b> код БУНКЕР, вы ввели БАРЬЕР → совпадение 3/6 (Б, Е, Р на своих местах). Значит, код — слово, у которого с БАРЬЕР тоже ровно 3 совпадения.</li>
+                        <li>Парные скобки <b>( ) [ ] { } &lt; &gt;</b> в одной строке — бонус: убирают ложное слово или восстанавливают попытки.</li>
+                        <li>4 ошибки — блокировка на 2 часа. Схрон чужой: вскрытие снижает Карму на 1.</li>
+                    </ol>
+                </details>
+                <div id="hack-words-grid" class="hk-dump"></div>
+                <div id="hack-candidates" class="hk-candidates"></div>
+            </div>
+
+            <div class="profile-card hk-console" id="hack-console"></div>
 
             <div id="hack-actions"></div>
             <button onclick="abortHacking()" style="width:100%; margin-top:10px; border-color:var(--bandit-color); color:var(--bandit-color);">ПРЕРВАТЬ ПОДКЛЮЧЕНИЕ</button>
@@ -3680,36 +3753,35 @@ function upgradeShelter() {
 /* ===== next js file ===== */
 
 // ============================================================
-// ВЗЛОМ: МИНИ-ИГРА «СИНХРОНИЗАЦИЯ»
+// ВЗЛОМ: ОБЩЕЕ ЯДРО
 // ============================================================
-// По шкале движется бегунок сканера. Игрок жмёт «СИНХРОНИЗАЦИЯ»,
-// когда бегунок в зелёной зоне. Для вскрытия нужно пройти 3 уровня:
-// с каждым уровнем зона уже, а бегунок быстрее.
-// Промах сжигает попытку; попытки кончились — блокировка на 2 часа.
+// Тип носителя определяет мини-игру:
+//   usb_  (простой)  — «Синхронизация»  (logic/hack-sync.js)
+//   term_ (средний)  — «Отмычка»        (logic/hack-lockpick.js)
+//   safe_ (сложный)  — «Подбор кода»    (logic/hack-words.js)
+// Ядро отвечает за блокировку на 2 часа, попытки, награду, штраф
+// Кармы за чужой схрон и выход. Игры вызывают hackSpendAttempt()
+// при ошибке и hackWin() при победе.
 // ============================================================
 
 const HACK_MAX_ATTEMPTS = 4;
-const HACK_LEVELS = 3;
-const HACK_PAUSE_MS = 700; // пауза после попадания/промаха, чтобы игрок увидел результат
 
-// Профили устройств: ширина зоны (% шкалы) и скорость бегунка (% шкалы в секунду) по уровням
 const HACK_DEVICES = {
-    usb_:  { title: "ФЛЕШКА",   level: "ЛЁГКИЙ",  zones: [24, 18, 13], speeds: [45, 65, 90],   reward: [100, 300] },
-    term_: { title: "ТЕРМИНАЛ", level: "СРЕДНИЙ", zones: [20, 14, 10], speeds: [55, 80, 110],  reward: [100, 300] },
-    safe_: { title: "СХРОН",    level: "СЛОЖНЫЙ", zones: [18, 14, 11], speeds: [55, 75, 95],   reward: [300, 600] }
+    usb_:  { title: "ФЛЕШКА",   level: "ПРОСТАЯ",  game: 'sync',     attemptsLabel: "ПОПЫТКИ", reward: [100, 300] },
+    term_: { title: "ТЕРМИНАЛ", level: "СРЕДНЯЯ",  game: 'lockpick', attemptsLabel: "ШПИЛЬКИ", reward: [100, 300] },
+    safe_: { title: "СХРОН",    level: "СЛОЖНАЯ",  game: 'words',    attemptsLabel: "ПОПЫТКИ", reward: [300, 600] }
+};
+
+const HACK_GAMES = {
+    sync:     { panel: 'hack-panel-sync',  start: () => syncStart(),     stop: () => syncStop() },
+    lockpick: { panel: 'hack-panel-lock',  start: () => lockpickStart(), stop: () => lockpickStop() },
+    words:    { panel: 'hack-panel-words', start: () => wordsStart(),    stop: () => {} }
 };
 
 let currentHackCode = "";
 let hackDevice = null;
 let hackAttemptsLeft = HACK_MAX_ATTEMPTS;
-let hackLevel = 1;                       // текущий уровень 1..3
-let hackPos = 0;                         // позиция бегунка, % (0..100)
-let hackDir = 1;                         // направление движения: 1 вправо, -1 влево
-let hackZone = { start: 40, width: 20 }; // зелёная зона, %
 let hackFinished = false;
-let hackPaused = false;
-let hackRaf = null;
-let hackLastTs = 0;
 
 function getHackDevice(code) {
     if (code.startsWith(QR_PREFIX_SAFE)) return HACK_DEVICES.safe_;
@@ -3736,39 +3808,32 @@ function startHacking(code) {
         }
     }
 
+    // Остановить игру, если прошлый взлом не был завершён
+    Object.values(HACK_GAMES).forEach(g => g.stop());
+
     currentHackCode = code;
     hackDevice = getHackDevice(code);
     hackAttemptsLeft = HACK_MAX_ATTEMPTS;
-    hackLevel = 1;
     hackFinished = false;
-    hackPaused = false;
 
     document.getElementById('hack-system-name').innerText = `${hackDevice.title} ${code.toUpperCase()}`;
     document.getElementById('hack-level').innerText = hackDevice.level;
+    document.getElementById('hack-attempts-label').innerText = hackDevice.attemptsLabel;
     document.getElementById('hack-console').innerHTML = '';
     document.getElementById('hack-actions').innerHTML = '';
-    document.getElementById('hack-sync-btn').disabled = false;
+    Object.entries(HACK_GAMES).forEach(([name, g]) => {
+        document.getElementById(g.panel).style.display = (name === hackDevice.game) ? 'block' : 'none';
+    });
+
     hackLog('Подключение к контуру защиты...', 'dim');
-    hackLog('Жмите «СИНХРОНИЗАЦИЯ», когда бегунок в зелёной зоне.', 'dim');
     if (code.startsWith(QR_PREFIX_SAFE)) {
         hackLog('Внимание: схрон чужой. Вскрытие снизит Карму на 1.', 'warn');
     }
 
-    setupHackLevel();
     updateHackAttemptsUI();
     switchView('hacking');
     playSound('radio');
-    startHackLoop();
-}
-
-// Новая зелёная зона (случайное место) и сброс бегунка для текущего уровня
-function setupHackLevel() {
-    let width = hackDevice.zones[hackLevel - 1];
-    hackZone = { start: 5 + Math.random() * (90 - width), width: width };
-    hackPos = 0;
-    hackDir = 1;
-    renderHackTrack();
-    updateHackLevelUI();
+    HACK_GAMES[hackDevice.game].start();
 }
 
 function hackLog(text, kind) {
@@ -3781,21 +3846,6 @@ function hackLog(text, kind) {
     consoleEl.scrollTop = consoleEl.scrollHeight;
 }
 
-function renderHackTrack() {
-    let zone = document.getElementById('hack-zone');
-    let runner = document.getElementById('hack-runner');
-    if (zone) { zone.style.left = hackZone.start + '%'; zone.style.width = hackZone.width + '%'; }
-    if (runner) runner.style.left = hackPos + '%';
-}
-
-function updateHackLevelUI() {
-    let el = document.getElementById('hack-stage');
-    if (!el) return;
-    let dots = '';
-    for (let i = 1; i <= HACK_LEVELS; i++) dots += (i < hackLevel || (hackFinished && hackAttemptsLeft > 0)) ? '● ' : (i === hackLevel ? '◉ ' : '○ ');
-    el.innerText = `${dots.trim()}  уровень ${Math.min(hackLevel, HACK_LEVELS)}/${HACK_LEVELS}`;
-}
-
 function updateHackAttemptsUI() {
     const attemptsEl = document.getElementById('hack-attempts');
     let boxes = '';
@@ -3806,104 +3856,41 @@ function updateHackAttemptsUI() {
     if (warnEl) warnEl.style.display = (hackAttemptsLeft === 1 && !hackFinished) ? 'block' : 'none';
 }
 
-// Движение бегунка туда-обратно по шкале
-function startHackLoop() {
-    stopHackLoop();
-    hackLastTs = 0;
-    const step = (ts) => {
-        let view = document.getElementById('view-hacking');
-        if (hackFinished || !view || !view.classList.contains('active')) { hackRaf = null; return; }
-        if (hackLastTs && !hackPaused) {
-            let dt = Math.min(0.1, (ts - hackLastTs) / 1000);
-            hackPos += hackDir * hackDevice.speeds[hackLevel - 1] * dt;
-            if (hackPos >= 100) { hackPos = 100; hackDir = -1; }
-            if (hackPos <= 0) { hackPos = 0; hackDir = 1; }
-            renderHackTrack();
-        }
-        hackLastTs = ts;
-        hackRaf = requestAnimationFrame(step);
-    };
-    hackRaf = requestAnimationFrame(step);
-}
-
-function stopHackLoop() {
-    if (hackRaf) cancelAnimationFrame(hackRaf);
-    hackRaf = null;
-}
-
-function isHackInZone(pos) {
-    return pos >= hackZone.start && pos <= hackZone.start + hackZone.width;
-}
-
-// Кнопка «СИНХРОНИЗАЦИЯ»
-function hackSync() {
-    if (hackFinished || hackPaused || hackAttemptsLeft <= 0) return;
-    let track = document.getElementById('hack-track');
-
-    if (isHackInZone(hackPos)) {
-        hackLog(`Уровень ${hackLevel}: синхронизация успешна.`, 'ok');
-        flashHackTrack(track, 'hk-hit');
-        if (hackLevel >= HACK_LEVELS) {
-            finishHackSuccess();
-            return;
-        }
-        playSound('upgrade');
-        hackPaused = true;
-        setTimeout(() => {
-            hackLevel++;
-            hackPaused = false;
-            setupHackLevel();
-            hackLog(`Уровень ${hackLevel}: зона уже, сигнал быстрее.`, 'dim');
-        }, HACK_PAUSE_MS);
-        return;
-    }
-
-    // Промах — попытка сгорает
+// Ошибка в мини-игре: сгорает попытка. Возвращает true, если попытки кончились.
+function hackSpendAttempt(message) {
+    if (hackFinished) return true;
     hackAttemptsLeft--;
     playSound('error');
-    flashHackTrack(track, 'hk-miss');
-    hackLog(`Промах! Попыток осталось: ${hackAttemptsLeft}`, 'err');
+    hackLog(`${message} Осталось: ${hackAttemptsLeft}`, 'err');
     updateHackAttemptsUI();
+    if (hackAttemptsLeft > 0) return false;
 
-    if (hackAttemptsLeft <= 0) {
-        hackFinished = true;
-        stopHackLoop();
-        player.scannedCodes[currentHackCode] = Date.now(); // Блокируем на 2 часа
-        saveState();
-        setTimeout(() => playSound('hazard'), 400);
-        hackLog('ЗАЩИТА СРАБОТАЛА. Устройство заблокировано на 2 часа.', 'err');
-        document.getElementById('hack-sync-btn').disabled = true;
-        document.getElementById('hack-actions').innerHTML = `<button onclick="switchView('scan')" class="btn-danger" style="width:100%; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ЗАБЛОКИРОВАНО)</button>`;
-        updateHackAttemptsUI();
-        return;
-    }
-    // Короткая пауза, бегунок продолжает с того же места
-    hackPaused = true;
-    setTimeout(() => { hackPaused = false; }, HACK_PAUSE_MS);
-}
-
-function flashHackTrack(track, cls) {
-    if (!track) return;
-    track.classList.remove('hk-hit', 'hk-miss');
-    void track.offsetWidth; // перезапуск CSS-анимации
-    track.classList.add(cls);
-}
-
-function finishHackSuccess() {
     hackFinished = true;
-    stopHackLoop();
-    playSound('quest');
-    hackLog('Все 3 контура синхронизированы. Доступ разрешён.', 'ok');
+    HACK_GAMES[hackDevice.game].stop();
+    player.scannedCodes[currentHackCode] = Date.now(); // Блокируем на 2 часа
+    saveState();
+    setTimeout(() => playSound('hazard'), 400);
+    hackLog('ЗАЩИТА СРАБОТАЛА. Устройство заблокировано на 2 часа.', 'err');
+    document.getElementById('hack-actions').innerHTML = `<button onclick="switchView('scan')" class="btn-danger" style="width:100%; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ЗАБЛОКИРОВАНО)</button>`;
+    updateHackAttemptsUI();
+    return true;
+}
 
-    // Начисление случайной награды
+// Победа в мини-игре: награда, штраф Кармы за схрон, блокировка кода
+function hackWin() {
+    if (hackFinished) return;
+    hackFinished = true;
+    HACK_GAMES[hackDevice.game].stop();
+    playSound('quest');
+    hackLog('Доступ разрешён.', 'ok');
+
     let creditsReward = hackDevice.reward[0] + hackRand(hackDevice.reward[1] - hackDevice.reward[0] + 1);
     player.score += creditsReward;
 
-    // Выдаем случайную полезную деталь
+    // Случайная полезная деталь
     let junkKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat === 'junk' || ITEMS_DB[k].cat === 'gear');
     let itemRewardCode = junkKeys[hackRand(junkKeys.length)];
     let itemName = ITEMS_DB[itemRewardCode].name;
-
     let invSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
     let gotItem = false;
     if (invSize + ITEMS_DB[itemRewardCode].size <= player.maxSize) {
@@ -3916,7 +3903,6 @@ function finishHackSuccess() {
     let isStash = currentHackCode.startsWith(QR_PREFIX_SAFE);
     if (isStash) player.karma_score--;
 
-    // Блокируем код от повторного взлома
     player.scannedCodes[currentHackCode] = Date.now();
     saveState();
 
@@ -3926,19 +3912,509 @@ function finishHackSuccess() {
         hackLog('Вы обчистили чужой схрон: −1 к Карме.', 'err');
         setTimeout(() => playSound('karma'), 700);
     }
-
-    updateHackLevelUI();
     updateHackAttemptsUI();
-    document.getElementById('hack-sync-btn').disabled = true;
     document.getElementById('hack-actions').innerHTML = `<button onclick="switchView('scan')" class="btn-hero" style="width:100%; padding:12px; font-size:1.1rem;">ОТКЛЮЧИТЬСЯ (ГОТОВО)</button>`;
 }
 
 function abortHacking() {
     if (hackFinished || confirm("Прервать взлом? Прогресс будет утерян, но блокировки не будет.")) {
-        stopHackLoop();
+        if (hackDevice) HACK_GAMES[hackDevice.game].stop();
         hackFinished = true;
         switchView('scan');
     }
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// ВЗЛОМ ФЛЕШКИ (usb_): МИНИ-ИГРА «СИНХРОНИЗАЦИЯ»
+// ============================================================
+// По шкале движется бегунок сканера. Игрок жмёт «СИНХРОНИЗАЦИЯ»,
+// когда бегунок в зелёной зоне. 3 уровня подряд: с каждым уровнем
+// зона уже, а бегунок быстрее. Промах сжигает попытку (уровень остаётся).
+// ============================================================
+
+const SYNC_LEVELS = 3;
+const SYNC_ZONES = [24, 18, 13];   // ширина зелёной зоны, % шкалы
+const SYNC_SPEEDS = [45, 65, 90];  // скорость бегунка, % шкалы в секунду
+const SYNC_PAUSE_MS = 700;         // пауза после попадания/промаха
+
+let hackLevel = 1;                       // текущий уровень 1..3
+let hackPos = 0;                         // позиция бегунка, %
+let hackDir = 1;                         // 1 — вправо, -1 — влево
+let hackZone = { start: 40, width: 20 }; // зелёная зона, %
+let hackPaused = false;
+let hackRaf = null;
+let hackLastTs = 0;
+
+function syncStart() {
+    hackLevel = 1;
+    hackPaused = false;
+    document.getElementById('hack-sync-btn').disabled = false;
+    hackLog('Жмите «СИНХРОНИЗАЦИЯ», когда бегунок в зелёной зоне.', 'dim');
+    syncSetupLevel();
+    syncStartLoop();
+}
+
+function syncStop() {
+    if (hackRaf) cancelAnimationFrame(hackRaf);
+    hackRaf = null;
+    let btn = document.getElementById('hack-sync-btn');
+    if (btn) btn.disabled = true;
+}
+
+// Новая зелёная зона (случайное место) и сброс бегунка
+function syncSetupLevel() {
+    let width = SYNC_ZONES[hackLevel - 1];
+    hackZone = { start: 5 + Math.random() * (90 - width), width: width };
+    hackPos = 0;
+    hackDir = 1;
+    syncRender();
+    syncUpdateLevelUI();
+}
+
+function syncRender() {
+    let zone = document.getElementById('hack-zone');
+    let runner = document.getElementById('hack-runner');
+    if (zone) { zone.style.left = hackZone.start + '%'; zone.style.width = hackZone.width + '%'; }
+    if (runner) runner.style.left = hackPos + '%';
+}
+
+function syncUpdateLevelUI() {
+    let el = document.getElementById('hack-stage');
+    if (!el) return;
+    let dots = '';
+    for (let i = 1; i <= SYNC_LEVELS; i++) dots += (i < hackLevel || (hackFinished && hackAttemptsLeft > 0)) ? '● ' : (i === hackLevel ? '◉ ' : '○ ');
+    el.innerText = `${dots.trim()}  уровень ${Math.min(hackLevel, SYNC_LEVELS)}/${SYNC_LEVELS}`;
+}
+
+function syncStartLoop() {
+    if (hackRaf) cancelAnimationFrame(hackRaf);
+    hackLastTs = 0;
+    const step = (ts) => {
+        let view = document.getElementById('view-hacking');
+        if (hackFinished || !view || !view.classList.contains('active')) { hackRaf = null; return; }
+        if (hackLastTs && !hackPaused) {
+            let dt = Math.min(0.1, (ts - hackLastTs) / 1000);
+            hackPos += hackDir * SYNC_SPEEDS[hackLevel - 1] * dt;
+            if (hackPos >= 100) { hackPos = 100; hackDir = -1; }
+            if (hackPos <= 0) { hackPos = 0; hackDir = 1; }
+            syncRender();
+        }
+        hackLastTs = ts;
+        hackRaf = requestAnimationFrame(step);
+    };
+    hackRaf = requestAnimationFrame(step);
+}
+
+function syncFlash(cls) {
+    let track = document.getElementById('hack-track');
+    if (!track) return;
+    track.classList.remove('hk-hit', 'hk-miss');
+    void track.offsetWidth; // перезапуск CSS-анимации
+    track.classList.add(cls);
+}
+
+// Кнопка «СИНХРОНИЗАЦИЯ»
+function hackSync() {
+    if (hackFinished || hackPaused || hackAttemptsLeft <= 0) return;
+
+    let inZone = hackPos >= hackZone.start && hackPos <= hackZone.start + hackZone.width;
+    if (inZone) {
+        hackLog(`Уровень ${hackLevel}: синхронизация успешна.`, 'ok');
+        syncFlash('hk-hit');
+        if (hackLevel >= SYNC_LEVELS) {
+            hackWin();
+            syncUpdateLevelUI();
+            return;
+        }
+        playSound('upgrade');
+        hackPaused = true;
+        setTimeout(() => {
+            if (hackFinished) return;
+            hackLevel++;
+            hackPaused = false;
+            syncSetupLevel();
+            hackLog(`Уровень ${hackLevel}: зона уже, сигнал быстрее.`, 'dim');
+        }, SYNC_PAUSE_MS);
+        return;
+    }
+
+    // Промах — попытка сгорает, бегунок продолжает с того же места
+    syncFlash('hk-miss');
+    if (hackSpendAttempt('Промах!')) return;
+    hackPaused = true;
+    setTimeout(() => { hackPaused = false; }, SYNC_PAUSE_MS);
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// ВЗЛОМ ТЕРМИНАЛА (term_): МИНИ-ИГРА «ОТМЫЧКА» (как в Fallout 3/NV)
+// ============================================================
+// Игрок выставляет угол шпильки (ползунок или палец по дуге) и
+// удерживает «ПОВЕРНУТЬ». Чем ближе угол к скрытой «сладкой точке»,
+// тем дальше проворачивается замок — это и есть подсказка.
+// Если давить в упоре не в том месте, шпилька дрожит и ломается
+// (сгорает попытка). Замок провернулся до конца — взлом успешен.
+// Пока замок повёрнут, двигать шпильку нельзя — сначала отпустите.
+// ============================================================
+
+const LOCK_SWEET_HALF = 8;    // ± градусов, где замок открывается полностью
+const LOCK_FALLOFF = 40;      // за сколько градусов от зоны поворот падает до минимума
+const LOCK_MIN_OPEN = 0.06;   // даже далеко от точки замок чуть-чуть поддаётся
+const LOCK_OPEN_DEG = 90;     // поворот цилиндра для открытия
+const LOCK_TURN_SPEED = 150;  // °/с при повороте
+const LOCK_RETURN_SPEED = 260;// °/с при возврате, когда отпустили
+const LOCK_BREAK_TIME = 0.7;  // сек давления в упоре до поломки шпильки
+const LOCK_SVG_H = 146;       // высота viewBox рисунка замка (hacking.html)
+
+let lockSweet = 90;      // «сладкая точка», 0..180°
+let lockAngle = 90;      // угол шпильки, 0..180°
+let lockRot = 0;         // поворот цилиндра, 0..90°
+let lockTurning = false;
+let lockStress = 0;      // сколько секунд шпилька в упоре
+let lockRaf = null;
+let lockLastTs = 0;
+let lockLastVibrate = 0;
+let lockBound = false;
+let lockDragging = false;
+
+function lockpickStart() {
+    lockSweet = 10 + Math.random() * 160;
+    lockAngle = 90;
+    lockRot = 0;
+    lockTurning = false;
+    lockStress = 0;
+    lockBindControls();
+    let slider = document.getElementById('lock-angle');
+    if (slider) { slider.value = lockAngle; slider.disabled = false; }
+    document.getElementById('lock-turn-btn').disabled = false;
+    hackLog('Выставьте шпильку и удерживайте «ПОВЕРНУТЬ».', 'dim');
+    hackLog('Чем дальше поддаётся замок — тем ближе вы к цели.', 'dim');
+    lockRender();
+    lockStartLoop();
+}
+
+function lockpickStop() {
+    lockTurning = false;
+    if (lockRaf) cancelAnimationFrame(lockRaf);
+    lockRaf = null;
+    let btn = document.getElementById('lock-turn-btn');
+    if (btn) btn.disabled = true;
+    let slider = document.getElementById('lock-angle');
+    if (slider) slider.disabled = true;
+}
+
+// Насколько замок может провернуться при текущем угле (0..1)
+function lockOpenness(angle) {
+    let d = Math.abs(angle - lockSweet);
+    if (d <= LOCK_SWEET_HALF) return 1;
+    return Math.max(LOCK_MIN_OPEN, 1 - (d - LOCK_SWEET_HALF) / LOCK_FALLOFF);
+}
+
+function lockSetAngle(value) {
+    if (hackFinished || lockTurning || lockRot > 1) return; // сначала отпустите замок
+    lockAngle = Math.max(0, Math.min(180, Number(value)));
+    let slider = document.getElementById('lock-angle');
+    if (slider && Number(slider.value) !== lockAngle) slider.value = lockAngle;
+    lockRender();
+}
+
+function lockTurnStart() {
+    if (hackFinished || hackAttemptsLeft <= 0) return;
+    lockTurning = true;
+}
+
+function lockTurnEnd() {
+    lockTurning = false;
+}
+
+// Один шаг физики замка (вызывается из анимации; в тестах — напрямую)
+function lockStep(dt) {
+    if (hackFinished) return;
+    if (lockTurning) {
+        let open = lockOpenness(lockAngle);
+        let target = LOCK_OPEN_DEG * open;
+        if (lockRot < target) {
+            lockRot = Math.min(target, lockRot + LOCK_TURN_SPEED * dt);
+        }
+        if (open >= 1 && lockRot >= LOCK_OPEN_DEG - 0.01) {
+            lockTurning = false;
+            lockRender();
+            hackLog('Замок открыт.', 'ok');
+            hackWin();
+            return;
+        }
+        if (lockRot >= target - 0.5) {
+            // Упёрлись: шпилька под нагрузкой
+            lockStress += dt;
+            let now = Date.now();
+            if (navigator.vibrate && now - lockLastVibrate > 120) {
+                try { navigator.vibrate(15); } catch (e) {}
+                lockLastVibrate = now;
+            }
+            if (lockStress >= LOCK_BREAK_TIME) {
+                lockTurning = false;
+                lockStress = 0;
+                lockRot = 0;
+                lockFlash();
+                hackSpendAttempt('Шпилька сломалась!');
+                if (!hackFinished) hackLog('Новая шпилька. Точка та же — попробуйте другой угол.', 'dim');
+            }
+        }
+    } else {
+        lockRot = Math.max(0, lockRot - LOCK_RETURN_SPEED * dt);
+        lockStress = Math.max(0, lockStress - dt * 2);
+    }
+    lockRender();
+}
+
+function lockStartLoop() {
+    if (lockRaf) cancelAnimationFrame(lockRaf);
+    lockLastTs = 0;
+    const loop = (ts) => {
+        let view = document.getElementById('view-hacking');
+        if (hackFinished || !view || !view.classList.contains('active')) { lockRaf = null; lockTurning = false; return; }
+        if (lockLastTs) lockStep(Math.min(0.1, (ts - lockLastTs) / 1000));
+        lockLastTs = ts;
+        lockRaf = requestAnimationFrame(loop);
+    };
+    lockRaf = requestAnimationFrame(loop);
+}
+
+function lockFlash() {
+    let svg = document.getElementById('lock-svg');
+    if (!svg) return;
+    svg.classList.remove('lk-broken');
+    void svg.getBoundingClientRect();
+    svg.classList.add('lk-broken');
+}
+
+// Точка на дуге для угла шпильки: 0° — слева, 180° — справа
+function lockArcPoint(angle, r) {
+    let a = angle * Math.PI / 180;
+    return { x: 100 - r * Math.cos(a), y: 100 - r * Math.sin(a) };
+}
+
+function lockRender() {
+    let pin = document.getElementById('lock-pin');
+    let cyl = document.getElementById('lock-cyl');
+    if (!pin || !cyl) return;
+    // Дрожь шпильки под нагрузкой
+    let jitter = lockStress > 0 && lockTurning ? (Math.random() - 0.5) * 4 * (0.4 + lockStress / LOCK_BREAK_TIME) : 0;
+    let tip = lockArcPoint(lockAngle + jitter, 88);
+    pin.setAttribute('x2', tip.x.toFixed(1));
+    pin.setAttribute('y2', tip.y.toFixed(1));
+    cyl.setAttribute('transform', `rotate(${lockRot.toFixed(1)} 100 100)`);
+    let angEl = document.getElementById('lock-angle-val');
+    if (angEl) angEl.innerText = Math.round(lockAngle) + '°';
+    let rotEl = document.getElementById('lock-rot-val');
+    if (rotEl) rotEl.innerText = Math.round(lockRot / LOCK_OPEN_DEG * 100) + '%';
+}
+
+// Кнопка удержания и перетаскивание шпильки пальцем по дуге
+function lockBindControls() {
+    if (lockBound) return;
+    lockBound = true;
+    let btn = document.getElementById('lock-turn-btn');
+    btn.addEventListener('pointerdown', (e) => { e.preventDefault(); lockTurnStart(); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => btn.addEventListener(ev, lockTurnEnd));
+    btn.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    let svg = document.getElementById('lock-svg');
+    const angleFromEvent = (e) => {
+        let rect = svg.getBoundingClientRect();
+        let x = (e.clientX - rect.left) / rect.width * 200 - 100;
+        let y = 100 - (e.clientY - rect.top) / rect.height * LOCK_SVG_H;
+        let a = Math.atan2(Math.max(0, y), -x) * 180 / Math.PI;
+        return Math.max(0, Math.min(180, a));
+    };
+    svg.addEventListener('pointerdown', (e) => { lockDragging = true; lockSetAngle(angleFromEvent(e)); });
+    svg.addEventListener('pointermove', (e) => { if (lockDragging) lockSetAngle(angleFromEvent(e)); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => svg.addEventListener(ev, () => { lockDragging = false; }));
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// ВЗЛОМ СХРОНА (safe_): МИНИ-ИГРА «ПОДБОР КОДА» (в стиле Fallout)
+// ============================================================
+// Дамп памяти: адреса и мусорные символы, среди них слова из 6 букв.
+// Одно слово — пароль. После неверного слова терминал показывает
+// СОВПАДЕНИЕ — сколько букв стоят на тех же местах, что в пароле.
+// Парные скобки ( ) [ ] { } < > в строке — бонус: убирают ложное
+// слово или восстанавливают попытки.
+// ============================================================
+
+const WORDS_LEN = 6;           // длина кода
+const WORDS_COUNT = 10;        // слов-кандидатов в дампе
+const WORDS_ROWS = 14;         // строк в каждой из двух колонок
+const WORDS_BRACKETS = 3;      // бонусных скобок
+const HACK_ROW_WIDTH = 12;     // символов в строке дампа
+const HACK_JUNK = "!@#$%^&*-_=+;:'\",./?|\\~`";
+const HACK_BRACKETS = [['(', ')'], ['[', ']'], ['{', '}'], ['<', '>']];
+
+const HACK_WORDS = ["БУНКЕР", "ВЫБРОС", "СИГНАЛ", "ПАТРОН", "ФОНАРЬ", "ГИЛЬЗА", "ПЕЧАТЬ", "СИРЕНА", "КОМПАС", "СИНТЕЗ",
+    "МУТАНТ", "ОРУЖИЕ", "АПТЕКА", "ПРИБОР", "ЗАТВОР", "МАЯЧОК", "РЕЙДЕР", "СТРАЖА", "КАНАЛЫ", "ЛОГОВО", "БАРЬЕР",
+    "ЗАСАДА", "ТАЙНИК"];
+
+let hackSecretWord = "";
+let hackWordsList = [];
+let hackDump = [];        // строки дампа: массив токенов {t:'junk'|'word'|'br', ...}
+let hackTried = {};       // слово → совпадение
+let hackRemoved = {};     // слово → true (убрано скобками)
+let hackBracketUsed = {}; // id скобки → true
+let hackAddrBase = 0;
+
+function hackJunk(len) {
+    let s = "";
+    for (let i = 0; i < len; i++) s += HACK_JUNK[hackRand(HACK_JUNK.length)];
+    return s;
+}
+
+function hackEsc(s) {
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+// Сколько букв стоят на тех же местах
+function hackLikeness(a, b) {
+    let n = 0;
+    for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] === b[i]) n++;
+    return n;
+}
+
+function wordsStart() {
+    hackTried = {};
+    hackRemoved = {};
+    hackBracketUsed = {};
+    hackAddrBase = 0xF000 + hackRand(0x800) * 2;
+    let pool = [...HACK_WORDS].sort(() => Math.random() - 0.5);
+    hackWordsList = pool.slice(0, WORDS_COUNT);
+    hackSecretWord = hackWordsList[hackRand(hackWordsList.length)];
+    hackDump = buildHackDump();
+    hackLog(`Выберите код (${WORDS_LEN} букв) в дампе памяти.`, 'dim');
+    renderHackDump();
+}
+
+// Каждое слово занимает свою строку, в части пустых строк — пары скобок
+function buildHackDump() {
+    let totalRows = WORDS_ROWS * 2;
+    let rowIdx = [...Array(totalRows).keys()].sort(() => Math.random() - 0.5);
+    let wordRows = {};
+    hackWordsList.forEach((w, i) => { wordRows[rowIdx[i]] = w; });
+    let bracketRows = rowIdx.slice(hackWordsList.length, hackWordsList.length + WORDS_BRACKETS);
+
+    let dump = [];
+    let brId = 0;
+    for (let r = 0; r < totalRows; r++) {
+        let tokens = [];
+        if (wordRows[r] !== undefined) {
+            let w = wordRows[r];
+            let before = hackRand(HACK_ROW_WIDTH - w.length + 1);
+            tokens.push({ t: 'junk', s: hackJunk(before) });
+            tokens.push({ t: 'word', w: w });
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH - w.length - before) });
+        } else if (bracketRows.includes(r)) {
+            let pair = HACK_BRACKETS[hackRand(HACK_BRACKETS.length)];
+            let inner = 1 + hackRand(4);
+            let len = inner + 2;
+            let before = hackRand(HACK_ROW_WIDTH - len + 1);
+            tokens.push({ t: 'junk', s: hackJunk(before) });
+            tokens.push({ t: 'br', id: brId++, s: pair[0] + hackJunk(inner) + pair[1] });
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH - len - before) });
+        } else {
+            tokens.push({ t: 'junk', s: hackJunk(HACK_ROW_WIDTH) });
+        }
+        dump.push(tokens);
+    }
+    return dump;
+}
+
+function renderHackDump() {
+    const grid = document.getElementById('hack-words-grid');
+    let html = '';
+    hackDump.forEach((tokens, r) => {
+        let addr = '0x' + (hackAddrBase + r * HACK_ROW_WIDTH).toString(16).toUpperCase();
+        let line = '';
+        tokens.forEach(tok => {
+            if (tok.t === 'junk') {
+                line += hackEsc(tok.s);
+            } else if (tok.t === 'word') {
+                let w = tok.w;
+                if (hackRemoved[w]) {
+                    line += `<span class="hk-removed">${'.'.repeat(w.length)}</span>`;
+                } else if (hackTried[w] !== undefined) {
+                    line += `<span class="hk-word hk-tried" title="Совпадение ${hackTried[w]}/${w.length}">${w}<sup>${hackTried[w]}</sup></span>`;
+                } else if (hackFinished) {
+                    line += `<span class="hk-word${w === hackSecretWord ? ' hk-secret' : ''}">${w}</span>`;
+                } else {
+                    line += `<span class="hk-word" role="button" onclick="submitHackWord('${w}')">${w}</span>`;
+                }
+            } else if (tok.t === 'br') {
+                if (hackBracketUsed[tok.id] || hackFinished) {
+                    line += `<span class="hk-br-used">${hackEsc(tok.s)}</span>`;
+                } else {
+                    line += `<span class="hk-br" role="button" onclick="useHackBracket(${tok.id})">${hackEsc(tok.s)}</span>`;
+                }
+            }
+        });
+        html += `<div class="hk-row"><span class="hk-addr">${addr}</span>${line}</div>`;
+    });
+    grid.innerHTML = html;
+    updateHackCandidates();
+}
+
+// Подсказка: сколько слов ещё не противоречат полученным совпадениям
+function updateHackCandidates() {
+    const el = document.getElementById('hack-candidates');
+    if (!el) return;
+    let tried = Object.keys(hackTried);
+    if (tried.length === 0 || hackFinished) { el.innerText = ''; return; }
+    let left = hackWordsList.filter(w => !hackRemoved[w] && hackTried[w] === undefined &&
+        tried.every(t => hackLikeness(w, t) === hackTried[t]));
+    el.innerText = `Подходят под все совпадения: ${left.length} слов(а)`;
+}
+
+function submitHackWord(word) {
+    if (hackAttemptsLeft <= 0 || hackFinished) return;
+    if (hackTried[word] !== undefined) return; // уже пробовали
+
+    if (word === hackSecretWord) {
+        hackLog(word, 'ok');
+        hackWin();
+        renderHackDump();
+        return;
+    }
+
+    let likeness = hackLikeness(word, hackSecretWord);
+    if (hackWordsList.includes(word)) hackTried[word] = likeness;
+    hackLog(word, 'err');
+    if (hackSpendAttempt(`Отказ в доступе. Совпадение: ${likeness}/${hackSecretWord.length}.`)) {
+        hackLog(`Код был: ${hackSecretWord}`, 'dim');
+    }
+    renderHackDump();
+}
+
+// Бонусные скобки: 75% — убрать ложное слово, иначе (или если убирать нечего) — вернуть попытки
+function useHackBracket(id) {
+    if (hackFinished || hackBracketUsed[id]) return;
+    hackBracketUsed[id] = true;
+    let duds = hackWordsList.filter(w => w !== hackSecretWord && !hackRemoved[w] && hackTried[w] === undefined);
+    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === HACK_MAX_ATTEMPTS)) {
+        let w = duds[hackRand(duds.length)];
+        hackRemoved[w] = true;
+        hackLog(`Ложное слово удалено: ${w}`, 'bonus');
+    } else {
+        hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+        hackLog('Защита сброшена: попытки восстановлены.', 'bonus');
+        updateHackAttemptsUI();
+    }
+    playSound('use');
+    renderHackDump();
 }
 
 
@@ -6381,8 +6857,8 @@ function handlePdaPhotoCaptured(event) {
 
 // ============================================================
 // VIEWS: ВЗЛОМ
-// Логика мини-игры взлома вынесена в src/js/logic/hacking.js
-// (startHacking, hackSync, updateHackAttemptsUI, abortHacking).
+// Логика взлома: ядро — src/js/logic/hacking.js; игры — hack-sync.js (usb_),
+// hack-lockpick.js (term_), hack-words.js (safe_).
 // Здесь размещаются только чисто UI-хелперы вьюхи.
 // ============================================================
 

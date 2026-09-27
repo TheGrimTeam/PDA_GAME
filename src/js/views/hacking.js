@@ -1,6 +1,6 @@
 // ============================================================
 // VIEWS: ВЗЛОМ
-// Логика мини-игры взлома вынесена в src/js/logic/hacking.js
-// (startHacking, hackSync, updateHackAttemptsUI, abortHacking).
+// Логика взлома: ядро — src/js/logic/hacking.js; игры — hack-sync.js (usb_),
+// hack-lockpick.js (term_), hack-words.js (safe_).
 // Здесь размещаются только чисто UI-хелперы вьюхи.
 // ============================================================

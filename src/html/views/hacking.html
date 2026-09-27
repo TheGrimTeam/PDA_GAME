@@ -1,33 +1,76 @@
-        <!-- 7. ВЗЛОМ ТЕРМИНАЛОВ, ФЛЕШЕК И СХРОНОВ (мини-игра «Синхронизация») -->
+        <!-- 7. ВЗЛОМ: флешка — «Синхронизация», терминал — «Отмычка», схрон — «Подбор кода» -->
         <div id="view-hacking" class="view">
             <h3 style="color:var(--trade-color); border-bottom: 1px dashed var(--trade-color); padding-bottom: 5px; margin-bottom: 10px;">📟 ВЗЛОМ</h3>
             <div class="profile-card hk-header">
                 <div>УСТРОЙСТВО: <span id="hack-system-name" style="color:#fff; font-weight:bold;">БЛОК ПАМЯТИ</span></div>
-                <div>ЗАЩИТА: <span id="hack-level" style="color:#fff;"></span></div>
-                <div>КОНТУРЫ: <span id="hack-stage" style="color:var(--term-green); font-weight:bold;"></span></div>
-                <div>ПОПЫТКИ: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
+                <div>СЛОЖНОСТЬ: <span id="hack-level" style="color:#fff;"></span></div>
+                <div><span id="hack-attempts-label">ПОПЫТКИ</span>: <span id="hack-attempts" style="font-weight:bold;">■ ■ ■ ■</span></div>
                 <div id="hack-lock-warning" class="hk-lock-warning" style="display:none;">!!! ПОСЛЕДНЯЯ ПОПЫТКА — ДАЛЬШЕ БЛОКИРОВКА НА 2 ЧАСА !!!</div>
             </div>
 
-            <details class="hk-help">
-                <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
-                <ol>
-                    <li>По шкале бегает сканер. Нажмите <b>«СИНХРОНИЗАЦИЯ»</b>, когда он внутри <b style="color:var(--term-green)">зелёной зоны</b>.</li>
-                    <li>Нужно пройти <b>3 уровня</b>. С каждым уровнем зона уже, а сканер быстрее.</li>
-                    <li>Промах сжигает одну попытку. Уровень при этом не сбрасывается.</li>
-                    <li>4 промаха — устройство блокируется на 2 часа. Прервать взлом можно без блокировки.</li>
-                </ol>
-            </details>
-
-            <div id="hack-track" class="hk-track">
-                <div id="hack-zone" class="hk-zone"></div>
-                <div id="hack-runner" class="hk-runner"></div>
+            <!-- ФЛЕШКА: СИНХРОНИЗАЦИЯ -->
+            <div id="hack-panel-sync" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>По шкале бегает сканер. Нажмите <b>«СИНХРОНИЗАЦИЯ»</b>, когда он внутри <b style="color:var(--term-green)">зелёной зоны</b>.</li>
+                        <li>Нужно пройти <b>3 уровня</b>: с каждым зона уже, а сканер быстрее.</li>
+                        <li>Промах сжигает попытку, пройденный уровень сохраняется.</li>
+                        <li>4 промаха — блокировка на 2 часа. Прервать взлом можно без блокировки.</li>
+                    </ol>
+                </details>
+                <div style="margin-bottom:6px;">КОНТУРЫ: <span id="hack-stage" style="color:var(--term-green); font-weight:bold;"></span></div>
+                <div id="hack-track" class="hk-track">
+                    <div id="hack-zone" class="hk-zone"></div>
+                    <div id="hack-runner" class="hk-runner"></div>
+                </div>
+                <button id="hack-sync-btn" class="hk-sync-btn" onclick="hackSync()">СИНХРОНИЗАЦИЯ</button>
             </div>
-            <button id="hack-sync-btn" class="hk-sync-btn" onclick="hackSync()">СИНХРОНИЗАЦИЯ</button>
 
-            <div class="profile-card hk-console" id="hack-console">
-                <!-- Журнал взлома -->
+            <!-- ТЕРМИНАЛ: ОТМЫЧКА -->
+            <div id="hack-panel-lock" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>Поставьте шпильку под углом: ползунком или ведя пальцем по дуге.</li>
+                        <li>Удерживайте <b>«ПОВЕРНУТЬ»</b>. Чем дальше поддаётся замок, тем ближе шпилька к нужной точке.</li>
+                        <li>Если замок упёрся, отпустите кнопку и сдвиньте шпильку. Давить в упоре нельзя: через секунду шпилька сломается.</li>
+                        <li>Замок провернулся до конца — терминал вскрыт. 4 сломанные шпильки — блокировка на 2 часа.</li>
+                    </ol>
+                </details>
+                <svg id="lock-svg" class="lk-svg" viewBox="0 0 200 146" aria-label="Замок и шпилька">
+                    <path d="M12 100 A88 88 0 0 1 188 100" class="lk-arc"/>
+                    <path d="M12 100 L188 100" class="lk-base"/>
+                    <g id="lock-cyl">
+                        <circle cx="100" cy="100" r="40" class="lk-cyl"/>
+                        <circle cx="100" cy="100" r="31" class="lk-cyl-inner"/>
+                        <circle cx="100" cy="92" r="6" class="lk-hole"/>
+                        <rect x="97" y="92" width="6" height="17" class="lk-hole"/>
+                    </g>
+                    <line id="lock-pin" x1="100" y1="100" x2="100" y2="12" class="lk-pin"/>
+                </svg>
+                <div class="lk-info">ШПИЛЬКА: <span id="lock-angle-val">90°</span> · ПОВОРОТ: <span id="lock-rot-val">0%</span></div>
+                <input type="range" id="lock-angle" class="lk-slider" min="0" max="180" step="1" value="90" oninput="lockSetAngle(this.value)">
+                <button id="lock-turn-btn" class="hk-sync-btn">ПОВЕРНУТЬ (УДЕРЖИВАТЬ)</button>
             </div>
+
+            <!-- СХРОН: ПОДБОР КОДА -->
+            <div id="hack-panel-words" style="display:none;">
+                <details class="hk-help">
+                    <summary>❓ КАК ВЗЛАМЫВАТЬ</summary>
+                    <ol>
+                        <li>Код — одно из слов (6 букв), спрятанных в дампе памяти. Нажмите на слово, чтобы ввести его.</li>
+                        <li>Если слово неверное, терминал покажет <b>СОВПАДЕНИЕ</b> — сколько букв стоят <b>на тех же местах</b>, что и в коде. Число появится рядом со словом.</li>
+                        <li><b>Пример:</b> код БУНКЕР, вы ввели БАРЬЕР → совпадение 3/6 (Б, Е, Р на своих местах). Значит, код — слово, у которого с БАРЬЕР тоже ровно 3 совпадения.</li>
+                        <li>Парные скобки <b>( ) [ ] { } &lt; &gt;</b> в одной строке — бонус: убирают ложное слово или восстанавливают попытки.</li>
+                        <li>4 ошибки — блокировка на 2 часа. Схрон чужой: вскрытие снижает Карму на 1.</li>
+                    </ol>
+                </details>
+                <div id="hack-words-grid" class="hk-dump"></div>
+                <div id="hack-candidates" class="hk-candidates"></div>
+            </div>
+
+            <div class="profile-card hk-console" id="hack-console"></div>
 
             <div id="hack-actions"></div>
             <button onclick="abortHacking()" style="width:100%; margin-top:10px; border-color:var(--bandit-color); color:var(--bandit-color);">ПРЕРВАТЬ ПОДКЛЮЧЕНИЕ</button>
