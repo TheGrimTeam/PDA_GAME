@@ -27,8 +27,15 @@
                 <button id="btn-upgrade-shelter" onclick="upgradeShelter()" class="btn-safe" style="width: 100%; display: none;">УЛУЧШИТЬ УБЕЖИЩЕ</button>
             </div>
 
+            <!-- КАЗИНО: вкладки -->
+            <div class="casino-tabs">
+                <button id="casino-tab-slots" class="active-nav" onclick="casinoTab('slots')">🎰 АВТОМАТ</button>
+                <button id="casino-tab-bj" onclick="casinoTab('bj')">🃏 21 ОЧКО</button>
+                <button id="casino-tab-poker" onclick="casinoTab('poker')">♠ ПОКЕР</button>
+            </div>
+
             <!-- СЛОТ-МАШИНА -->
-            <div class="profile-card" style="margin-top:20px; border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
+            <div id="casino-slots" class="profile-card" style="border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
                 <h4 style="color:var(--quest-color); margin-bottom:8px; border-bottom:1px dashed var(--quest-color); padding-bottom:4px; text-align:center;">🎰 ИГРОВОЙ АВТОМАТ «УДАЧА ПУСТОШЕЙ»</h4>
 
                 <!-- Экран слотов -->
@@ -56,6 +63,69 @@
 
                 <!-- Лог результата -->
                 <div id="slot-result-log" style="text-align:center; font-size:0.95rem; margin-top:8px; min-height:20px; color:#aaa;">Сделайте ставку и испытайте удачу!</div>
+            </div>
+
+            <!-- 21 ОЧКО -->
+            <div id="casino-bj" class="profile-card casino-panel" style="display:none;">
+                <h4 class="casino-title">🃏 21 ОЧКО</h4>
+                <details class="hk-help"><summary>❓ ПРАВИЛА</summary><ol>
+                    <li>Наберите больше, чем дилер, но не больше 21. Картинки — 10, туз — 1 или 11.</li>
+                    <li><b>ЕЩЁ</b> — взять карту, <b>ХВАТИТ</b> — остановиться, <b>УДВОИТЬ</b> — удвоить ставку, взять ровно одну карту (только на первых двух картах).</li>
+                    <li>Дилер добирает до 17. Победа — ×2, «очко» (21 с двух карт) — ×2.5, ничья — ставка возвращается.</li>
+                </ol></details>
+                <div class="casino-side">ДИЛЕР <span id="bj-dealer-val" class="casino-score"></span></div>
+                <div id="bj-dealer" class="card-row"></div>
+                <div class="casino-side">ВЫ <span id="bj-player-val" class="casino-score"></span></div>
+                <div id="bj-player" class="card-row"></div>
+
+                <div class="casino-bet-row" id="bj-bet-controls">
+                    <button onclick="bjAdjustBet(-5)">−5</button>
+                    <div class="casino-bet">СТАВКА: <b id="bj-bet-val">10</b> <span class="cap"></span></div>
+                    <button onclick="bjAdjustBet(5)">+5</button>
+                </div>
+                <button id="bj-deal-btn" class="casino-main-btn" onclick="bjDeal()">🃏 РАЗДАТЬ</button>
+                <div class="casino-actions" id="bj-play-controls" style="display:none;">
+                    <button onclick="bjHit()">ЕЩЁ</button>
+                    <button onclick="bjStand()">ХВАТИТ</button>
+                    <button id="bj-double-btn" onclick="bjDouble()">УДВОИТЬ</button>
+                </div>
+                <div id="bj-log" class="casino-log">Сделайте ставку и нажмите РАЗДАТЬ.</div>
+            </div>
+
+            <!-- ПОКЕР С БОТОМ -->
+            <div id="casino-poker" class="profile-card casino-panel" style="display:none;">
+                <h4 class="casino-title">♠ ПОКЕР С БОТОМ</h4>
+                <details class="hk-help"><summary>❓ ПРАВИЛА</summary><ol>
+                    <li>Вы и бот ставите анте в банк и получаете по 5 карт.</li>
+                    <li>Нажмите на карты, которые хотите сменить, затем <b>ОБМЕНЯТЬ</b> (можно ничего не менять).</li>
+                    <li><b>ВСКРЫТЬСЯ</b> — сравнить карты (бот может повысить — тогда уравнять или сбросить). <b>ПОВЫСИТЬ</b> — добавить ставку в банк: бот уравняет или сбросит. <b>СБРОСИТЬ</b> — сдаться.</li>
+                    <li>Комбинации от слабой к сильной: старшая карта, пара, две пары, тройка, стрит, флеш, фулл-хаус, каре, стрит-флеш, роял-флеш.</li>
+                </ol></details>
+                <div class="casino-side">БОТ <span id="pk-bot-info" class="casino-score"></span></div>
+                <div id="pk-bot" class="card-row"></div>
+                <div class="casino-side">ВЫ <span id="pk-hand-info" class="casino-score"></span></div>
+                <div id="pk-hand" class="card-row"></div>
+                <div class="casino-pot">БАНК: <b id="pk-pot">—</b> <span class="cap"></span></div>
+
+                <div class="casino-bet-row" id="pk-bet-controls">
+                    <button onclick="pkAdjustBet(-5)">−5</button>
+                    <div class="casino-bet">СТАВКА: <b id="pk-bet-val">10</b> <span class="cap"></span></div>
+                    <button onclick="pkAdjustBet(5)">+5</button>
+                </div>
+                <button id="pk-deal-btn" class="casino-main-btn" onclick="pkDeal()">♠ РАЗДАТЬ</button>
+                <div class="casino-actions" id="pk-draw-controls" style="display:none;">
+                    <button id="pk-draw-btn" onclick="pkDraw()">ОСТАВИТЬ ВСЕ</button>
+                </div>
+                <div class="casino-actions" id="pk-bet-actions" style="display:none;">
+                    <button onclick="pkCheck()">ВСКРЫТЬСЯ</button>
+                    <button onclick="pkRaise()">ПОВЫСИТЬ</button>
+                    <button class="btn-danger" onclick="pkFold()">СБРОСИТЬ</button>
+                </div>
+                <div class="casino-actions" id="pk-respond-actions" style="display:none;">
+                    <button onclick="pkCall()">УРАВНЯТЬ</button>
+                    <button class="btn-danger" onclick="pkFold()">СБРОСИТЬ</button>
+                </div>
+                <div id="pk-log" class="casino-log">Сделайте ставку (анте) и нажмите РАЗДАТЬ.</div>
             </div>
 
             <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>

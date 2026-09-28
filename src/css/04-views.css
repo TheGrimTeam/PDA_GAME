@@ -110,3 +110,31 @@ body.zombie-interface #hud {
 .lk-info { text-align: center; font-size: 1rem; margin: 4px 0 6px; }
 .lk-slider { width: 100%; accent-color: var(--term-green); height: 28px; }
 #lock-turn-btn { touch-action: none; -webkit-touch-callout: none; }
+
+/* ===== КАЗИНО: вкладки и карты ===== */
+.casino-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 20px 0 8px; }
+.casino-tabs button { padding: 8px 2px; font-size: 0.95rem; border: 1px solid rgba(82,255,138,0.45); color: var(--text-dim); background: rgba(82,255,138,0.04); }
+.casino-tabs button.active-nav { border: 2px solid var(--quest-color); color: var(--quest-color); background: rgba(216,227,106,0.08); }
+.casino-panel { border-color: var(--quest-color); padding: 12px; }
+.casino-title { color: var(--quest-color); margin-bottom: 8px; border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; text-align: center; }
+.casino-side { display: flex; justify-content: space-between; font-size: 0.95rem; margin-top: 8px; color: var(--text-dim); letter-spacing: 1px; }
+.casino-score { color: #fff; }
+.card-row { display: flex; gap: 6px; min-height: 66px; flex-wrap: wrap; margin: 4px 0; }
+.card { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 66px; border: 2px solid #d8d8c8; border-radius: 5px; background: #0b1a10; color: #f0f0e0; line-height: 1; text-shadow: none; transition: transform 0.12s; }
+.card b { font-size: 1.4rem; }
+.card i { font-style: normal; font-size: 1.3rem; }
+.card-red { color: #ff6b5b; border-color: #ff8a7a; }
+.card-back { background: repeating-linear-gradient(45deg, #0f3a1f 0 6px, #06180d 6px 12px); border-color: var(--term-green); }
+.card-sel { transform: translateY(-8px); border-color: var(--quest-color); box-shadow: 0 0 10px var(--quest-color); }
+.card[role="button"] { cursor: pointer; }
+.card-empty { color: var(--text-dim); align-self: center; }
+.casino-bet-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.casino-bet-row button { flex: 0 0 56px; padding: 6px; }
+.casino-bet { flex: 1; text-align: center; font-size: 1.05rem; }
+.casino-bet b { color: var(--quest-color); }
+.casino-pot { text-align: center; margin-top: 8px; font-size: 1.05rem; }
+.casino-pot b { color: var(--quest-color); }
+.casino-main-btn { width: 100%; margin-top: 10px; padding: 10px; font-size: 1.1rem; font-weight: bold; border-color: var(--quest-color); color: var(--quest-color); background: rgba(216,227,106,0.1); }
+.casino-actions { display: flex; gap: 6px; margin-top: 10px; }
+.casino-actions button { flex: 1; padding: 10px 2px; font-size: 1rem; }
+.casino-log { text-align: center; font-size: 0.95rem; margin-top: 8px; min-height: 2.4em; }

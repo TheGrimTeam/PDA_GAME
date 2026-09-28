@@ -517,6 +517,34 @@ body.zombie-interface #hud {
 .lk-slider { width: 100%; accent-color: var(--term-green); height: 28px; }
 #lock-turn-btn { touch-action: none; -webkit-touch-callout: none; }
 
+/* ===== КАЗИНО: вкладки и карты ===== */
+.casino-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 20px 0 8px; }
+.casino-tabs button { padding: 8px 2px; font-size: 0.95rem; border: 1px solid rgba(82,255,138,0.45); color: var(--text-dim); background: rgba(82,255,138,0.04); }
+.casino-tabs button.active-nav { border: 2px solid var(--quest-color); color: var(--quest-color); background: rgba(216,227,106,0.08); }
+.casino-panel { border-color: var(--quest-color); padding: 12px; }
+.casino-title { color: var(--quest-color); margin-bottom: 8px; border-bottom: 1px dashed var(--quest-color); padding-bottom: 4px; text-align: center; }
+.casino-side { display: flex; justify-content: space-between; font-size: 0.95rem; margin-top: 8px; color: var(--text-dim); letter-spacing: 1px; }
+.casino-score { color: #fff; }
+.card-row { display: flex; gap: 6px; min-height: 66px; flex-wrap: wrap; margin: 4px 0; }
+.card { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 50px; height: 66px; border: 2px solid #d8d8c8; border-radius: 5px; background: #0b1a10; color: #f0f0e0; line-height: 1; text-shadow: none; transition: transform 0.12s; }
+.card b { font-size: 1.4rem; }
+.card i { font-style: normal; font-size: 1.3rem; }
+.card-red { color: #ff6b5b; border-color: #ff8a7a; }
+.card-back { background: repeating-linear-gradient(45deg, #0f3a1f 0 6px, #06180d 6px 12px); border-color: var(--term-green); }
+.card-sel { transform: translateY(-8px); border-color: var(--quest-color); box-shadow: 0 0 10px var(--quest-color); }
+.card[role="button"] { cursor: pointer; }
+.card-empty { color: var(--text-dim); align-self: center; }
+.casino-bet-row { display: flex; gap: 8px; align-items: center; margin-top: 10px; }
+.casino-bet-row button { flex: 0 0 56px; padding: 6px; }
+.casino-bet { flex: 1; text-align: center; font-size: 1.05rem; }
+.casino-bet b { color: var(--quest-color); }
+.casino-pot { text-align: center; margin-top: 8px; font-size: 1.05rem; }
+.casino-pot b { color: var(--quest-color); }
+.casino-main-btn { width: 100%; margin-top: 10px; padding: 10px; font-size: 1.1rem; font-weight: bold; border-color: var(--quest-color); color: var(--quest-color); background: rgba(216,227,106,0.1); }
+.casino-actions { display: flex; gap: 6px; margin-top: 10px; }
+.casino-actions button { flex: 1; padding: 10px 2px; font-size: 1rem; }
+.casino-log { text-align: center; font-size: 0.95rem; margin-top: 8px; min-height: 2.4em; }
+
 
 /* ===== next css file ===== */
 
@@ -1151,8 +1179,15 @@ input, textarea, select {
                 <button id="btn-upgrade-shelter" onclick="upgradeShelter()" class="btn-safe" style="width: 100%; display: none;">УЛУЧШИТЬ УБЕЖИЩЕ</button>
             </div>
 
+            <!-- КАЗИНО: вкладки -->
+            <div class="casino-tabs">
+                <button id="casino-tab-slots" class="active-nav" onclick="casinoTab('slots')">🎰 АВТОМАТ</button>
+                <button id="casino-tab-bj" onclick="casinoTab('bj')">🃏 21 ОЧКО</button>
+                <button id="casino-tab-poker" onclick="casinoTab('poker')">♠ ПОКЕР</button>
+            </div>
+
             <!-- СЛОТ-МАШИНА -->
-            <div class="profile-card" style="margin-top:20px; border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
+            <div id="casino-slots" class="profile-card" style="border-color:var(--quest-color); background:rgba(255,183,0,0.02); padding:12px;">
                 <h4 style="color:var(--quest-color); margin-bottom:8px; border-bottom:1px dashed var(--quest-color); padding-bottom:4px; text-align:center;">🎰 ИГРОВОЙ АВТОМАТ «УДАЧА ПУСТОШЕЙ»</h4>
 
                 <!-- Экран слотов -->
@@ -1180,6 +1215,69 @@ input, textarea, select {
 
                 <!-- Лог результата -->
                 <div id="slot-result-log" style="text-align:center; font-size:0.95rem; margin-top:8px; min-height:20px; color:#aaa;">Сделайте ставку и испытайте удачу!</div>
+            </div>
+
+            <!-- 21 ОЧКО -->
+            <div id="casino-bj" class="profile-card casino-panel" style="display:none;">
+                <h4 class="casino-title">🃏 21 ОЧКО</h4>
+                <details class="hk-help"><summary>❓ ПРАВИЛА</summary><ol>
+                    <li>Наберите больше, чем дилер, но не больше 21. Картинки — 10, туз — 1 или 11.</li>
+                    <li><b>ЕЩЁ</b> — взять карту, <b>ХВАТИТ</b> — остановиться, <b>УДВОИТЬ</b> — удвоить ставку, взять ровно одну карту (только на первых двух картах).</li>
+                    <li>Дилер добирает до 17. Победа — ×2, «очко» (21 с двух карт) — ×2.5, ничья — ставка возвращается.</li>
+                </ol></details>
+                <div class="casino-side">ДИЛЕР <span id="bj-dealer-val" class="casino-score"></span></div>
+                <div id="bj-dealer" class="card-row"></div>
+                <div class="casino-side">ВЫ <span id="bj-player-val" class="casino-score"></span></div>
+                <div id="bj-player" class="card-row"></div>
+
+                <div class="casino-bet-row" id="bj-bet-controls">
+                    <button onclick="bjAdjustBet(-5)">−5</button>
+                    <div class="casino-bet">СТАВКА: <b id="bj-bet-val">10</b> <span class="cap"></span></div>
+                    <button onclick="bjAdjustBet(5)">+5</button>
+                </div>
+                <button id="bj-deal-btn" class="casino-main-btn" onclick="bjDeal()">🃏 РАЗДАТЬ</button>
+                <div class="casino-actions" id="bj-play-controls" style="display:none;">
+                    <button onclick="bjHit()">ЕЩЁ</button>
+                    <button onclick="bjStand()">ХВАТИТ</button>
+                    <button id="bj-double-btn" onclick="bjDouble()">УДВОИТЬ</button>
+                </div>
+                <div id="bj-log" class="casino-log">Сделайте ставку и нажмите РАЗДАТЬ.</div>
+            </div>
+
+            <!-- ПОКЕР С БОТОМ -->
+            <div id="casino-poker" class="profile-card casino-panel" style="display:none;">
+                <h4 class="casino-title">♠ ПОКЕР С БОТОМ</h4>
+                <details class="hk-help"><summary>❓ ПРАВИЛА</summary><ol>
+                    <li>Вы и бот ставите анте в банк и получаете по 5 карт.</li>
+                    <li>Нажмите на карты, которые хотите сменить, затем <b>ОБМЕНЯТЬ</b> (можно ничего не менять).</li>
+                    <li><b>ВСКРЫТЬСЯ</b> — сравнить карты (бот может повысить — тогда уравнять или сбросить). <b>ПОВЫСИТЬ</b> — добавить ставку в банк: бот уравняет или сбросит. <b>СБРОСИТЬ</b> — сдаться.</li>
+                    <li>Комбинации от слабой к сильной: старшая карта, пара, две пары, тройка, стрит, флеш, фулл-хаус, каре, стрит-флеш, роял-флеш.</li>
+                </ol></details>
+                <div class="casino-side">БОТ <span id="pk-bot-info" class="casino-score"></span></div>
+                <div id="pk-bot" class="card-row"></div>
+                <div class="casino-side">ВЫ <span id="pk-hand-info" class="casino-score"></span></div>
+                <div id="pk-hand" class="card-row"></div>
+                <div class="casino-pot">БАНК: <b id="pk-pot">—</b> <span class="cap"></span></div>
+
+                <div class="casino-bet-row" id="pk-bet-controls">
+                    <button onclick="pkAdjustBet(-5)">−5</button>
+                    <div class="casino-bet">СТАВКА: <b id="pk-bet-val">10</b> <span class="cap"></span></div>
+                    <button onclick="pkAdjustBet(5)">+5</button>
+                </div>
+                <button id="pk-deal-btn" class="casino-main-btn" onclick="pkDeal()">♠ РАЗДАТЬ</button>
+                <div class="casino-actions" id="pk-draw-controls" style="display:none;">
+                    <button id="pk-draw-btn" onclick="pkDraw()">ОСТАВИТЬ ВСЕ</button>
+                </div>
+                <div class="casino-actions" id="pk-bet-actions" style="display:none;">
+                    <button onclick="pkCheck()">ВСКРЫТЬСЯ</button>
+                    <button onclick="pkRaise()">ПОВЫСИТЬ</button>
+                    <button class="btn-danger" onclick="pkFold()">СБРОСИТЬ</button>
+                </div>
+                <div class="casino-actions" id="pk-respond-actions" style="display:none;">
+                    <button onclick="pkCall()">УРАВНЯТЬ</button>
+                    <button class="btn-danger" onclick="pkFold()">СБРОСИТЬ</button>
+                </div>
+                <div id="pk-log" class="casino-log">Сделайте ставку (анте) и нажмите РАЗДАТЬ.</div>
             </div>
 
             <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>
@@ -5439,6 +5537,486 @@ function resolveSlots() {
     saveState();
     updateSlotUI();
     isSlotSpinning = false;
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// КАЗИНО: КОЛОДА КАРТ И ОЦЕНКА ПОКЕРНЫХ КОМБИНАЦИЙ
+// ============================================================
+// Общая часть для «21 очко» (casino-21.js) и покера (casino-poker.js).
+// Карта: { v: 2..14 (11 — Валет, 12 — Дама, 13 — Король, 14 — Туз), s: масть }.
+// ============================================================
+
+const CARD_SUITS = ['♠', '♥', '♦', '♣'];
+const CARD_NAMES = { 11: 'В', 12: 'Д', 13: 'К', 14: 'Т' };
+const CASINO_MIN_BET = 5;
+const CASINO_MAX_BET = 100;
+
+// Новая перемешанная колода из 52 карт
+function cardsNewDeck() {
+    let deck = [];
+    for (let s of CARD_SUITS) for (let v = 2; v <= 14; v++) deck.push({ v: v, s: s });
+    for (let i = deck.length - 1; i > 0; i--) {
+        let j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    return deck;
+}
+
+function cardLabel(c) {
+    return (CARD_NAMES[c.v] || String(c.v)) + c.s;
+}
+
+// Разметка карты; hidden — рубашкой вверх, selected — выбрана для обмена
+function cardHtml(c, opts = {}) {
+    if (opts.hidden) return `<span class="card card-back"></span>`;
+    let red = (c.s === '♥' || c.s === '♦') ? ' card-red' : '';
+    let sel = opts.selected ? ' card-sel' : '';
+    let click = opts.onclick ? ` role="button" onclick="${opts.onclick}"` : '';
+    return `<span class="card${red}${sel}"${click}><b>${CARD_NAMES[c.v] || c.v}</b><i>${c.s}</i></span>`;
+}
+
+// Ставка казино: от 5 до 100 крышек
+function casinoClampBet(bet) {
+    return Math.max(CASINO_MIN_BET, Math.min(CASINO_MAX_BET, bet));
+}
+
+// ---------- Покерные комбинации ----------
+
+const POKER_HANDS = ['Старшая карта', 'Пара', 'Две пары', 'Тройка', 'Стрит', 'Флеш', 'Фулл-хаус', 'Каре', 'Стрит-флеш', 'Роял-флеш'];
+
+// Оценка руки из 5 карт: { cat: 0..9, tie: [значения для сравнения], name }
+function pokerEval(hand) {
+    let vals = hand.map(c => c.v).sort((a, b) => b - a);
+    let counts = {};
+    vals.forEach(v => counts[v] = (counts[v] || 0) + 1);
+    // Группы: сначала по размеру, потом по старшинству
+    let groups = Object.entries(counts).map(([v, n]) => ({ v: +v, n: n }))
+        .sort((a, b) => b.n - a.n || b.v - a.v);
+    let flush = hand.every(c => c.s === hand[0].s);
+    let uniq = [...new Set(vals)];
+    let straightHigh = 0;
+    if (uniq.length === 5) {
+        if (vals[0] - vals[4] === 4) straightHigh = vals[0];
+        else if (vals.join(',') === '14,5,4,3,2') straightHigh = 5; // колесо: Т-2-3-4-5
+    }
+
+    let cat, tie;
+    if (straightHigh && flush) { cat = straightHigh === 14 ? 9 : 8; tie = [straightHigh]; }
+    else if (groups[0].n === 4) { cat = 7; tie = [groups[0].v, groups[1].v]; }
+    else if (groups[0].n === 3 && groups[1].n === 2) { cat = 6; tie = [groups[0].v, groups[1].v]; }
+    else if (flush) { cat = 5; tie = vals; }
+    else if (straightHigh) { cat = 4; tie = [straightHigh]; }
+    else if (groups[0].n === 3) { cat = 3; tie = groups.map(g => g.v); }
+    else if (groups[0].n === 2 && groups[1].n === 2) { cat = 2; tie = groups.map(g => g.v); }
+    else if (groups[0].n === 2) { cat = 1; tie = groups.map(g => g.v); }
+    else { cat = 0; tie = vals; }
+    return { cat: cat, tie: tie, name: POKER_HANDS[cat] };
+}
+
+// > 0 — первая рука сильнее, < 0 — вторая, 0 — ничья
+function pokerCompare(a, b) {
+    if (a.cat !== b.cat) return a.cat - b.cat;
+    for (let i = 0; i < Math.max(a.tie.length, b.tie.length); i++) {
+        let d = (a.tie[i] || 0) - (b.tie[i] || 0);
+        if (d !== 0) return d;
+    }
+    return 0;
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// КАЗИНО: «21 ОЧКО» (блэкджек против дилера)
+// ============================================================
+// Цель — набрать больше дилера, но не больше 21.
+// Туз — 1 или 11, картинки — 10. Дилер добирает до 17.
+// Выплаты: победа ×2, «очко» (21 с двух карт) ×2.5, ничья — возврат ставки.
+// ============================================================
+
+let bjBet = 10;
+let bjStake = 0;          // сколько поставлено в текущей раздаче (с учётом удвоения)
+let bjDeck = [];
+let bjPlayer = [];
+let bjDealer = [];
+let bjActive = false;     // раздача идёт, ход игрока
+
+function bjValue(hand) {
+    let sum = 0, aces = 0;
+    for (let c of hand) {
+        if (c.v === 14) { aces++; sum += 11; }
+        else sum += Math.min(c.v, 10);
+    }
+    while (sum > 21 && aces > 0) { sum -= 10; aces--; }
+    return sum;
+}
+
+function bjIsNatural(hand) {
+    return hand.length === 2 && bjValue(hand) === 21;
+}
+
+function bjAdjustBet(delta) {
+    if (bjActive) return;
+    bjBet = casinoClampBet(bjBet + delta);
+    playSound('click');
+    bjRender();
+}
+
+// Новая раздача. deck — готовая колода (для тестов), иначе перемешанная
+function bjDeal(deck) {
+    if (bjActive) return;
+    if ((player.score || 0) < bjBet) {
+        playSound('error');
+        return bjMessage(`Мало крышек: ставка ${bjBet}, у вас ${player.score || 0}.`, 'err');
+    }
+    player.score -= bjBet;
+    bjStake = bjBet;
+    bjDeck = deck ? deck.slice() : cardsNewDeck();
+    bjPlayer = [bjDeck.pop(), bjDeck.pop()];
+    bjDealer = [bjDeck.pop(), bjDeck.pop()];
+    bjActive = true;
+    saveState();
+    playSound('scan');
+
+    if (bjIsNatural(bjPlayer) || bjIsNatural(bjDealer)) return bjFinish();
+    bjMessage('Ваш ход: ЕЩЁ — взять карту, ХВАТИТ — остановиться.', 'dim');
+    bjRender();
+}
+
+function bjHit() {
+    if (!bjActive) return;
+    bjPlayer.push(bjDeck.pop());
+    playSound('click');
+    let v = bjValue(bjPlayer);
+    if (v > 21) return bjFinish();
+    if (v === 21) return bjStand();
+    bjRender();
+}
+
+function bjStand() {
+    if (!bjActive) return;
+    // Дилер добирает, пока меньше 17
+    while (bjValue(bjDealer) < 17) bjDealer.push(bjDeck.pop());
+    bjFinish();
+}
+
+// Удвоение: только на первых двух картах — ставка ×2, одна карта и стоп
+function bjDouble() {
+    if (!bjActive || bjPlayer.length !== 2) return;
+    if ((player.score || 0) < bjStake) {
+        playSound('error');
+        return bjMessage('Не хватает крышек, чтобы удвоить.', 'err');
+    }
+    player.score -= bjStake;
+    bjStake *= 2;
+    bjPlayer.push(bjDeck.pop());
+    if (bjValue(bjPlayer) > 21) return bjFinish();
+    bjStand();
+}
+
+function bjFinish() {
+    bjActive = false;
+    let p = bjValue(bjPlayer), d = bjValue(bjDealer);
+    let payout = 0, msg, kind;
+
+    if (bjIsNatural(bjPlayer) && !bjIsNatural(bjDealer)) {
+        payout = Math.floor(bjStake * 2.5); msg = `ОЧКО! 21 с двух карт. Выигрыш: +${payout} ${CAP}`; kind = 'win';
+    } else if (bjIsNatural(bjDealer) && !bjIsNatural(bjPlayer)) {
+        msg = `У дилера очко. Ставка ${bjStake} ${CAP} проиграна.`; kind = 'lose';
+    } else if (p > 21) {
+        msg = `Перебор (${p}). Ставка ${bjStake} ${CAP} проиграна.`; kind = 'lose';
+    } else if (d > 21) {
+        payout = bjStake * 2; msg = `У дилера перебор (${d})! Выигрыш: +${payout} ${CAP}`; kind = 'win';
+    } else if (p > d) {
+        payout = bjStake * 2; msg = `${p} против ${d}. Выигрыш: +${payout} ${CAP}`; kind = 'win';
+    } else if (p === d) {
+        payout = bjStake; msg = `Ничья (${p}). Ставка возвращена.`; kind = 'dim';
+    } else {
+        msg = `${p} против ${d}. Ставка ${bjStake} ${CAP} проиграна.`; kind = 'lose';
+    }
+
+    player.score += payout;
+    saveState();
+    playSound(kind === 'win' ? 'sell' : (kind === 'lose' ? 'error' : 'scan'));
+    bjMessage(msg, kind);
+    bjRender();
+}
+
+function bjMessage(html, kind) {
+    let el = document.getElementById('bj-log');
+    if (!el) return;
+    let color = { win: 'var(--term-green)', lose: 'var(--bandit-color)', err: 'var(--bandit-color)', dim: 'var(--text-dim)' }[kind] || '#ccc';
+    el.innerHTML = `<span style="color:${color}">${html}</span>`;
+}
+
+function bjRender() {
+    let dealerEl = document.getElementById('bj-dealer');
+    if (!dealerEl) return;
+    let dealerCards = bjDealer.map((c, i) => cardHtml(c, { hidden: bjActive && i === 1 })).join('');
+    dealerEl.innerHTML = dealerCards || '<span class="card-empty">—</span>';
+    document.getElementById('bj-dealer-val').innerText = bjDealer.length ? (bjActive ? `${bjValue([bjDealer[0]])} + ?` : bjValue(bjDealer)) : '';
+    document.getElementById('bj-player').innerHTML = bjPlayer.map(c => cardHtml(c)).join('') || '<span class="card-empty">—</span>';
+    document.getElementById('bj-player-val').innerText = bjPlayer.length ? bjValue(bjPlayer) : '';
+    document.getElementById('bj-bet-val').innerText = bjActive ? bjStake : bjBet;
+
+    document.getElementById('bj-bet-controls').style.display = bjActive ? 'none' : 'flex';
+    document.getElementById('bj-deal-btn').style.display = bjActive ? 'none' : 'block';
+    document.getElementById('bj-play-controls').style.display = bjActive ? 'flex' : 'none';
+    document.getElementById('bj-double-btn').disabled = !(bjActive && bjPlayer.length === 2 && (player.score || 0) >= bjStake);
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
+// КАЗИНО: ПОКЕР С БОТОМ (пятикарточный дро)
+// ============================================================
+// 1) Оба ставят анте в банк, получают по 5 карт.
+// 2) Обмен: игрок отмечает карты и меняет их (0–5 карт), бот тоже меняет.
+// 3) Торговля: ВСКРЫТЬСЯ / ПОВЫСИТЬ (+ставка) / СБРОСИТЬ.
+//    На повышение бот отвечает или сбрасывает; если игрок вскрывается,
+//    бот может повысить сам — тогда игрок уравнивает или сбрасывает.
+// 4) Вскрытие: сильнейшая комбинация забирает банк, ничья — делёж.
+// ============================================================
+
+let pkBet = 10;           // анте и размер повышения
+let pkDeck = [];
+let pkHand = [];
+let pkBot = [];
+let pkSel = {};           // индексы карт, отмеченных для обмена
+let pkPhase = 'idle';     // idle | draw | bet | respond
+let pkPot = 0;
+let pkPlayerIn = 0;       // сколько игрок положил в банк в этой раздаче
+let pkBotDrew = 0;
+
+function pkAdjustBet(delta) {
+    if (pkPhase !== 'idle') return;
+    pkBet = casinoClampBet(pkBet + delta);
+    playSound('click');
+    pkRender();
+}
+
+function pkPutIn(amount) {
+    player.score -= amount;
+    pkPlayerIn += amount;
+    pkPot += amount;
+}
+
+// Новая раздача. deck — готовая колода (для тестов)
+function pkDeal(deck) {
+    if (pkPhase !== 'idle') return;
+    if ((player.score || 0) < pkBet) {
+        playSound('error');
+        return pkMessage(`Мало крышек: анте ${pkBet}, у вас ${player.score || 0}.`, 'err');
+    }
+    pkPot = 0; pkPlayerIn = 0; pkSel = {}; pkBotDrew = 0;
+    pkPutIn(pkBet);
+    pkPot += pkBet; // анте бота
+    pkDeck = deck ? deck.slice() : cardsNewDeck();
+    pkHand = []; pkBot = [];
+    for (let i = 0; i < 5; i++) { pkHand.push(pkDeck.pop()); pkBot.push(pkDeck.pop()); }
+    pkPhase = 'draw';
+    saveState();
+    playSound('scan');
+    pkMessage('Нажмите на карты, которые хотите сменить, затем ОБМЕНЯТЬ (или ОСТАВИТЬ ВСЕ).', 'dim');
+    pkRender();
+}
+
+function pkToggle(i) {
+    if (pkPhase !== 'draw') return;
+    if (pkSel[i]) delete pkSel[i]; else pkSel[i] = true;
+    playSound('click');
+    pkRender();
+}
+
+function pkDraw() {
+    if (pkPhase !== 'draw') return;
+    let n = 0;
+    for (let i = 0; i < 5; i++) if (pkSel[i]) { pkHand[i] = pkDeck.pop(); n++; }
+    pkSel = {};
+    // Бот меняет карты по своей стратегии
+    let botSwap = pkBotChooseDiscards(pkBot);
+    botSwap.forEach(i => { pkBot[i] = pkDeck.pop(); });
+    pkBotDrew = botSwap.length;
+    pkPhase = 'bet';
+    playSound('scan');
+    pkMessage(`Вы сменили ${n}, бот сменил ${pkBotDrew}. У вас: ${pokerEval(pkHand).name}. Ваш ход.`, 'dim');
+    pkRender();
+}
+
+// ---------- Решения бота ----------
+
+// Какие карты бот сбрасывает (индексы)
+function pkBotChooseDiscards(hand) {
+    let ev = pokerEval(hand);
+    let idx = [0, 1, 2, 3, 4];
+    if (ev.cat >= 4 && ev.cat !== 7) return [];                              // стрит и выше — держит
+    if (ev.cat === 7 || ev.cat === 3 || ev.cat === 2 || ev.cat === 1) {       // каре/тройка/две пары/пара — меняет кикеры
+        let keep = {};
+        let counts = {};
+        hand.forEach(c => counts[c.v] = (counts[c.v] || 0) + 1);
+        hand.forEach((c, i) => { if (counts[c.v] >= 2) keep[i] = true; });
+        return idx.filter(i => !keep[i]);
+    }
+    // Четыре карты к флешу — меняет одну
+    for (let s of CARD_SUITS) {
+        let same = idx.filter(i => hand[i].s === s);
+        if (same.length === 4) return idx.filter(i => hand[i].s !== s);
+    }
+    // Четыре карты подряд — меняет выпадающую
+    let order = idx.slice().sort((a, b) => hand[a].v - hand[b].v);
+    for (let skip = 0; skip < 5; skip++) {
+        let rest = order.filter((_, k) => k !== skip).map(i => hand[i].v);
+        if (new Set(rest).size === 4 && rest[3] - rest[0] === 3) return [order[skip]];
+    }
+    // Ничего нет — оставляет старшую карту
+    let high = order[4];
+    return idx.filter(i => i !== high);
+}
+
+// Сила руки бота в долях: учитывает категорию и старшинство
+function pkBotStrength() {
+    let ev = pokerEval(pkBot);
+    if (ev.cat >= 2) return 1;
+    if (ev.cat === 1) return ev.tie[0] >= 11 ? 0.7 : 0.45; // пара валетов и выше
+    return 0;
+}
+
+// Бот отвечает на повышение игрока: true — уравнял
+function pkBotCalls() {
+    let s = pkBotStrength();
+    if (s >= 0.7) return true;
+    if (s > 0) return Math.random() < 0.6;
+    return Math.random() < 0.12;   // иногда «ловит блеф» со старшей картой
+}
+
+// Бот сам повышает после того, как игрок вскрылся
+function pkBotBets() {
+    let s = pkBotStrength();
+    if (s >= 1) return Math.random() < 0.85;
+    if (s >= 0.7) return Math.random() < 0.5;
+    return Math.random() < 0.1;    // блеф
+}
+
+// ---------- Торговля ----------
+
+function pkRaise() {
+    if (pkPhase !== 'bet') return;
+    if ((player.score || 0) < pkBet) { playSound('error'); return pkMessage('Не хватает крышек на повышение.', 'err'); }
+    pkPutIn(pkBet);
+    if (pkBotCalls()) {
+        pkPot += pkBet;
+        pkMessage('Бот уравнял.', 'dim');
+        pkShowdown();
+    } else {
+        pkWin(`Бот сбросил карты! Банк ваш: +${pkPot} ${CAP}`, false);
+    }
+}
+
+function pkCheck() {
+    if (pkPhase !== 'bet') return;
+    if (pkBotBets()) {
+        pkPot += pkBet;
+        pkPhase = 'respond';
+        playSound('hazard');
+        pkMessage(`Бот повышает на ${pkBet} ${CAP}. Уравнять или сбросить?`, 'warn');
+        pkRender();
+    } else {
+        pkShowdown();
+    }
+}
+
+function pkCall() {
+    if (pkPhase !== 'respond') return;
+    if ((player.score || 0) < pkBet) { playSound('error'); return pkMessage('Не хватает крышек, чтобы уравнять.', 'err'); }
+    pkPutIn(pkBet);
+    pkShowdown();
+}
+
+function pkFold() {
+    if (pkPhase !== 'bet' && pkPhase !== 'respond') return;
+    pkPhase = 'idle';
+    saveState();
+    playSound('error');
+    pkMessage(`Вы сбросили карты. Потеряно: ${pkPlayerIn} ${CAP}`, 'lose');
+    pkRender(false);
+}
+
+function pkShowdown() {
+    let me = pokerEval(pkHand), bot = pokerEval(pkBot);
+    let cmp = pokerCompare(me, bot);
+    if (cmp > 0) return pkWin(`${me.name} против «${bot.name}» у бота. Выигрыш: +${pkPot} ${CAP}`, true);
+    pkPhase = 'idle';
+    if (cmp === 0) {
+        let half = Math.floor(pkPot / 2);
+        player.score += half;
+        saveState();
+        playSound('scan');
+        pkMessage(`Ничья: у обоих «${me.name}». Банк поделен, вам ${half} ${CAP}.`, 'dim');
+    } else {
+        saveState();
+        playSound('error');
+        pkMessage(`У бота «${bot.name}», у вас «${me.name}». Проиграно: ${pkPlayerIn} ${CAP}`, 'lose');
+    }
+    pkRender(true);
+}
+
+function pkWin(msg, showBot) {
+    player.score += pkPot;
+    pkPhase = 'idle';
+    saveState();
+    playSound('sell');
+    pkMessage(msg, 'win');
+    pkRender(showBot);
+}
+
+// ---------- Отрисовка ----------
+
+function pkMessage(html, kind) {
+    let el = document.getElementById('pk-log');
+    if (!el) return;
+    let color = { win: 'var(--term-green)', lose: 'var(--bandit-color)', err: 'var(--bandit-color)', warn: 'var(--rad-color)', dim: 'var(--text-dim)' }[kind] || '#ccc';
+    el.innerHTML = `<span style="color:${color}">${html}</span>`;
+}
+
+// revealBot — показать карты бота (после вскрытия)
+function pkRender(revealBot) {
+    let botEl = document.getElementById('pk-bot');
+    if (!botEl) return;
+    let hideBot = pkPhase !== 'idle' || !revealBot;
+    botEl.innerHTML = pkBot.map(c => cardHtml(c, { hidden: hideBot })).join('') || '<span class="card-empty">—</span>';
+    document.getElementById('pk-bot-info').innerText = pkBot.length
+        ? (hideBot ? (pkPhase === 'draw' ? '' : `сменил карт: ${pkBotDrew}`) : pokerEval(pkBot).name) : '';
+    document.getElementById('pk-hand').innerHTML = pkHand.map((c, i) => cardHtml(c, {
+        selected: !!pkSel[i], onclick: pkPhase === 'draw' ? `pkToggle(${i})` : ''
+    })).join('') || '<span class="card-empty">—</span>';
+    document.getElementById('pk-hand-info').innerText = pkHand.length ? pokerEval(pkHand).name : '';
+    document.getElementById('pk-pot').innerText = pkPhase === 'idle' ? '—' : pkPot;
+    document.getElementById('pk-bet-val').innerText = pkBet;
+
+    let show = (id, on) => { document.getElementById(id).style.display = on ? 'flex' : 'none'; };
+    show('pk-bet-controls', pkPhase === 'idle');
+    document.getElementById('pk-deal-btn').style.display = pkPhase === 'idle' ? 'block' : 'none';
+    show('pk-draw-controls', pkPhase === 'draw');
+    show('pk-bet-actions', pkPhase === 'bet');
+    show('pk-respond-actions', pkPhase === 'respond');
+    let n = Object.keys(pkSel).length;
+    document.getElementById('pk-draw-btn').innerText = n ? `ОБМЕНЯТЬ (${n})` : 'ОСТАВИТЬ ВСЕ';
+}
+
+// ---------- Вкладки казино ----------
+
+function casinoTab(name) {
+    ['slots', 'bj', 'poker'].forEach(t => {
+        document.getElementById('casino-' + t).style.display = (t === name) ? 'block' : 'none';
+        document.getElementById('casino-tab-' + t).classList.toggle('active-nav', t === name);
+    });
+    playSound('click');
+    if (name === 'bj') bjRender();
+    if (name === 'poker') pkRender();
 }
 
 
