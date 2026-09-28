@@ -133,4 +133,59 @@ test.describe('Regression: казино — 21 очко и покер', () => {
     expect(await game.page.evaluate(() => eval('pkPhase'))).toBe('bet');
     await expect(game.page.locator('#pk-bet-actions')).toBeVisible();
   });
+
+  // ---------- Рулетка ----------
+
+  /** Ставка и мгновенный спин с заданным результатом */
+  async function rlSpinTo(game: any, type: string, result: number, number?: number): Promise<void> {
+    await game.page.evaluate(({ type, result, number }: { type: string; result: number; number?: number }) => {
+      if (typeof number === 'number') eval('rlNumber = ' + number);
+      (window as any).rlChoose(type);
+      (window as any).rlSpin(result, true);
+    }, { type, result, number });
+  }
+
+  test('RG-118: рулетка — цвет, чёт/нечет, половины платят ×2', async ({ game }) => {
+    await rlSpinTo(game, 'red', 32);   // 32 — красное
+    expect(await score(game)).toBe(110);
+    await rlSpinTo(game, 'black', 32); // проигрыш
+    expect(await score(game)).toBe(100);
+    await rlSpinTo(game, 'even', 18);
+    await rlSpinTo(game, 'high', 19);
+    expect(await score(game)).toBe(120);
+  });
+
+  test('RG-119: рулетка — дюжина ×3, число ×36', async ({ game }) => {
+    await rlSpinTo(game, 'd2', 13);
+    expect(await score(game)).toBe(120);
+    await rlSpinTo(game, 'num', 7, 7);
+    expect(await score(game)).toBe(120 - 10 + 360);
+  });
+
+  test('RG-120: рулетка — на зеро проигрывают все ставки, кроме числа 0', async ({ game }) => {
+    for (const t of ['red', 'black', 'even', 'odd', 'low', 'high', 'd1']) await rlSpinTo(game, t, 0);
+    expect(await score(game)).toBe(100 - 70);
+    await rlSpinTo(game, 'num', 0, 0);
+    expect(await score(game)).toBe(30 - 10 + 360);
+  });
+
+  test('RG-121: рулетка — история выпадений и запрет ставки без крышек', async ({ game }) => {
+    await game.page.locator('#casino-tab-roulette').click();
+    await rlSpinTo(game, 'red', 5);
+    await rlSpinTo(game, 'red', 0);
+    await expect(game.page.locator('#rl-history .rl-chip')).toHaveText(['0', '5']);
+    await game.patchPlayer({ score: 2 });
+    await game.page.evaluate(() => (window as any).rlSpin(1, true));
+    expect(await score(game)).toBe(2);
+  });
+
+  test('RG-122: рулетка — колесо останавливается на выпавшем числе', async ({ game }) => {
+    await game.page.locator('#casino-tab-roulette').click();
+    await rlSpinTo(game, 'red', 23);
+    const angle = await game.page.evaluate(() => eval('rlAngle'));
+    const idx = await game.page.evaluate(() => eval('RL_WHEEL').indexOf(23));
+    // Ячейка результата под указателем: поворот ≡ −индекс × шаг (mod 360)
+    const step = 360 / 37;
+    expect(Math.abs((((angle + idx * step) % 360) + 360) % 360) < 0.01 || Math.abs((((angle + idx * step) % 360) + 360) % 360 - 360) < 0.01).toBe(true);
+  });
 });

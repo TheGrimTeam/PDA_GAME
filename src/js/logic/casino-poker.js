@@ -237,11 +237,12 @@ function pkRender(revealBot) {
 // ---------- Вкладки казино ----------
 
 function casinoTab(name) {
-    ['slots', 'bj', 'poker'].forEach(t => {
+    ['slots', 'bj', 'poker', 'roulette'].forEach(t => {
         document.getElementById('casino-' + t).style.display = (t === name) ? 'block' : 'none';
         document.getElementById('casino-tab-' + t).classList.toggle('active-nav', t === name);
     });
     playSound('click');
     if (name === 'bj') bjRender();
     if (name === 'poker') pkRender();
+    if (name === 'roulette') rlRender();
 }

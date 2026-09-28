@@ -29,9 +29,10 @@
 
             <!-- КАЗИНО: вкладки -->
             <div class="casino-tabs">
-                <button id="casino-tab-slots" class="active-nav" onclick="casinoTab('slots')">🎰 АВТОМАТ</button>
-                <button id="casino-tab-bj" onclick="casinoTab('bj')">🃏 21 ОЧКО</button>
+                <button id="casino-tab-slots" class="active-nav" onclick="casinoTab('slots')">🎰 СЛОТЫ</button>
+                <button id="casino-tab-bj" onclick="casinoTab('bj')">🃏 21</button>
                 <button id="casino-tab-poker" onclick="casinoTab('poker')">♠ ПОКЕР</button>
+                <button id="casino-tab-roulette" onclick="casinoTab('roulette')">🎡 РУЛЕТКА</button>
             </div>
 
             <!-- СЛОТ-МАШИНА -->
@@ -126,6 +127,46 @@
                     <button class="btn-danger" onclick="pkFold()">СБРОСИТЬ</button>
                 </div>
                 <div id="pk-log" class="casino-log">Сделайте ставку (анте) и нажмите РАЗДАТЬ.</div>
+            </div>
+
+            <!-- РУЛЕТКА -->
+            <div id="casino-roulette" class="profile-card casino-panel" style="display:none;">
+                <h4 class="casino-title">🎡 РУЛЕТКА</h4>
+                <details class="hk-help"><summary>❓ ПРАВИЛА</summary><ol>
+                    <li>Выберите, на что ставить, и нажмите КРУТИТЬ. Одна ставка на спин.</li>
+                    <li>Красное / чёрное, чёт / нечет, 1–18 / 19–36 — выплата ×2. Дюжина (1–12, 13–24, 25–36) — ×3. Одно число — ×36.</li>
+                    <li>На ноль (зелёный) проигрывают все ставки, кроме ставки на число 0.</li>
+                </ol></details>
+                <div class="rl-wheel-wrap">
+                    <svg viewBox="0 0 200 210" class="rl-wheel" aria-label="Колесо рулетки">
+                        <g id="rl-wheel-rot" style="transform-origin: 100px 100px; transform-box: view-box;"></g>
+                        <polygon points="92,0 108,0 100,16" class="rl-pointer"/>
+                    </svg>
+                </div>
+                <div class="rl-history-row">ПОСЛЕДНИЕ: <span id="rl-history"></span></div>
+                <div id="rl-bets" class="rl-bets">
+                    <button data-bet="red" class="rl-red-btn" onclick="rlChoose('red')">КРАСНОЕ ×2</button>
+                    <button data-bet="black" class="rl-black-btn" onclick="rlChoose('black')">ЧЁРНОЕ ×2</button>
+                    <button data-bet="even" onclick="rlChoose('even')">ЧЁТ ×2</button>
+                    <button data-bet="odd" onclick="rlChoose('odd')">НЕЧЕТ ×2</button>
+                    <button data-bet="low" onclick="rlChoose('low')">1–18 ×2</button>
+                    <button data-bet="high" onclick="rlChoose('high')">19–36 ×2</button>
+                    <button data-bet="d1" onclick="rlChoose('d1')">1–12 ×3</button>
+                    <button data-bet="d2" onclick="rlChoose('d2')">13–24 ×3</button>
+                    <button data-bet="d3" onclick="rlChoose('d3')">25–36 ×3</button>
+                </div>
+                <div class="rl-num-row">
+                    <button onclick="rlAdjustNumber(-1)">−</button>
+                    <button id="rl-num-btn" class="rl-num-pick" onclick="rlChoose('num')">ЧИСЛО</button>
+                    <button onclick="rlAdjustNumber(1)">+</button>
+                </div>
+                <div class="casino-bet-row" id="rl-bet-controls">
+                    <button onclick="rlAdjustBet(-5)">−5</button>
+                    <div class="casino-bet">СТАВКА: <b id="rl-bet-val">10</b> <span class="cap"></span></div>
+                    <button onclick="rlAdjustBet(5)">+5</button>
+                </div>
+                <button id="rl-spin-btn" class="casino-main-btn" onclick="rlSpin()">🎡 КРУТИТЬ</button>
+                <div id="rl-log" class="casino-log">Выберите ставку и крутите колесо.</div>
             </div>
 
             <button onclick="switchView('scan')" style="width:100%; margin-top:10px;">ВЫЙТИ В МЕНЮ</button>

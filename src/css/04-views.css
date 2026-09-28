@@ -112,7 +112,7 @@ body.zombie-interface #hud {
 #lock-turn-btn { touch-action: none; -webkit-touch-callout: none; }
 
 /* ===== КАЗИНО: вкладки и карты ===== */
-.casino-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin: 20px 0 8px; }
+.casino-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 20px 0 8px; }
 .casino-tabs button { padding: 8px 2px; font-size: 0.95rem; border: 1px solid rgba(82,255,138,0.45); color: var(--text-dim); background: rgba(82,255,138,0.04); }
 .casino-tabs button.active-nav { border: 2px solid var(--quest-color); color: var(--quest-color); background: rgba(216,227,106,0.08); }
 .casino-panel { border-color: var(--quest-color); padding: 12px; }
@@ -138,3 +138,23 @@ body.zombie-interface #hud {
 .casino-actions { display: flex; gap: 6px; margin-top: 10px; }
 .casino-actions button { flex: 1; padding: 10px 2px; font-size: 1rem; }
 .casino-log { text-align: center; font-size: 0.95rem; margin-top: 8px; min-height: 2.4em; }
+
+/* ===== КАЗИНО: рулетка ===== */
+.rl-wheel-wrap { display: flex; justify-content: center; margin: 6px 0; }
+.rl-wheel { width: 230px; max-width: 80%; }
+.rl-num { fill: #f0f0e0; font-size: 7px; font-family: monospace; text-anchor: middle; dominant-baseline: central; }
+.rl-pointer { fill: var(--quest-color); stroke: #000; stroke-width: 1; }
+.rl-history-row { font-size: 0.9rem; color: var(--text-dim); margin: 4px 0 8px; display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.rl-chip { display: inline-block; min-width: 26px; text-align: center; padding: 1px 3px; border: 1px solid #d8d8c8; font-size: 0.9rem; color: #fff; }
+.rl-chip.rl-red, .rl-num-pick.rl-red { background: #b3261e; }
+.rl-chip.rl-black, .rl-num-pick.rl-black { background: #111; }
+.rl-chip.rl-green, .rl-num-pick.rl-green { background: #1b7a3a; }
+.rl-bets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.rl-bets button { padding: 8px 2px; font-size: 0.9rem; }
+.rl-bets button.active-nav, .rl-num-row .active-nav { border: 2px solid var(--quest-color); color: var(--quest-color); box-shadow: 0 0 8px rgba(216,227,106,0.4); }
+.rl-red-btn { border-color: #ff6b5b; color: #ff8a7a; }
+.rl-black-btn { border-color: #d8d8c8; color: #f0f0e0; }
+.rl-num-row { display: flex; gap: 5px; margin-top: 5px; }
+.rl-num-row button { flex: 0 0 48px; padding: 8px; }
+.rl-num-row .rl-num-pick { flex: 1; color: #fff; }
+.rl-num-pick b { font-size: 1.2rem; }
