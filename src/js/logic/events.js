@@ -108,6 +108,8 @@ function startHeartbeatLoop() {
     setInterval(() => {
         let nowTime = Date.now();
         let prevHeartbeat = parseInt(localStorage.getItem('pda_heartbeat')) || nowTime;
+        // Долгая пауза — ПДА спал: сначала доигрываем пропущенные минуты
+        if (nowTime - prevHeartbeat > ZONE_OFFLINE_GAP_MS) zoneCatchUp(false);
         localStorage.setItem('pda_heartbeat', nowTime.toString());
 
         // Проверка ареста (10 минут блокировки)
@@ -139,7 +141,7 @@ function startHeartbeatLoop() {
             }
 
             let diffSec = Math.floor((nowTime - prevHeartbeat) / 1000);
-            if (diffSec > 0 && diffSec < 60) { // Игнорируем скачки оффлайна (их обрабатывает оффлайн-обработчик отдельно)
+            if (diffSec > 0 && diffSec * 1000 <= ZONE_OFFLINE_GAP_MS) { // долгие паузы доигрывает zoneCatchUp()
                 player.stats.survivedSeconds = (player.stats.survivedSeconds || 0) + diffSec;
 
                 // Эффект регенерации 5 уровня Убежища (+1 HP в минуту = 1 HP за 60 секунд)
@@ -159,69 +161,118 @@ function startHeartbeatLoop() {
     }, 5000);
 }
 
-function startEventLoop() {
-    setInterval(() => {
-        if (player.inBase || player.hp <= 0) return;
-        if (player.weapons) {
-            let changed = false;
-            for (let wName in player.weapons) {
-                let w = player.weapons[wName];
-                if (w.active && w.durability > 0) {
-                    let baseWear = Math.floor(Math.random() * 3) + 1;
+// ============================================================
+// МИНУТНЫЙ ЦИКЛ ЗОНЫ (по реальным часам)
+// ============================================================
+// Голод, радиация, износ оружия и т.д. начисляются за каждую прошедшую
+// минуту по часам, а не по срабатываниям таймера. Когда телефон
+// заблокирован, приложение спит и таймеры стоят — после пробуждения
+// zoneCatchUp() «доигрывает» пропущенные минуты по тем же правилам.
+// Случайные события Зоны (бури, мутанты) бывают только в живой игре.
+// ============================================================
 
-                    // Снижение износа оружия у Торговца Сидоровича (10% за каждый уровень, вплоть до 100% при Ур. 10)
-                    let tradRep = (player.npcRep && player.npcRep['npc_trad']) || 0;
-                    let tradLvl = getNpcRepLevel(tradRep);
-                    let wearMult = Math.max(0, 1 - (tradLvl * 0.1));
-                    // Убежище 3 ур: износ оружия на 10% медленнее (коэффициент 0.9)
-                    if (player.shelterLevel >= 3) {
-                        wearMult = wearMult * 0.9;
-                    }
-                    let wear = takeWhole('wear:' + wName, baseWear * wearMult);
+const ZONE_TICK_MS = 15000;              // как часто проверяем, не прошла ли минута
+const ZONE_MAX_CATCHUP_MIN = 24 * 60;    // больше суток за раз не доигрываем
+const ZONE_OFFLINE_GAP_MS = 20000;       // пульс молчал дольше — ПДА «спал»
 
-                    w.durability = Math.max(0, w.durability - wear);
-                    changed = true;
-                }
-            }
-            if (changed && document.getElementById('view-profile').classList.contains('active')) {
-                renderProfile();
+// Одна минута жизни в Зоне. offline = true — минута прошла, пока ПДА спал:
+// тогда здесь же начисляются жалование, регенерация и время выживания
+// (в живой игре их считает startHeartbeatLoop).
+function zoneMinute(offline) {
+    // Износ активного оружия (в среднем 2% в минуту)
+    if (player.weapons) {
+        let tradLvl = getNpcRepLevel((player.npcRep && player.npcRep['npc_trad']) || 0);
+        // Сидорович: −10% износа за уровень; Убежище 3 ур.: ещё −10%
+        let wearMult = Math.max(0, 1 - (tradLvl * 0.1));
+        if (player.shelterLevel >= 3) wearMult = wearMult * 0.9;
+        for (let wName in player.weapons) {
+            let w = player.weapons[wName];
+            if (w.active && w.durability > 0) {
+                let baseWear = offline ? 2 : Math.floor(Math.random() * 3) + 1;
+                w.durability = Math.max(0, w.durability - takeWhole('wear:' + wName, baseWear * wearMult));
             }
         }
+    }
 
-        let hungerLoss = 3;
-        if (player.equipment === 'eq_hunger') hungerLoss = 1;
-        // Убежище 1 ур: сытость тратится на 10% медленнее (коэффициент 0.9)
-        if (player.shelterLevel >= 1) {
-            hungerLoss = hungerLoss * 0.9;
-        }
-        player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
+    // Голод: 3 в минуту (Био-синтезатор — 1), Убежище 1 ур. — на 10% медленнее
+    let hungerLoss = (player.equipment === 'eq_hunger') ? 1 : 3;
+    if (player.shelterLevel >= 1) hungerLoss = hungerLoss * 0.9;
+    player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
 
-        if (player.karma_score < 3) {
-            let radGain = 2 * getRadMultiplier();
-            // Убежище 2 ур: радиация накапливается на 10% медленнее (коэффициент 0.9)
-            if (player.shelterLevel >= 2) {
-                radGain = radGain * 0.9;
-            }
-            player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
-        } else {
-            player.rads = 0;
-        }
+    // Радиация: 2 в минуту с учётом защиты; Убежище 2 ур. — на 10% медленнее; Герой — иммунитет
+    if (player.karma_score < 3) {
+        let radGain = 2 * getRadMultiplier();
+        if (player.shelterLevel >= 2) radGain = radGain * 0.9;
+        player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
+    } else {
+        player.rads = 0;
+    }
 
-        let maxHp = getEffectiveMaxHp();
-        if (player.hp > maxHp) player.hp = maxHp;
+    let maxHp = getEffectiveMaxHp();
+    if (player.hp > maxHp) player.hp = maxHp;
 
-        if (player.hunger === 0 && player.hp > 0) {
-            let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
-            player.hp = Math.max(0, player.hp - hungerDmg);
+    // Истощение: урон, только пока сытость на нуле
+    if (player.hunger === 0 && player.hp > 0) {
+        let hungerDmg = (player.equipment === 'eq_hunger') ? 2 : 5;
+        player.hp = Math.max(0, player.hp - hungerDmg);
+        if (!offline) {
             playSound('hazard');
             showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', COLOR_BANDIT);
-            checkDeathState();
         }
+    }
 
-        saveState();
+    if (offline && player.hp > 0) {
+        player.stats.survivedSeconds = (player.stats.survivedSeconds || 0) + 60;
+        let arrested = player.arrestedUntil && Date.now() < player.arrestedUntil;
+        if (!arrested && player.role === 'Рабочий') player.score += 3;
+        if (!arrested && player.role === 'Военный') player.score += 5;
+        if (player.shelterLevel >= 5 && player.hp < getEffectiveMaxHp()) player.hp += 1;
+    }
+}
 
-        if (Math.random() < 0.1 && player.hp > 0) {
-            let ev = [
+// Прожить все минуты, прошедшие с прошлого раза. fromLiveTick — вызов из
+// работающего таймера (тогда возможны случайные события Зоны).
+function zoneCatchUp(fromLiveTick) {
+    let now = Date.now();
+    // Первый запуск: старые сохранения берут время последнего «пульса» ПДА
+    if (!player.lastZoneTick) player.lastZoneTick = parseInt(localStorage.getItem('pda_heartbeat')) || now;
+    if (player.lastZoneTick > now) player.lastZoneTick = now; // часы переведены назад
+    let minutes = Math.floor((now - player.lastZoneTick) / 60000);
+    if (minutes <= 0) return 0;
+    player.lastZoneTick += minutes * 60000;
+
+    if (player.inBase || player.hp <= 0) { saveState(); return 0; }
+
+    // ПДА спал, если «пульс» (startHeartbeatLoop) давно не обновлялся
+    let lastPulse = parseInt(localStorage.getItem('pda_heartbeat')) || now;
+    let offline = (now - lastPulse) > ZONE_OFFLINE_GAP_MS;
+
+    let before = { hunger: player.hunger, rads: player.rads, hp: player.hp, score: player.score };
+    let lived = 0;
+    let toLive = Math.min(minutes, ZONE_MAX_CATCHUP_MIN);
+    while (lived < toLive && player.hp > 0) {
+        zoneMinute(offline);
+        lived++;
+    }
+    saveState();
+    if (player.hp <= 0) { checkDeathState(); return lived; }
+
+    if (offline) {
+        let parts = [];
+        if (before.hunger !== player.hunger) parts.push(`ЕДА ${player.hunger - before.hunger}`);
+        if (before.rads !== player.rads) parts.push(`РАД +${player.rads - before.rads}`);
+        if (before.hp !== player.hp) parts.push(`HP ${player.hp - before.hp > 0 ? '+' : ''}${player.hp - before.hp}`);
+        if (before.score !== player.score) parts.push(`+${player.score - before.score} ¢`);
+        showBanner(`⏱ ПДА СПАЛ ${lived} МИН: ${parts.join(', ') || 'без изменений'}`, COLOR_RAD);
+    } else if (fromLiveTick && Math.random() < 0.1) {
+        zoneRandomEvent();
+    }
+    return lived;
+}
+
+// Случайное событие Зоны (10% в минуту живой игры)
+function zoneRandomEvent() {
+    let ev = [
                 {
                     m: '☣ РАДИАЦИОННАЯ БУРЯ! (+15 РАД)',
                     a: () => {
@@ -293,10 +344,22 @@ function startEventLoop() {
                     }
                 }
             ][Math.floor(Math.random() * 4)];
-            ev.a(); saveState(); playSound('hazard');
-            if (player.equipment !== 'eq_storm') {
-                showBanner(ev.m, COLOR_RAD);
-            }
-        }
-    }, 60000);
+    ev.a(); saveState(); playSound('hazard');
+    if (player.equipment !== 'eq_storm') {
+        showBanner(ev.m, COLOR_RAD);
+    }
+}
+
+function startEventLoop() {
+    zoneCatchUp(false);
+    setInterval(() => zoneCatchUp(true), ZONE_TICK_MS);
+    // Телефон разблокировали / вернулись в приложение — доигрываем пропущенное
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) zoneCatchUp(false);
+    });
+}
+
+// Совместимость: раньше офлайн-время считалось отдельной функцией
+function processOfflineTime() {
+    return zoneCatchUp(false);
 }
