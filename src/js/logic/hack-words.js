@@ -162,12 +162,12 @@ function useHackBracket(id) {
     if (hackFinished || hackBracketUsed[id]) return;
     hackBracketUsed[id] = true;
     let duds = hackWordsList.filter(w => w !== hackSecretWord && !hackRemoved[w] && hackTried[w] === undefined);
-    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === HACK_MAX_ATTEMPTS)) {
+    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === hackMaxAttempts())) {
         let w = duds[hackRand(duds.length)];
         hackRemoved[w] = true;
         hackLog(`Ложное слово удалено: ${w}`, 'bonus');
     } else {
-        hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+        hackAttemptsLeft = hackMaxAttempts();
         hackLog('Защита сброшена: попытки восстановлены.', 'bonus');
         updateHackAttemptsUI();
     }

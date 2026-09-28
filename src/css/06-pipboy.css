@@ -184,3 +184,28 @@ input, textarea, select {
     text-shadow: none;
 }
 .cap-lg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
+
+/* ---------- Уровень и опыт в шапке ---------- */
+.pb-xp { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
+.pb-xp-lvl b { font-size: 1.2rem; }
+.pb-xpbar { flex: 1; height: 8px; border: 1px solid var(--hero-color); position: relative; }
+.pb-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--hero-color); opacity: 0.75; transition: width 0.4s ease; }
+.pb-xp-text { opacity: 0.8; white-space: nowrap; }
+.pb-xp-points { color: #000; background: var(--hero-color); padding: 0 5px; font-weight: bold; animation: pulse-led 0.9s infinite alternate; }
+
+/* ---------- Перки в профиле ---------- */
+.perk-level { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.2rem; color: var(--hero-color); }
+.perk-level b { font-size: 1.8rem; }
+.perk-level span { font-size: 0.95rem; opacity: 0.8; }
+.perk-xpbar { height: 10px; border: 1px solid var(--hero-color); margin: 4px 0; position: relative; }
+.perk-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; background: var(--hero-color); opacity: 0.75; }
+.perk-sub { font-size: 0.9rem; color: var(--text-dim); }
+.perk-points { margin: 8px 0; font-size: 1.05rem; }
+.perk-points b { color: var(--hero-color); font-size: 1.3rem; }
+.perk-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px dashed rgba(82,255,138,0.25); }
+.perk-row.perk-owned .perk-info b { color: var(--hero-color); }
+.perk-info { font-size: 1rem; line-height: 1.25; }
+.perk-info small { color: var(--text-dim); }
+.perk-pips { color: var(--hero-color); letter-spacing: 1px; }
+.perk-btn { flex: 0 0 auto; padding: 5px 8px; font-size: 0.85rem; min-width: 82px; }
+.perk-btn-go { border-color: var(--hero-color); color: var(--hero-color); box-shadow: 0 0 8px rgba(240,230,140,0.35); }

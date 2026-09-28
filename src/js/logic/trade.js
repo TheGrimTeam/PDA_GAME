@@ -43,7 +43,10 @@ function openTrade(npcCode) {
                             if (idx !== -1) player.inventory.splice(idx, 1);
                         }
                     }
-                    player.score += q.reward;
+                    // Перк «Золотая жила»: +10% крышек за ранг
+                    let reward = Math.round(q.reward * (1 + 0.1 * perkRank('fortune')));
+                    player.score += reward;
+                    gainXp(String(q.id).startsWith('preset_') ? XP_REWARDS.contractSpecial : XP_REWARDS.contract);
                     player.quests.active = player.quests.active.filter(actQ => actQ.id !== q.id);
                     while (player.quests.choices.length < 5) {
                         player.quests.choices.push(createRandomQuest());
@@ -74,7 +77,7 @@ function openTrade(npcCode) {
                     } else if (prevCount < 5 && player.completedQuestsCount >= 5) {
                         alert(`🎉 ВЫ ВЫПОЛНИЛИ 5 КВЕСТОВ СНАБЖЕНИЯ!\nВам стали доступны Особые Контракты («Мародер», «Пацифист», «Зона»)!`);
                     } else {
-                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
+                        alert(`КОНТРАКТ СДАН!\nПолучено: ${reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
                     }
                     break;
                 }
@@ -96,6 +99,7 @@ function openTrade(npcCode) {
             if (player.equipment === 'eq_trade') {
                 basePrice = Math.floor(basePrice * 0.75);
             }
+            basePrice = Math.max(1, Math.floor(basePrice * (1 - 0.1 * perkRank('barter')))); // перк «Торгаш»
             currentTradeStock.push({ id: randId, price: basePrice });
         }
     }
@@ -190,7 +194,7 @@ function renderTradeView() {
     player.inventory.forEach((id, i) => {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
-            hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
+            hasItems = true; let mult = (npc.isBase ? npc.mult : 1.5) * (1 + 0.1 * perkRank('barter')); let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult + 1e-6)); // 1e-6: погрешность дробей (1.5 × 1.2 = 1.7999…)
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });

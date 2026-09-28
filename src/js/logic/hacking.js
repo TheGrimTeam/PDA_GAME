@@ -29,6 +29,11 @@ let hackDevice = null;
 let hackAttemptsLeft = HACK_MAX_ATTEMPTS;
 let hackFinished = false;
 
+// Попытки во взломе: базовые + перк «Взломщик»
+function hackMaxAttempts() {
+    return HACK_MAX_ATTEMPTS + perkRank('hacker');
+}
+
 function getHackDevice(code) {
     if (code.startsWith(QR_PREFIX_SAFE)) return HACK_DEVICES.safe_;
     if (code.startsWith(QR_PREFIX_TERM)) return HACK_DEVICES.term_;
@@ -59,7 +64,7 @@ function startHacking(code) {
 
     currentHackCode = code;
     hackDevice = getHackDevice(code);
-    hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+    hackAttemptsLeft = hackMaxAttempts();
     hackFinished = false;
 
     document.getElementById('hack-system-name').innerText = `${hackDevice.title} ${code.toUpperCase()}`;
@@ -95,7 +100,7 @@ function hackLog(text, kind) {
 function updateHackAttemptsUI() {
     const attemptsEl = document.getElementById('hack-attempts');
     let boxes = '';
-    for (let i = 0; i < HACK_MAX_ATTEMPTS; i++) boxes += (i < hackAttemptsLeft ? '■ ' : '□ ');
+    for (let i = 0; i < hackMaxAttempts(); i++) boxes += (i < hackAttemptsLeft ? '■ ' : '□ ');
     attemptsEl.innerText = `${boxes.trim()}  (${hackAttemptsLeft})`;
     attemptsEl.style.color = hackAttemptsLeft <= 1 ? "var(--bandit-color)" : "var(--trade-color)";
     const warnEl = document.getElementById('hack-lock-warning');
@@ -131,7 +136,9 @@ function hackWin() {
     hackLog('Доступ разрешён.', 'ok');
 
     let creditsReward = hackDevice.reward[0] + hackRand(hackDevice.reward[1] - hackDevice.reward[0] + 1);
+    creditsReward = Math.round(creditsReward * (1 + 0.1 * perkRank('fortune'))); // перк «Золотая жила»
     player.score += creditsReward;
+    gainXp({ sync: XP_REWARDS.hackUsb, lockpick: XP_REWARDS.hackTerm, words: XP_REWARDS.hackSafe }[hackDevice.game]);
 
     // Случайная полезная деталь
     let junkKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat === 'junk' || ITEMS_DB[k].cat === 'gear');

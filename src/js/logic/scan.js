@@ -201,6 +201,7 @@ function handleScan(qrCode) {
         player.inventory.splice(consumableIdx, 1);
 
         player.karma_score++;
+        gainXp(XP_REWARDS.healPlayer);
         playSound('use');
 
         player.history = player.history || [];
@@ -284,6 +285,7 @@ function handleScan(qrCode) {
         player.history = player.history || [];
         player.history.push({ type: 'rob', name: victimName + (corpseType === 'bandit' ? ' (Бандит)' : ''), date: Date.now() });
         player.stats.corpsesRobbed = (player.stats.corpsesRobbed || 0) + 1;
+        gainXp(XP_REWARDS.robCorpse);
         player.stats.itemsFound = (player.stats.itemsFound || 0) + pickedUp.length;
 
         saveState();
@@ -349,6 +351,7 @@ function handleScan(qrCode) {
         let roll = Math.random();
         const retryHint = "<br><small style='color:var(--text-dim)'>Аномалия не разрядилась — можно попробовать ещё раз.</small>";
 
+        successChance = Math.min(1, successChance + 0.1 * perkRank('scrounger')); // перк «Нюх сталкера»
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
             let needSize = item.size;
@@ -357,6 +360,7 @@ function handleScan(qrCode) {
                 playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
+                gainXp(XP_REWARDS.artifact);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
                 resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
             }
@@ -400,7 +404,7 @@ function handleScan(qrCode) {
     let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
     if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
 
-    playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = itemNow; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; saveState();
+    playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = itemNow; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; gainXp(XP_REWARDS.itemPickup); saveState();
     resDiv.innerHTML = `ПОДОБРАНО: <b style="color:#fff">${item.name}</b><br><small>(Вес: ${item.size} | Цена: ${item.val})</small>`;
 }
 

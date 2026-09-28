@@ -18,7 +18,8 @@ function useMedkit(index, id, isSafe = false) {
     }
 
     let maxHp = getEffectiveMaxHp();
-    player.hp = Math.min(maxHp, player.hp + (it.heal || 0));
+    let heal = Math.round((it.heal || 0) * (1 + 0.25 * perkRank('medic'))); // перк «Полевой медик»
+    player.hp = Math.min(maxHp, player.hp + heal);
     player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
@@ -106,7 +107,7 @@ function applyUpgrade() {
 
     let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
     let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus + perkRank('strongBack') * 5;
 
     player.upgradeQuest = genQ(1, 2);
     saveState();

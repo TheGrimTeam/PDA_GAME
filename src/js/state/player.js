@@ -40,6 +40,11 @@ if (!player.processedTradeTxs) player.processedTradeTxs = {};
 if (!player.processedBuyTxs) player.processedBuyTxs = {};
 if (!player.fractions) player.fractions = {};
 if (!player.eqPurchased) player.eqPurchased = {};
+// Опыт, уровень и перки
+if (typeof player.xp !== 'number') player.xp = 0;
+if (!player.level) player.level = 1;
+if (typeof player.perkPoints !== 'number') player.perkPoints = 0;
+if (!player.perks || typeof player.perks !== 'object') player.perks = {};
 if (player.equipment) player.eqPurchased[player.equipment] = true;
 if (!player.story || typeof player.story !== 'object') player.story = { stage: 1, q1: {}, q2: [], announced: {}, coordsKnown: false, synthStartedAt: 0, extendedStock: false };
 if (!Array.isArray(player.quests.active)) player.quests.active = [];

@@ -24,7 +24,8 @@ function checkDeathState() {
             // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%.
             // «Ядро Синтеза» в рюкзаке — заражение гарантировано.
             if (!player.infectionTime && !player.zombieTime) {
-                if (hasSynthCore() || Math.random() < 0.33) {
+                // Перк «Крепкий иммунитет» вдвое снижает шанс заражения
+                if (hasSynthCore() || Math.random() < (perkRank('immune') ? 0.165 : 0.33)) {
                     player.infectionTime = Date.now();
                     playSound('hazard');
                     showBanner("ИНФЕЦИРОВАН ВИРУСОМ!", 'yellow');

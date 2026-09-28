@@ -82,6 +82,7 @@ function handleBanditScan(code) {
 
     // Премия 100 крышек
     player.score += 100;
+    gainXp(XP_REWARDS.arrest);
     playSound('sell');
     saveState();
     document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ${CAP}</small>`;

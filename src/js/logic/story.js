@@ -211,6 +211,7 @@ function handleSynthStationScan(resDiv) {
     player.inventory.push('anom_4');
     player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
     st.stage = STORY_FINAL_STAGE;
+    gainXp(XP_REWARDS.storyFinal);
     st.synthStartedAt = 0;
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
@@ -275,6 +276,7 @@ function claimStoryReward() {
     }
 
     st.stage = stage + 1;
+    gainXp(XP_REWARDS.storyQuest);
     playSound('quest');
     saveState();
     renderQuests();

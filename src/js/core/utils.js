@@ -17,6 +17,8 @@ function getMaxHp() {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }
     if (hasSynthCore()) baseMaxHp += 50; // «Ядро Синтеза» в рюкзаке
+    baseMaxHp += ((player.level || 1) - 1) * HP_PER_LEVEL; // уровень персонажа
+    baseMaxHp += perkRank('toughness') * 20;               // перк «Живучий»
     return baseMaxHp;
 }
 

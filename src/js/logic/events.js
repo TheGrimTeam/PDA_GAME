@@ -185,6 +185,7 @@ function zoneMinute(offline) {
         // Сидорович: −10% износа за уровень; Убежище 3 ур.: ещё −10%
         let wearMult = Math.max(0, 1 - (tradLvl * 0.1));
         if (player.shelterLevel >= 3) wearMult = wearMult * 0.9;
+        wearMult = wearMult * (1 - 0.25 * perkRank('gunsmith')); // перк «Оружейник»
         for (let wName in player.weapons) {
             let w = player.weapons[wName];
             if (w.active && w.durability > 0) {
@@ -197,12 +198,14 @@ function zoneMinute(offline) {
     // Голод: 3 в минуту (Био-синтезатор — 1), Убежище 1 ур. — на 10% медленнее
     let hungerLoss = (player.equipment === 'eq_hunger') ? 1 : 3;
     if (player.shelterLevel >= 1) hungerLoss = hungerLoss * 0.9;
+    hungerLoss = hungerLoss * (1 - 0.15 * perkRank('leadBelly')); // перк «Лужёный желудок»
     player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
 
     // Радиация: 2 в минуту с учётом защиты; Убежище 2 ур. — на 10% медленнее; Герой — иммунитет
     if (player.karma_score < 3) {
         let radGain = 2 * getRadMultiplier();
         if (player.shelterLevel >= 2) radGain = radGain * 0.9;
+        radGain = radGain * (1 - 0.15 * perkRank('radResist')); // перк «Антирадиант»
         player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
     } else {
         player.rads = 0;
@@ -219,6 +222,12 @@ function zoneMinute(offline) {
             playSound('hazard');
             showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', COLOR_BANDIT);
         }
+    }
+
+    if (player.hp > 0) {
+        gainXp(XP_REWARDS.zoneMinute); // опыт капает каждую минуту в Зоне
+        // Перк «Второе дыхание»: +1 HP каждые 2 минуты
+        if (perkRank('regen') && player.hp < getEffectiveMaxHp()) player.hp += takeWhole('perkRegen', 0.5);
     }
 
     if (offline && player.hp > 0) {

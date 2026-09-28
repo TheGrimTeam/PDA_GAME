@@ -4,6 +4,7 @@
 // ============================================================
 
 function renderProfile() {
+    renderPerks();
     const eqContent = document.getElementById('profile-equipment-content');
     if (eqContent) {
         if (player.equipment && ITEMS_DB[player.equipment]) {

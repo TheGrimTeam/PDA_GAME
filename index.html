@@ -772,6 +772,31 @@ input, textarea, select {
 }
 .cap-lg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
 
+/* ---------- Уровень и опыт в шапке ---------- */
+.pb-xp { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
+.pb-xp-lvl b { font-size: 1.2rem; }
+.pb-xpbar { flex: 1; height: 8px; border: 1px solid var(--hero-color); position: relative; }
+.pb-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--hero-color); opacity: 0.75; transition: width 0.4s ease; }
+.pb-xp-text { opacity: 0.8; white-space: nowrap; }
+.pb-xp-points { color: #000; background: var(--hero-color); padding: 0 5px; font-weight: bold; animation: pulse-led 0.9s infinite alternate; }
+
+/* ---------- Перки в профиле ---------- */
+.perk-level { display: flex; justify-content: space-between; align-items: baseline; font-size: 1.2rem; color: var(--hero-color); }
+.perk-level b { font-size: 1.8rem; }
+.perk-level span { font-size: 0.95rem; opacity: 0.8; }
+.perk-xpbar { height: 10px; border: 1px solid var(--hero-color); margin: 4px 0; position: relative; }
+.perk-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; background: var(--hero-color); opacity: 0.75; }
+.perk-sub { font-size: 0.9rem; color: var(--text-dim); }
+.perk-points { margin: 8px 0; font-size: 1.05rem; }
+.perk-points b { color: var(--hero-color); font-size: 1.3rem; }
+.perk-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 7px 0; border-top: 1px dashed rgba(82,255,138,0.25); }
+.perk-row.perk-owned .perk-info b { color: var(--hero-color); }
+.perk-info { font-size: 1rem; line-height: 1.25; }
+.perk-info small { color: var(--text-dim); }
+.perk-pips { color: var(--hero-color); letter-spacing: 1px; }
+.perk-btn { flex: 0 0 auto; padding: 5px 8px; font-size: 0.85rem; min-width: 82px; }
+.perk-btn-go { border-color: var(--hero-color); color: var(--hero-color); box-shadow: 0 0 8px rgba(240,230,140,0.35); }
+
     </style>
 </head>
 <body>
@@ -801,6 +826,13 @@ input, textarea, select {
                     <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
                 </div>
                 <div class="pb-box pb-caps-box"><div class="pb-lbl"><span>КРЫШКИ</span><span class="cap" title="крышки"></span></div><div class="pb-val"><span id="score-val">0</span></div></div>
+            </div>
+            <!-- Уровень и опыт -->
+            <div class="pb-xp" onclick="switchView('profile')" title="Уровень и перки — в профиле">
+                <span class="pb-xp-lvl">УР <b id="xp-level">1</b></span>
+                <div class="pb-xpbar"><div id="xp-fill"></div></div>
+                <span id="xp-text" class="pb-xp-text">0/100 XP</span>
+                <span id="xp-points" class="pb-xp-points" style="display:none;">★ ПЕРК</span>
             </div>
             <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
             <div class="hud-row pb-quick">
@@ -1070,6 +1102,12 @@ input, textarea, select {
                 <p style="font-size: 1.3rem;">Статус: <b id="prof-karma"></b></p>
                 <p style="font-size: 1.1rem; color:var(--text-dim); margin-top: 5px;">Очки Кармы: <b id="prof-karma-score">0</b></p>
                 <p style="font-size: 1.1rem; color:var(--trade-color); margin-top: 5px;">Должность / Роль: <b id="prof-role" style="color:var(--quest-color)">БЕЗРАБОТНЫЙ</b></p>
+            </div>
+
+            <!-- УРОВЕНЬ И ПЕРКИ -->
+            <div class="profile-card" id="profile-perks-card" style="border-color:var(--hero-color);">
+                <h4 style="border-bottom: 1px dashed var(--hero-color); padding-bottom: 4px; margin-bottom: 8px; color: var(--hero-color); font-size: 1.15rem; text-align: center;">⭐ УРОВЕНЬ И ПЕРКИ</h4>
+                <div id="perks-content"></div>
             </div>
 
             <!-- РЕПУТАЦИЯ И ПРИВИЛЕГИИ У НПС -->
@@ -1723,6 +1761,58 @@ const STORY_FINAL_STAGE = 5; // все квесты пройдены
 /* ===== next js file ===== */
 
 // ============================================================
+// ОПЫТ, УРОВНИ И ПЕРКИ
+// ============================================================
+// Опыт капает каждую минуту в Зоне и начисляется за действия.
+// Уровень даёт +5 к максимальному HP и 1 очко перка.
+// Логика — logic/perks.js. Организаторам: баланс правится здесь.
+// ============================================================
+
+const MAX_LEVEL = 20;
+const HP_PER_LEVEL = 5;
+
+// Сколько опыта всего нужно для уровня L: 50·L·(L−1) → 2: 100, 3: 300, 4: 600, 5: 1000...
+function xpForLevel(level) {
+    return 50 * level * (level - 1);
+}
+
+// Награды опытом
+const XP_REWARDS = {
+    zoneMinute: 1,       // каждая минута в Зоне (в том числе пока телефон спит)
+    itemPickup: 2,       // подобрать предмет
+    artifact: 15,        // достать артефакт из аномалии
+    hackUsb: 15,         // взлом флешки
+    hackTerm: 25,        // взлом терминала
+    hackSafe: 40,        // вскрытие схрона
+    contract: 30,        // сдать обычный контракт
+    contractSpecial: 60, // сдать особый контракт
+    storyQuest: 100,     // сюжетный квест 1–3
+    storyFinal: 200,     // Ядро Синтеза
+    healPlayer: 20,      // спасти умирающего
+    robCorpse: 10,       // обыскать тело
+    arrest: 25           // задержать бандита (Военный)
+};
+
+// Перки: maxRank — сколько раз можно взять, minLevel[k] — с какого уровня доступен ранг k+1
+const PERKS = {
+    toughness:  { name: 'Живучий',            icon: '❤', maxRank: 3, minLevel: [2, 6, 10], desc: '+20 к максимальному HP за ранг.' },
+    radResist:  { name: 'Антирадиант',        icon: '☢', maxRank: 2, minLevel: [2, 8],     desc: 'Радиация копится на 15% медленнее за ранг.' },
+    leadBelly:  { name: 'Лужёный желудок',    icon: '🍖', maxRank: 2, minLevel: [2, 6],     desc: 'Голод растёт на 15% медленнее за ранг.' },
+    strongBack: { name: 'Крепкий хребет',     icon: '🎒', maxRank: 2, minLevel: [3, 7],     desc: '+5 кг к весу рюкзака за ранг.' },
+    barter:     { name: 'Торгаш',             icon: '¢',  maxRank: 2, minLevel: [3, 9],     desc: 'Покупка у торговцев на 10% дешевле, продажа на 10% дороже за ранг.' },
+    hacker:     { name: 'Взломщик',           icon: '📟', maxRank: 2, minLevel: [4, 10],    desc: '+1 попытка во всех мини-играх взлома за ранг.' },
+    scrounger:  { name: 'Нюх сталкера',       icon: '🌀', maxRank: 2, minLevel: [4, 8],     desc: '+10% к шансу достать артефакт из аномалии за ранг.' },
+    medic:      { name: 'Полевой медик',      icon: '💉', maxRank: 2, minLevel: [3, 7],     desc: 'Медикаменты лечат на 25% больше за ранг.' },
+    gunsmith:   { name: 'Оружейник',          icon: '🔧', maxRank: 2, minLevel: [5, 9],     desc: 'Оружие изнашивается на 25% медленнее за ранг.' },
+    fortune:    { name: 'Золотая жила',       icon: '💰', maxRank: 2, minLevel: [5, 11],    desc: '+10% крышек за контракты и взломы за ранг.' },
+    regen:      { name: 'Второе дыхание',     icon: '🫀', maxRank: 1, minLevel: [8],        desc: 'Регенерация +1 HP каждые 2 минуты в Зоне.' },
+    immune:     { name: 'Крепкий иммунитет',  icon: '🧬', maxRank: 1, minLevel: [10],       desc: 'Шанс заразиться вирусом при смерти вдвое ниже.' }
+};
+
+
+/* ===== next js file ===== */
+
+// ============================================================
 // СОСТОЯНИЕ ИГРОКА
 // ============================================================
 // Загрузка из localStorage, миграция старых сохранений,
@@ -1764,6 +1854,11 @@ if (!player.processedTradeTxs) player.processedTradeTxs = {};
 if (!player.processedBuyTxs) player.processedBuyTxs = {};
 if (!player.fractions) player.fractions = {};
 if (!player.eqPurchased) player.eqPurchased = {};
+// Опыт, уровень и перки
+if (typeof player.xp !== 'number') player.xp = 0;
+if (!player.level) player.level = 1;
+if (typeof player.perkPoints !== 'number') player.perkPoints = 0;
+if (!player.perks || typeof player.perks !== 'object') player.perks = {};
 if (player.equipment) player.eqPurchased[player.equipment] = true;
 if (!player.story || typeof player.story !== 'object') player.story = { stage: 1, q1: {}, q2: [], announced: {}, coordsKnown: false, synthStartedAt: 0, extendedStock: false };
 if (!Array.isArray(player.quests.active)) player.quests.active = [];
@@ -2103,6 +2198,8 @@ function getMaxHp() {
         baseMaxHp = Math.round(baseMaxHp * 1.1); // Убежище 4 ур: +10% макс HP
     }
     if (hasSynthCore()) baseMaxHp += 50; // «Ядро Синтеза» в рюкзаке
+    baseMaxHp += ((player.level || 1) - 1) * HP_PER_LEVEL; // уровень персонажа
+    baseMaxHp += perkRank('toughness') * 20;               // перк «Живучий»
     return baseMaxHp;
 }
 
@@ -2490,6 +2587,7 @@ function handleScan(qrCode) {
         player.inventory.splice(consumableIdx, 1);
 
         player.karma_score++;
+        gainXp(XP_REWARDS.healPlayer);
         playSound('use');
 
         player.history = player.history || [];
@@ -2573,6 +2671,7 @@ function handleScan(qrCode) {
         player.history = player.history || [];
         player.history.push({ type: 'rob', name: victimName + (corpseType === 'bandit' ? ' (Бандит)' : ''), date: Date.now() });
         player.stats.corpsesRobbed = (player.stats.corpsesRobbed || 0) + 1;
+        gainXp(XP_REWARDS.robCorpse);
         player.stats.itemsFound = (player.stats.itemsFound || 0) + pickedUp.length;
 
         saveState();
@@ -2638,6 +2737,7 @@ function handleScan(qrCode) {
         let roll = Math.random();
         const retryHint = "<br><small style='color:var(--text-dim)'>Аномалия не разрядилась — можно попробовать ещё раз.</small>";
 
+        successChance = Math.min(1, successChance + 0.1 * perkRank('scrounger')); // перк «Нюх сталкера»
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
             let needSize = item.size;
@@ -2646,6 +2746,7 @@ function handleScan(qrCode) {
                 playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
+                gainXp(XP_REWARDS.artifact);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
                 resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
             }
@@ -2689,7 +2790,7 @@ function handleScan(qrCode) {
     let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
     if (currentSize + item.size > player.maxSize) { playSound('error'); return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ!</span>"; }
 
-    playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = itemNow; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; saveState();
+    playSound('scan'); player.inventory.push(code); player.scannedCodes[code] = itemNow; player.stats.itemsFound = (player.stats.itemsFound || 0) + 1; gainXp(XP_REWARDS.itemPickup); saveState();
     resDiv.innerHTML = `ПОДОБРАНО: <b style="color:#fff">${item.name}</b><br><small>(Вес: ${item.size} | Цена: ${item.val})</small>`;
 }
 
@@ -2766,7 +2867,8 @@ function useMedkit(index, id, isSafe = false) {
     }
 
     let maxHp = getEffectiveMaxHp();
-    player.hp = Math.min(maxHp, player.hp + (it.heal || 0));
+    let heal = Math.round((it.heal || 0) * (1 + 0.25 * perkRank('medic'))); // перк «Полевой медик»
+    player.hp = Math.min(maxHp, player.hp + heal);
     player.stats.medsUsed = (player.stats.medsUsed || 0) + 1;
     playSound('use'); if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory();
 }
@@ -2854,7 +2956,7 @@ function applyUpgrade() {
 
     let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
     let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+    player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus + perkRank('strongBack') * 5;
 
     player.upgradeQuest = genQ(1, 2);
     saveState();
@@ -3357,6 +3459,7 @@ function handleSynthStationScan(resDiv) {
     player.inventory.push('anom_4');
     player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
     st.stage = STORY_FINAL_STAGE;
+    gainXp(XP_REWARDS.storyFinal);
     st.synthStartedAt = 0;
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
@@ -3421,6 +3524,7 @@ function claimStoryReward() {
     }
 
     st.stage = stage + 1;
+    gainXp(XP_REWARDS.storyQuest);
     playSound('quest');
     saveState();
     renderQuests();
@@ -3496,6 +3600,107 @@ function renderStoryBlock() {
 /* ===== next js file ===== */
 
 // ============================================================
+// ЛОГИКА ОПЫТА, УРОВНЕЙ И ПЕРКОВ
+// ============================================================
+// player.xp — весь накопленный опыт, player.level — текущий уровень,
+// player.perkPoints — невзятые очки перков, player.perks — { id: ранг }.
+// Константы и список перков — config/perks.js.
+// ============================================================
+
+function perkRank(id) {
+    return (player.perks && player.perks[id]) || 0;
+}
+
+// Начислить опыт; при повышении уровня — очко перка и сообщение
+function gainXp(amount) {
+    if (!amount || amount <= 0) return;
+    player.xp = (player.xp || 0) + amount;
+    let levelsUp = 0;
+    while ((player.level || 1) < MAX_LEVEL && player.xp >= xpForLevel((player.level || 1) + 1)) {
+        player.level = (player.level || 1) + 1;
+        player.perkPoints = (player.perkPoints || 0) + 1;
+        levelsUp++;
+    }
+    if (levelsUp > 0) {
+        playSound('quest');
+        showBanner(`⭐ НОВЫЙ УРОВЕНЬ ${player.level}! +${HP_PER_LEVEL * levelsUp} к макс. HP, доступен перк (ПРОФИЛЬ)`, 'var(--hero-color)');
+    }
+}
+
+// Может ли игрок взять следующий ранг перка; возвращает текст причины или ''
+function perkBlockReason(id) {
+    let perk = PERKS[id];
+    let rank = perkRank(id);
+    if (rank >= perk.maxRank) return 'максимум';
+    let need = perk.minLevel[rank];
+    if ((player.level || 1) < need) return `с ${need} ур.`;
+    if ((player.perkPoints || 0) <= 0) return 'нет очков';
+    return '';
+}
+
+function takePerk(id) {
+    if (!PERKS[id] || perkBlockReason(id)) return false;
+    player.perks = player.perks || {};
+    player.perks[id] = perkRank(id) + 1;
+    player.perkPoints--;
+    playSound('upgrade');
+    saveState();
+    renderPerks();
+    showBanner(`${PERKS[id].icon} ПЕРК «${PERKS[id].name}» — ранг ${player.perks[id]}`, 'var(--hero-color)');
+    return true;
+}
+
+// Прогресс до следующего уровня: { cur, need, pct }
+function xpProgress() {
+    let lvl = player.level || 1;
+    if (lvl >= MAX_LEVEL) return { cur: 0, need: 0, pct: 100 };
+    let base = xpForLevel(lvl), next = xpForLevel(lvl + 1);
+    let cur = (player.xp || 0) - base, need = next - base;
+    return { cur: cur, need: need, pct: Math.min(100, Math.floor(cur / need * 100)) };
+}
+
+// Полоса опыта в шапке
+function updateXpHud() {
+    let lvlEl = document.getElementById('xp-level');
+    if (!lvlEl) return;
+    let p = xpProgress();
+    lvlEl.innerText = player.level || 1;
+    document.getElementById('xp-fill').style.width = p.pct + '%';
+    document.getElementById('xp-text').innerText = (player.level || 1) >= MAX_LEVEL ? 'МАКС' : `${p.cur}/${p.need} XP`;
+    let pts = document.getElementById('xp-points');
+    if (pts) pts.style.display = (player.perkPoints || 0) > 0 ? 'inline' : 'none';
+}
+
+// Карточка «Уровень и перки» в профиле
+function renderPerks() {
+    let box = document.getElementById('perks-content');
+    if (!box) return;
+    let p = xpProgress();
+    let lvl = player.level || 1;
+    let html = `<div class="perk-level">УРОВЕНЬ <b>${lvl}</b>${lvl >= MAX_LEVEL ? ' (МАКС)' : ''}
+        <span>${(player.xp || 0)} XP</span></div>
+        <div class="perk-xpbar"><div style="width:${p.pct}%"></div></div>
+        <div class="perk-sub">${lvl >= MAX_LEVEL ? 'Достигнут предел.' : `До ${lvl + 1} ур.: ${p.need - p.cur} XP`} · Бонус уровня: +${(lvl - 1) * HP_PER_LEVEL} HP</div>
+        <div class="perk-points">Очки перков: <b>${player.perkPoints || 0}</b></div>`;
+    for (let id in PERKS) {
+        let perk = PERKS[id], rank = perkRank(id), block = perkBlockReason(id);
+        let pips = '';
+        for (let i = 0; i < perk.maxRank; i++) pips += i < rank ? '■' : '□';
+        let btn = block
+            ? `<button class="perk-btn" disabled>${block === 'максимум' ? 'ВЗЯТ' : block.toUpperCase()}</button>`
+            : `<button class="perk-btn perk-btn-go" onclick="takePerk('${id}')">ВЗЯТЬ</button>`;
+        html += `<div class="perk-row${rank ? ' perk-owned' : ''}">
+            <div class="perk-info"><b>${perk.icon} ${perk.name}</b> <span class="perk-pips">${pips}</span><br><small>${perk.desc}</small></div>
+            ${btn}
+        </div>`;
+    }
+    box.innerHTML = html;
+}
+
+
+/* ===== next js file ===== */
+
+// ============================================================
 // ЛОГИКА ТОРГОВЛИ И РЕПУТАЦИИ
 // ============================================================
 
@@ -3540,7 +3745,10 @@ function openTrade(npcCode) {
                             if (idx !== -1) player.inventory.splice(idx, 1);
                         }
                     }
-                    player.score += q.reward;
+                    // Перк «Золотая жила»: +10% крышек за ранг
+                    let reward = Math.round(q.reward * (1 + 0.1 * perkRank('fortune')));
+                    player.score += reward;
+                    gainXp(String(q.id).startsWith('preset_') ? XP_REWARDS.contractSpecial : XP_REWARDS.contract);
                     player.quests.active = player.quests.active.filter(actQ => actQ.id !== q.id);
                     while (player.quests.choices.length < 5) {
                         player.quests.choices.push(createRandomQuest());
@@ -3571,7 +3779,7 @@ function openTrade(npcCode) {
                     } else if (prevCount < 5 && player.completedQuestsCount >= 5) {
                         alert(`🎉 ВЫ ВЫПОЛНИЛИ 5 КВЕСТОВ СНАБЖЕНИЯ!\nВам стали доступны Особые Контракты («Мародер», «Пацифист», «Зона»)!`);
                     } else {
-                        alert(`КОНТРАКТ СДАН!\nПолучено: ${q.reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
+                        alert(`КОНТРАКТ СДАН!\nПолучено: ${reward} ¢\nРепутация у ${npc.name}: +25 очков.`);
                     }
                     break;
                 }
@@ -3593,6 +3801,7 @@ function openTrade(npcCode) {
             if (player.equipment === 'eq_trade') {
                 basePrice = Math.floor(basePrice * 0.75);
             }
+            basePrice = Math.max(1, Math.floor(basePrice * (1 - 0.1 * perkRank('barter')))); // перк «Торгаш»
             currentTradeStock.push({ id: randId, price: basePrice });
         }
     }
@@ -3687,7 +3896,7 @@ function renderTradeView() {
     player.inventory.forEach((id, i) => {
         if (ITEMS_DB[id].cat === 'quest') return; // сюжетные предметы не продаются
         if (npc.isBase || npc.buys.includes(ITEMS_DB[id].cat)) {
-            hasItems = true; let mult = npc.isBase ? npc.mult : 1.5; let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult));
+            hasItems = true; let mult = (npc.isBase ? npc.mult : 1.5) * (1 + 0.1 * perkRank('barter')); let sp = Math.max(1, Math.floor(ITEMS_DB[id].val * mult + 1e-6)); // 1e-6: погрешность дробей (1.5 × 1.2 = 1.7999…)
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
@@ -3919,6 +4128,11 @@ let hackDevice = null;
 let hackAttemptsLeft = HACK_MAX_ATTEMPTS;
 let hackFinished = false;
 
+// Попытки во взломе: базовые + перк «Взломщик»
+function hackMaxAttempts() {
+    return HACK_MAX_ATTEMPTS + perkRank('hacker');
+}
+
 function getHackDevice(code) {
     if (code.startsWith(QR_PREFIX_SAFE)) return HACK_DEVICES.safe_;
     if (code.startsWith(QR_PREFIX_TERM)) return HACK_DEVICES.term_;
@@ -3949,7 +4163,7 @@ function startHacking(code) {
 
     currentHackCode = code;
     hackDevice = getHackDevice(code);
-    hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+    hackAttemptsLeft = hackMaxAttempts();
     hackFinished = false;
 
     document.getElementById('hack-system-name').innerText = `${hackDevice.title} ${code.toUpperCase()}`;
@@ -3985,7 +4199,7 @@ function hackLog(text, kind) {
 function updateHackAttemptsUI() {
     const attemptsEl = document.getElementById('hack-attempts');
     let boxes = '';
-    for (let i = 0; i < HACK_MAX_ATTEMPTS; i++) boxes += (i < hackAttemptsLeft ? '■ ' : '□ ');
+    for (let i = 0; i < hackMaxAttempts(); i++) boxes += (i < hackAttemptsLeft ? '■ ' : '□ ');
     attemptsEl.innerText = `${boxes.trim()}  (${hackAttemptsLeft})`;
     attemptsEl.style.color = hackAttemptsLeft <= 1 ? "var(--bandit-color)" : "var(--trade-color)";
     const warnEl = document.getElementById('hack-lock-warning');
@@ -4021,7 +4235,9 @@ function hackWin() {
     hackLog('Доступ разрешён.', 'ok');
 
     let creditsReward = hackDevice.reward[0] + hackRand(hackDevice.reward[1] - hackDevice.reward[0] + 1);
+    creditsReward = Math.round(creditsReward * (1 + 0.1 * perkRank('fortune'))); // перк «Золотая жила»
     player.score += creditsReward;
+    gainXp({ sync: XP_REWARDS.hackUsb, lockpick: XP_REWARDS.hackTerm, words: XP_REWARDS.hackSafe }[hackDevice.game]);
 
     // Случайная полезная деталь
     let junkKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat === 'junk' || ITEMS_DB[k].cat === 'gear');
@@ -4540,12 +4756,12 @@ function useHackBracket(id) {
     if (hackFinished || hackBracketUsed[id]) return;
     hackBracketUsed[id] = true;
     let duds = hackWordsList.filter(w => w !== hackSecretWord && !hackRemoved[w] && hackTried[w] === undefined);
-    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === HACK_MAX_ATTEMPTS)) {
+    if (duds.length > 0 && (Math.random() < 0.75 || hackAttemptsLeft === hackMaxAttempts())) {
         let w = duds[hackRand(duds.length)];
         hackRemoved[w] = true;
         hackLog(`Ложное слово удалено: ${w}`, 'bonus');
     } else {
-        hackAttemptsLeft = HACK_MAX_ATTEMPTS;
+        hackAttemptsLeft = hackMaxAttempts();
         hackLog('Защита сброшена: попытки восстановлены.', 'bonus');
         updateHackAttemptsUI();
     }
@@ -5152,6 +5368,7 @@ function zoneMinute(offline) {
         // Сидорович: −10% износа за уровень; Убежище 3 ур.: ещё −10%
         let wearMult = Math.max(0, 1 - (tradLvl * 0.1));
         if (player.shelterLevel >= 3) wearMult = wearMult * 0.9;
+        wearMult = wearMult * (1 - 0.25 * perkRank('gunsmith')); // перк «Оружейник»
         for (let wName in player.weapons) {
             let w = player.weapons[wName];
             if (w.active && w.durability > 0) {
@@ -5164,12 +5381,14 @@ function zoneMinute(offline) {
     // Голод: 3 в минуту (Био-синтезатор — 1), Убежище 1 ур. — на 10% медленнее
     let hungerLoss = (player.equipment === 'eq_hunger') ? 1 : 3;
     if (player.shelterLevel >= 1) hungerLoss = hungerLoss * 0.9;
+    hungerLoss = hungerLoss * (1 - 0.15 * perkRank('leadBelly')); // перк «Лужёный желудок»
     player.hunger = Math.max(0, player.hunger - takeWhole('hunger', hungerLoss));
 
     // Радиация: 2 в минуту с учётом защиты; Убежище 2 ур. — на 10% медленнее; Герой — иммунитет
     if (player.karma_score < 3) {
         let radGain = 2 * getRadMultiplier();
         if (player.shelterLevel >= 2) radGain = radGain * 0.9;
+        radGain = radGain * (1 - 0.15 * perkRank('radResist')); // перк «Антирадиант»
         player.rads = Math.min(MAX_RADS, player.rads + takeWhole('rads', radGain));
     } else {
         player.rads = 0;
@@ -5186,6 +5405,12 @@ function zoneMinute(offline) {
             playSound('hazard');
             showBanner('☣ ВЫ УМИРАЕТЕ ОТ ГОЛОДА (-' + hungerDmg + ' HP)', COLOR_BANDIT);
         }
+    }
+
+    if (player.hp > 0) {
+        gainXp(XP_REWARDS.zoneMinute); // опыт капает каждую минуту в Зоне
+        // Перк «Второе дыхание»: +1 HP каждые 2 минуты
+        if (perkRank('regen') && player.hp < getEffectiveMaxHp()) player.hp += takeWhole('perkRegen', 0.5);
     }
 
     if (offline && player.hp > 0) {
@@ -6512,6 +6737,7 @@ function handleBanditScan(code) {
 
     // Премия 100 крышек
     player.score += 100;
+    gainXp(XP_REWARDS.arrest);
     playSound('sell');
     saveState();
     document.getElementById('scan-result').innerHTML = `<b style="color:var(--quest-color)">БАНДИТ ПОЙМАН!</b><br><small>Фиксация нарушителя: ${banditName}. Премия: +100 ${CAP}</small>`;
@@ -6747,7 +6973,8 @@ function updateHUD() {
         let engLvl = typeof getNpcRepLevel === 'function' ? getNpcRepLevel(player.npcRep['npc_eng'] || 0) : 0;
         if (player.backpackUpgradesCount === undefined) player.backpackUpgradesCount = 0;
         let shelterBonus = (player.shelterLevel >= 5) ? 3 : 0;
-        player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus;
+        player.maxSize = MAX_BACKPACK_SIZE + (player.backpackUpgradesCount * 5) + (engLvl * 2) + shelterBonus + perkRank('strongBack') * 5;
+        updateXpHud();
 
         if (document.getElementById('inv-max')) document.getElementById('inv-max').innerText = player.maxSize;
         if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
@@ -6836,7 +7063,8 @@ function checkDeathState() {
             // При смерти: если еще не инфицирован и не зомби, шанс заражения составляет 33%.
             // «Ядро Синтеза» в рюкзаке — заражение гарантировано.
             if (!player.infectionTime && !player.zombieTime) {
-                if (hasSynthCore() || Math.random() < 0.33) {
+                // Перк «Крепкий иммунитет» вдвое снижает шанс заражения
+                if (hasSynthCore() || Math.random() < (perkRank('immune') ? 0.165 : 0.33)) {
                     player.infectionTime = Date.now();
                     playSound('hazard');
                     showBanner("ИНФЕЦИРОВАН ВИРУСОМ!", 'yellow');
@@ -7303,6 +7531,7 @@ function playCreepyBuzz() {
 // ============================================================
 
 function renderProfile() {
+    renderPerks();
     const eqContent = document.getElementById('profile-equipment-content');
     if (eqContent) {
         if (player.equipment && ITEMS_DB[player.equipment]) {
