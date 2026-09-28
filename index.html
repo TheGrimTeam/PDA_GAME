@@ -614,47 +614,39 @@ button {
 }
 button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
 
-/* ---------- Строка состояния ---------- */
+/* ---------- Строка состояния: крупные блоки в рамках ---------- */
 #hud {
     background: transparent;
     border-bottom: 1px solid var(--pb-line);
-    padding: 8px 10px 6px;
+    padding: 8px 8px 6px;
     font-weight: normal;
 }
-.pb-stats {
+.pb-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    border-top: 1px solid var(--pb-line);
-    border-bottom: 1px solid var(--pb-line);
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
     margin-bottom: 6px;
 }
-.pb-seg {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 4px;
-    padding: 2px 6px;
-    border-left: 1px solid var(--pb-line);
-    font-size: 1.05rem;
-    white-space: nowrap;
+.pb-box {
+    border: 1px solid var(--pb-line);
+    background: rgba(82, 255, 138, 0.05);
+    padding: 3px 7px 4px;
+    min-width: 0;
 }
-.pb-seg:first-child { border-left: none; padding-left: 2px; }
-.pb-lbl { font-size: 0.8rem; opacity: 0.75; letter-spacing: 0.5px; }
-.pb-dim { color: var(--pb-dim); font-size: 0.85em; }
-.pb-caps { color: var(--quest-color); white-space: nowrap; padding-left: 8px; border-left: 1px solid var(--pb-line); font-size: 1.05rem; }
+.pb-rad-box { grid-column: span 2; border-color: var(--rad-color); color: var(--rad-color); background: rgba(232, 211, 79, 0.05); }
+.pb-caps-box { border-color: var(--quest-color); color: var(--quest-color); background: rgba(216, 227, 106, 0.05); }
+.pb-lbl { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; letter-spacing: 1px; opacity: 0.85; line-height: 1.1; }
+.pb-val { font-size: 1.75rem; line-height: 1.05; white-space: nowrap; }
+.pb-caps-box .pb-val { overflow: hidden; text-overflow: ellipsis; }
+.pb-dim { color: var(--pb-dim); font-size: 0.7em; }
+.pb-rad-box .pb-dim, .pb-caps-box .pb-dim { color: inherit; opacity: 0.6; }
+.pb-radnum { font-size: 1.5rem; opacity: 1; letter-spacing: 0; }
 
 /* Шкала радиации с делениями, как RADS на Pip-Boy */
-.pb-rads {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 6px;
-    color: var(--rad-color);
-}
 .pb-radbar {
     position: relative;
-    flex: 1;
-    height: 10px;
+    height: 12px;
+    margin-top: 4px;
     border: 1px solid var(--rad-color);
     background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.45) calc(10% - 1px) 10%);
 }
@@ -666,21 +658,20 @@ button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
     box-shadow: 2px 0 0 var(--rad-color);
     transition: width 0.4s ease;
 }
-.pb-radnum { min-width: 3.2em; text-align: right; font-size: 1rem; }
 
 /* Быстрые действия */
 .pb-quick { gap: 5px; margin: 0; }
 .pb-quick button {
     flex: 1;
-    padding: 3px 2px;
-    font-size: 0.8rem;
-    min-height: 26px;
+    padding: 5px 2px;
+    font-size: 0.9rem;
+    min-height: 32px;
     line-height: 1;
     white-space: nowrap;
 }
 .pb-quick .pb-rad-btn { border-color: var(--rad-color); color: var(--rad-color); }
 
-/* ---------- Вкладки внизу: текст на общей линии, активная — в рамке ---------- */
+/* ---------- Вкладки внизу: кнопки в рамках, активная — подсвечена ---------- */
 #nav-buttons {
     background: transparent;
     border: none;
@@ -688,27 +679,28 @@ button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
     border-radius: 0;
     box-shadow: none;
     padding: 8px 2px 2px;
-    gap: 4px 6px;
+    gap: 6px;
 }
 #nav-buttons button,
 #nav-buttons button:active {
-    background: transparent;
-    border: 1px solid transparent;
+    background: rgba(82, 255, 138, 0.04);
+    border: 1px solid rgba(82, 255, 138, 0.45);
     border-radius: 0;
     color: var(--pb-dim);
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: normal;
-    padding: 6px 2px;
+    padding: 9px 2px;
     text-shadow: 0 0 3px rgba(82, 255, 138, 0.4);
     transform: none;
-    box-shadow: none;
+    box-shadow: inset 0 -2px 0 rgba(82, 255, 138, 0.15);
 }
+#nav-buttons button:active { background: rgba(82, 255, 138, 0.18); }
 #nav-buttons button.active-nav {
-    background: rgba(82, 255, 138, 0.08);
-    border: 1px solid var(--term-green);
+    background: rgba(82, 255, 138, 0.14);
+    border: 2px solid var(--term-green);
     color: var(--term-green);
     transform: none;
-    box-shadow: 0 0 8px rgba(82, 255, 138, 0.25);
+    box-shadow: 0 0 10px rgba(82, 255, 138, 0.35), inset 0 0 8px rgba(82, 255, 138, 0.15);
 }
 
 /* Баннер событий — инверсная плашка */
@@ -750,18 +742,17 @@ input, textarea, select {
 
         <!-- HUD — закреплённая шапка экрана, вне скроллируемого контента -->
             <div id="hud">
-            <!-- Строка состояния в стиле Pip-Boy: сегменты с разделителями -->
-            <div class="pb-stats">
-                <div class="pb-seg"><span class="pb-lbl">HP</span><span><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></span></div>
-                <div class="pb-seg"><span class="pb-lbl">ЕДА</span><span id="hunger-val">100</span></div>
-                <div class="pb-seg"><span class="pb-lbl">ВЕС</span><span><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></span></div>
-            </div>
-            <!-- Шкала радиации: заполнение «сжигает» максимум HP -->
-            <div class="pb-rads">
-                <span class="pb-lbl">РАД</span>
-                <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
-                <span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span>
-                <span class="pb-caps"><span class="pb-lbl">КРЫШКИ</span> <span id="score-val">0</span> <span class="cap cap-lg" title="крышки"></span></span>
+            <!-- Строка состояния: крупные блоки в рамках (стиль Pip-Boy) -->
+            <div class="pb-grid">
+                <div class="pb-box"><div class="pb-lbl">HP</div><div class="pb-val"><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></div></div>
+                <div class="pb-box"><div class="pb-lbl">ЕДА</div><div class="pb-val"><span id="hunger-val">100</span></div></div>
+                <div class="pb-box"><div class="pb-lbl">ВЕС</div><div class="pb-val"><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></div></div>
+                <!-- Радиация «сжигает» максимум HP -->
+                <div class="pb-box pb-rad-box">
+                    <div class="pb-lbl"><span>РАДИАЦИЯ</span><span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span></div>
+                    <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
+                </div>
+                <div class="pb-box pb-caps-box"><div class="pb-lbl"><span>КРЫШКИ</span><span class="cap" title="крышки"></span></div><div class="pb-val"><span id="score-val">0</span></div></div>
             </div>
             <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
             <div class="hud-row pb-quick">
@@ -1381,7 +1372,7 @@ const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
 const SAFE_BOX_PRICE = 1000;                // покупка защищённого подсумка вместо крафта
-const EQ_TRADE_HEAL_COST = 35;              // лечение у Доктора Кроу с Торговым чипом
+const EQ_TRADE_HEAL_DISCOUNT = 0.3;         // Торговый чип: лечение у Доктора на 30% дешевле (300 → 210)
 const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 
@@ -1440,11 +1431,12 @@ ITEMS_DB['art_2'] = { name: "Артефакт 'Слизь'", val: 800, size: 1, 
 ITEMS_DB['art_3'] = { name: "Артефакт 'Пустышка'", val: 1200, size: 2, cat: 'artifact' };
 
 // СЮЖЕТНЫЕ ПРЕДМЕТЫ (цепочка «Путь к эпицентру», см. config/story.js)
-// noScan — предмет нельзя получить, отсканировав/введя его код; только по сюжету.
+// noScan — предмет не подбирается обычным сканированием. Капсулы energy_1..3 сканируются
+// только в квесте «Калибровка датчиков» (handleCapsuleScan), Ядро — только на Станции синтеза.
 // Категория 'quest' не продаётся торговцам и базам.
-ITEMS_DB['energy_1'] = { name: "Капсула энергии (Аномалия №1)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №1. Нужна для Станции синтеза." };
-ITEMS_DB['energy_2'] = { name: "Капсула энергии (Аномалия №2)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №2. Нужна для Станции синтеза." };
-ITEMS_DB['energy_3'] = { name: "Капсула энергии (Аномалия №3)", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Полевые данные аномалии №3. Нужна для Станции синтеза." };
+ITEMS_DB['energy_1'] = { name: "Капсула энергии №1", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Сгусток энергии полевой аномалии. Нужна для Станции синтеза." };
+ITEMS_DB['energy_2'] = { name: "Капсула энергии №2", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Сгусток энергии полевой аномалии. Нужна для Станции синтеза." };
+ITEMS_DB['energy_3'] = { name: "Капсула энергии №3", val: 0, size: 1, cat: 'quest', noScan: true, desc: "Сгусток энергии полевой аномалии. Нужна для Станции синтеза." };
 ITEMS_DB['anom_4'] = { name: "Ядро Синтеза", val: 7500, size: 2, cat: 'artifact', noScan: true, desc: "В рюкзаке: +50 макс. HP, +50 макс. сытости. При смерти — 100% заражение, лечение вируса не работает." };
 
 // СПЕЦИАЛЬНОЕ СНАРЯЖЕНИЕ
@@ -1453,7 +1445,7 @@ ITEMS_DB['eq_gas'] = { name: "Противогаз ГП-5", val: 250, size: 0, c
 ITEMS_DB['eq_hunger'] = { name: "Био-синтезатор питания", val: 300, size: 0, cat: 'eq', desc: "Защита от голода: снижает расход сытости в 3 раза." };
 ITEMS_DB['eq_storm'] = { name: "Плащ «Шторм»", val: 400, size: 0, cat: 'eq', desc: "Защита от стихий: иммунитет к бурям и спорам." };
 ITEMS_DB['eq_anom'] = { name: "Детектор «Велес»", val: 500, size: 0, cat: 'eq', desc: "Аномалии: повышает шанс успешного взятия аномалии." };
-ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение за 35 " + CAP + "." };
+ITEMS_DB['eq_trade'] = { name: "Торговый чип", val: 450, size: 0, cat: 'eq', desc: "Цены у торговцев снижены на 25%, лечение у Доктора на 30% дешевле." };
 ITEMS_DB['eq_pass_base'] = { name: "Поддельный ID базы", val: 600, size: 0, cat: 'eq', desc: "Позволяет бандитам заходить на Базу Выживших." };
 ITEMS_DB['eq_pass_camp'] = { name: "Вексель Бандитов", val: 600, size: 0, cat: 'eq', desc: "Позволяет выжившим заходить в Лагерь Бандитов." };
 
@@ -1523,8 +1515,8 @@ const SYNTH_STATION_COORDS = 'Заброшенная лаборатория «С
 // Сколько игрок должен провести на станции
 const SYNTH_DURATION_MS = 15 * 60 * 1000;
 
-// Полевые аномалии для квеста 3 и капсулы энергии, которые они дают
-const STORY_FIELD_ANOMALIES = { 'anom_1': 'energy_1', 'anom_2': 'energy_2', 'anom_3': 'energy_3' };
+// Капсулы энергии для квеста 3: организаторы развешивают их QR-коды на полигонах
+const STORY_CAPSULES = ['energy_1', 'energy_2', 'energy_3'];
 
 // Квест 1: сколько профильных предметов продать каждому NPC
 const STORY_Q1_NPCS = ['npc_med', 'npc_bar', 'npc_eng', 'npc_trad'];
@@ -1556,7 +1548,7 @@ const STORY_QUESTS = {
     3: {
         name: "Калибровка датчиков",
         desc: "Учёным требуются свежие полевые данные об аномальной активности. Для этого придётся отправиться на полигоны.",
-        task: "Успешно извлеките артефакт из каждой из 3 полевых аномалий. Каждая даст капсулу энергии — держите все 3 капсулы в рюкзаке, они понадобятся для финала.",
+        task: "Найдите и успешно отсканируйте все 3 КАПСУЛЫ ЭНЕРГИИ на полигонах, сохранив их данные/энергию у себя в подсумке или инвентаре (первые 3 единицы для финального сбора).",
         reward: "Легендарный детектор «Велес». Если детектор уже покупали — 1000 " + CAP + "."
     },
     4: {
@@ -1616,6 +1608,10 @@ if (!player.eqPurchased) player.eqPurchased = {};
 if (player.equipment) player.eqPurchased[player.equipment] = true;
 if (!player.story || typeof player.story !== 'object') player.story = { stage: 1, q1: {}, q2: [], announced: {}, coordsKnown: false, synthStartedAt: 0, extendedStock: false };
 if (!Array.isArray(player.quests.active)) player.quests.active = [];
+// Контракты старых версий могли требовать сюжетные предметы (капсулы энергии) — убираем такие
+const isStoryOnlyQuest = q => q && q.requirements && Object.keys(q.requirements).some(id => !ITEMS_DB[id] || ITEMS_DB[id].cat === 'quest' || ITEMS_DB[id].noScan);
+if (Array.isArray(player.quests.choices)) player.quests.choices = player.quests.choices.filter(q => !isStoryOnlyQuest(q));
+player.quests.active = player.quests.active.filter(q => !isStoryOnlyQuest(q));
 if (player.pendingHealId === undefined) player.pendingHealId = null;
 if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
 if (!player.processedHealTxs) player.processedHealTxs = {};
@@ -2252,7 +2248,7 @@ function handleScan(qrCode) {
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
     if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
-        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE || STORY_CAPSULES.includes(code)) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -2276,7 +2272,13 @@ function handleScan(qrCode) {
         return;
     }
 
-    // Сюжетные предметы (капсулы энергии, «Ядро Синтеза») нельзя подобрать по коду
+    // Капсулы энергии на полигонах (квест «Калибровка датчиков»)
+    if (STORY_CAPSULES.includes(code)) {
+        handleCapsuleScan(code, resDiv);
+        return;
+    }
+
+    // Остальные сюжетные предметы («Ядро Синтеза») нельзя подобрать по коду
     if (ITEMS_DB[code] && ITEMS_DB[code].noScan) {
         playSound('error');
         return resDiv.innerHTML = "<span style='color:yellow'>Этот предмет нельзя подобрать сканированием — его можно получить только по сюжету.</span>";
@@ -2479,18 +2481,14 @@ function handleScan(qrCode) {
 
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
-            // Квест «Калибровка датчиков»: вместе с артефактом выдаётся капсула энергии
-            let capsule = storyCapsuleForAnomaly(code);
-            let needSize = item.size + (capsule ? ITEMS_DB[capsule].size : 0);
+            let needSize = item.size;
             let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
             if (currentSize + needSize > player.maxSize) {
                 playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
-                if (capsule) player.inventory.push(capsule);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
-                if (capsule) announceStoryProgress();
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
             }
         } else {
             playSound('hazard'); let penaltyRoll = Math.random();
@@ -2824,7 +2822,8 @@ function generateQuestChoices() {
 }
 
 function createRandomQuest() {
-    let itemKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat !== 'token' && ITEMS_DB[k].cat !== 'artifact' && ITEMS_DB[k].cat !== 'eq');
+    // Только обычный лут: без жетонов, артефактов, спецснаряжения и сюжетных предметов
+    let itemKeys = Object.keys(ITEMS_DB).filter(k => !['token', 'artifact', 'eq', 'quest'].includes(ITEMS_DB[k].cat) && !ITEMS_DB[k].noScan);
     let reqs = {}; let totalVal = 0; let numItems = Math.floor(Math.random() * 2) + 1;
     for (let i = 0; i < numItems; i++) {
         let code = itemKeys[Math.floor(Math.random() * itemKeys.length)];
@@ -3015,8 +3014,13 @@ function hasSynthCore() {
     return Array.isArray(player.inventory) && player.inventory.includes('anom_4');
 }
 
+// Предмет при себе: в рюкзаке или в защищённом подсумке
+function storyHasItem(id) {
+    return player.inventory.includes(id) || (player.safeBox || []).includes(id);
+}
+
 function storyCapsulesMissing() {
-    return Object.values(STORY_FIELD_ANOMALIES).filter(id => !player.inventory.includes(id));
+    return STORY_CAPSULES.filter(id => !storyHasItem(id));
 }
 
 // Выполнено ли условие текущего квеста (награду ещё можно не забрать)
@@ -3099,15 +3103,34 @@ function turnInStoryWeapons() {
     alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} ¢\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
 }
 
-// Квест 3: успешное извлечение артефакта из полевой аномалии.
-// Возвращает id капсулы, которую нужно выдать, или null.
-function storyCapsuleForAnomaly(anomCode) {
+// Квест 3: сканирование QR-кода капсулы энергии на полигоне
+function handleCapsuleScan(code, resDiv) {
     let st = getStory();
-    if (st.stage !== 3) return null;
-    let capsule = STORY_FIELD_ANOMALIES[anomCode];
-    if (!capsule) return null;
-    if (player.inventory.includes(capsule) || (player.safeBox || []).includes(capsule)) return null;
-    return capsule;
+    let item = ITEMS_DB[code];
+    if (st.stage < 3) {
+        playSound('error');
+        return resDiv.innerHTML = `<span style='color:yellow'>${item.name}: прибор не может её стабилизировать. Капсулы понадобятся учёным позже — в квесте «${STORY_QUESTS[3].name}».</span>`;
+    }
+    if (st.stage >= STORY_FINAL_STAGE) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:var(--text-dim)'>Капсула пуста: её энергия уже ушла в Ядро Синтеза.</span>";
+    }
+    if (storyHasItem(code)) {
+        playSound('error');
+        return resDiv.innerHTML = `<span style='color:yellow'>${item.name} уже у вас.</span>`;
+    }
+    let used = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+    if (used + item.size > player.maxSize) {
+        playSound('error');
+        return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ! Освободите место и отсканируйте капсулу снова.</span>";
+    }
+    player.inventory.push(code);
+    player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
+    saveState();
+    playSound('scan');
+    let have = STORY_CAPSULES.length - storyCapsulesMissing().length;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">📜 ${item.name.toUpperCase()} ПОЛУЧЕНА</b><br><small>Капсул собрано: ${have}/${STORY_CAPSULES.length}. Храните их в рюкзаке или подсумке.</small>`;
+    announceStoryProgress();
 }
 
 // Квест 4: Доктор Кроу сообщает координаты станции
@@ -3147,7 +3170,7 @@ function handleSynthStationScan(resDiv) {
         if (st.synthStartedAt) st.synthStartedAt = 0; // капсулы потеряны — синтез сорван
         saveState();
         playSound('error');
-        return resDiv.innerHTML = `<span class='danger'>Для синтеза нужны все 3 капсулы энергии в рюкзаке.</span><br><small>Не хватает: ${missing.map(id => ITEMS_DB[id].name).join(', ')}</small>`;
+        return resDiv.innerHTML = `<span class='danger'>Для синтеза нужны все 3 капсулы энергии (в рюкзаке или подсумке).</span><br><small>Не хватает: ${missing.map(id => ITEMS_DB[id].name).join(', ')}</small>`;
     }
 
     let now = Date.now();
@@ -3166,9 +3189,11 @@ function handleSynthStationScan(resDiv) {
     }
 
     // Синтез завершён: капсулы сплавляются в Ядро
-    Object.values(STORY_FIELD_ANOMALIES).forEach(id => {
+    STORY_CAPSULES.forEach(id => {
         let idx = player.inventory.indexOf(id);
-        if (idx !== -1) player.inventory.splice(idx, 1);
+        if (idx !== -1) { player.inventory.splice(idx, 1); return; }
+        let sIdx = (player.safeBox || []).indexOf(id);
+        if (sIdx !== -1) player.safeBox.splice(sIdx, 1);
     });
     player.inventory.push('anom_4');
     player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
@@ -3233,7 +3258,7 @@ function claimStoryReward() {
             player.equipment = 'eq_anom';
             msg = 'Получен легендарный детектор «Велес» (экипирован).';
         }
-        msg += '\n\nКапсулы энергии оставьте в рюкзаке — Доктор Кроу знает, что с ними делать.';
+        msg += '\n\nКапсулы энергии не продавайте и не выбрасывайте — Доктор Кроу знает, что с ними делать.';
     }
 
     st.stage = stage + 1;
@@ -3270,15 +3295,16 @@ function renderStoryBlock() {
         let inBag = storyUncountedWeaponIdx().length;
         if (inBag > 0) progress += `<div style="color:var(--text-dim); padding-left:10px; font-size:0.85rem;">В рюкзаке новых видов: ${inBag}</div>`;
     } else if (st.stage === 3) {
-        progress = Object.entries(STORY_FIELD_ANOMALIES).map(([anom, cap]) => {
-            let ok = player.inventory.includes(cap);
-            return `<div style="color:${ok ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${ITEMS_DB[cap].name} (${anom}): ${ok ? 'в рюкзаке' : 'нет'}</div>`;
+        progress = STORY_CAPSULES.map(cap => {
+            let where = player.inventory.includes(cap) ? 'в рюкзаке' : ((player.safeBox || []).includes(cap) ? 'в подсумке' : 'не найдена');
+            let ok = storyHasItem(cap);
+            return `<div style="color:${ok ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${ITEMS_DB[cap].name} (QR ${cap}): ${where}</div>`;
         }).join('');
     } else if (st.stage === 4) {
         let steps = [];
         steps.push(`${st.coordsKnown ? '✔' : '•'} Координаты от Доктора Кроу${st.coordsKnown ? `: <span style="color:#fff">${SYNTH_STATION_COORDS}</span>` : ''}`);
         let missing = storyCapsulesMissing();
-        steps.push(`${missing.length === 0 ? '✔' : '•'} Капсулы энергии в рюкзаке: ${3 - missing.length}/3`);
+        steps.push(`${missing.length === 0 ? '✔' : '•'} Капсулы энергии при себе: ${3 - missing.length}/3`);
         if (st.synthStartedAt) {
             let left = SYNTH_DURATION_MS - (Date.now() - st.synthStartedAt);
             steps.push(left > 0 ? `⚗ Синтез идёт, осталось ${formatMs(left)}` : '✔ Синтез завершён — отсканируйте станцию');
@@ -3419,8 +3445,8 @@ function getHealCost(npcCode) {
     let npc = NPC_DB[npcCode];
     let healCost = (npc && npc.healCost) || 500;
 
-    // Торговый чип: лечение по фиксированной цене
-    if (player.equipment === 'eq_trade') healCost = EQ_TRADE_HEAL_COST;
+    // Торговый чип: лечение на 30% дешевле
+    if (player.equipment === 'eq_trade') healCost = Math.round(healCost * (1 - EQ_TRADE_HEAL_DISCOUNT));
 
     // Скидка по репутации (10% за уровень, на Ур. 10 — бесплатно)
     let rep = (player.npcRep && player.npcRep[npcCode]) || 0;

@@ -43,6 +43,10 @@ if (!player.eqPurchased) player.eqPurchased = {};
 if (player.equipment) player.eqPurchased[player.equipment] = true;
 if (!player.story || typeof player.story !== 'object') player.story = { stage: 1, q1: {}, q2: [], announced: {}, coordsKnown: false, synthStartedAt: 0, extendedStock: false };
 if (!Array.isArray(player.quests.active)) player.quests.active = [];
+// Контракты старых версий могли требовать сюжетные предметы (капсулы энергии) — убираем такие
+const isStoryOnlyQuest = q => q && q.requirements && Object.keys(q.requirements).some(id => !ITEMS_DB[id] || ITEMS_DB[id].cat === 'quest' || ITEMS_DB[id].noScan);
+if (Array.isArray(player.quests.choices)) player.quests.choices = player.quests.choices.filter(q => !isStoryOnlyQuest(q));
+player.quests.active = player.quests.active.filter(q => !isStoryOnlyQuest(q));
 if (player.pendingHealId === undefined) player.pendingHealId = null;
 if (player.pendingHealAt === undefined) player.pendingHealAt = 0;
 if (!player.processedHealTxs) player.processedHealTxs = {};

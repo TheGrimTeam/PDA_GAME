@@ -27,8 +27,13 @@ function hasSynthCore() {
     return Array.isArray(player.inventory) && player.inventory.includes('anom_4');
 }
 
+// Предмет при себе: в рюкзаке или в защищённом подсумке
+function storyHasItem(id) {
+    return player.inventory.includes(id) || (player.safeBox || []).includes(id);
+}
+
 function storyCapsulesMissing() {
-    return Object.values(STORY_FIELD_ANOMALIES).filter(id => !player.inventory.includes(id));
+    return STORY_CAPSULES.filter(id => !storyHasItem(id));
 }
 
 // Выполнено ли условие текущего квеста (награду ещё можно не забрать)
@@ -111,15 +116,34 @@ function turnInStoryWeapons() {
     alert(`Сдано оружия: ${ids.length} вид(ов). Получено: ${total} ¢\nПрогресс: ${Math.min(st.q2.length, STORY_Q2_WEAPON_KINDS)}/${STORY_Q2_WEAPON_KINDS}`);
 }
 
-// Квест 3: успешное извлечение артефакта из полевой аномалии.
-// Возвращает id капсулы, которую нужно выдать, или null.
-function storyCapsuleForAnomaly(anomCode) {
+// Квест 3: сканирование QR-кода капсулы энергии на полигоне
+function handleCapsuleScan(code, resDiv) {
     let st = getStory();
-    if (st.stage !== 3) return null;
-    let capsule = STORY_FIELD_ANOMALIES[anomCode];
-    if (!capsule) return null;
-    if (player.inventory.includes(capsule) || (player.safeBox || []).includes(capsule)) return null;
-    return capsule;
+    let item = ITEMS_DB[code];
+    if (st.stage < 3) {
+        playSound('error');
+        return resDiv.innerHTML = `<span style='color:yellow'>${item.name}: прибор не может её стабилизировать. Капсулы понадобятся учёным позже — в квесте «${STORY_QUESTS[3].name}».</span>`;
+    }
+    if (st.stage >= STORY_FINAL_STAGE) {
+        playSound('error');
+        return resDiv.innerHTML = "<span style='color:var(--text-dim)'>Капсула пуста: её энергия уже ушла в Ядро Синтеза.</span>";
+    }
+    if (storyHasItem(code)) {
+        playSound('error');
+        return resDiv.innerHTML = `<span style='color:yellow'>${item.name} уже у вас.</span>`;
+    }
+    let used = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
+    if (used + item.size > player.maxSize) {
+        playSound('error');
+        return resDiv.innerHTML = "<span class='danger'>НЕТ МЕСТА В РЮКЗАКЕ! Освободите место и отсканируйте капсулу снова.</span>";
+    }
+    player.inventory.push(code);
+    player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
+    saveState();
+    playSound('scan');
+    let have = STORY_CAPSULES.length - storyCapsulesMissing().length;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">📜 ${item.name.toUpperCase()} ПОЛУЧЕНА</b><br><small>Капсул собрано: ${have}/${STORY_CAPSULES.length}. Храните их в рюкзаке или подсумке.</small>`;
+    announceStoryProgress();
 }
 
 // Квест 4: Доктор Кроу сообщает координаты станции
@@ -159,7 +183,7 @@ function handleSynthStationScan(resDiv) {
         if (st.synthStartedAt) st.synthStartedAt = 0; // капсулы потеряны — синтез сорван
         saveState();
         playSound('error');
-        return resDiv.innerHTML = `<span class='danger'>Для синтеза нужны все 3 капсулы энергии в рюкзаке.</span><br><small>Не хватает: ${missing.map(id => ITEMS_DB[id].name).join(', ')}</small>`;
+        return resDiv.innerHTML = `<span class='danger'>Для синтеза нужны все 3 капсулы энергии (в рюкзаке или подсумке).</span><br><small>Не хватает: ${missing.map(id => ITEMS_DB[id].name).join(', ')}</small>`;
     }
 
     let now = Date.now();
@@ -178,9 +202,11 @@ function handleSynthStationScan(resDiv) {
     }
 
     // Синтез завершён: капсулы сплавляются в Ядро
-    Object.values(STORY_FIELD_ANOMALIES).forEach(id => {
+    STORY_CAPSULES.forEach(id => {
         let idx = player.inventory.indexOf(id);
-        if (idx !== -1) player.inventory.splice(idx, 1);
+        if (idx !== -1) { player.inventory.splice(idx, 1); return; }
+        let sIdx = (player.safeBox || []).indexOf(id);
+        if (sIdx !== -1) player.safeBox.splice(sIdx, 1);
     });
     player.inventory.push('anom_4');
     player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
@@ -245,7 +271,7 @@ function claimStoryReward() {
             player.equipment = 'eq_anom';
             msg = 'Получен легендарный детектор «Велес» (экипирован).';
         }
-        msg += '\n\nКапсулы энергии оставьте в рюкзаке — Доктор Кроу знает, что с ними делать.';
+        msg += '\n\nКапсулы энергии не продавайте и не выбрасывайте — Доктор Кроу знает, что с ними делать.';
     }
 
     st.stage = stage + 1;
@@ -282,15 +308,16 @@ function renderStoryBlock() {
         let inBag = storyUncountedWeaponIdx().length;
         if (inBag > 0) progress += `<div style="color:var(--text-dim); padding-left:10px; font-size:0.85rem;">В рюкзаке новых видов: ${inBag}</div>`;
     } else if (st.stage === 3) {
-        progress = Object.entries(STORY_FIELD_ANOMALIES).map(([anom, cap]) => {
-            let ok = player.inventory.includes(cap);
-            return `<div style="color:${ok ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${ITEMS_DB[cap].name} (${anom}): ${ok ? 'в рюкзаке' : 'нет'}</div>`;
+        progress = STORY_CAPSULES.map(cap => {
+            let where = player.inventory.includes(cap) ? 'в рюкзаке' : ((player.safeBox || []).includes(cap) ? 'в подсумке' : 'не найдена');
+            let ok = storyHasItem(cap);
+            return `<div style="color:${ok ? 'var(--term-green)' : '#ccc'}; padding-left:10px;">• ${ITEMS_DB[cap].name} (QR ${cap}): ${where}</div>`;
         }).join('');
     } else if (st.stage === 4) {
         let steps = [];
         steps.push(`${st.coordsKnown ? '✔' : '•'} Координаты от Доктора Кроу${st.coordsKnown ? `: <span style="color:#fff">${SYNTH_STATION_COORDS}</span>` : ''}`);
         let missing = storyCapsulesMissing();
-        steps.push(`${missing.length === 0 ? '✔' : '•'} Капсулы энергии в рюкзаке: ${3 - missing.length}/3`);
+        steps.push(`${missing.length === 0 ? '✔' : '•'} Капсулы энергии при себе: ${3 - missing.length}/3`);
         if (st.synthStartedAt) {
             let left = SYNTH_DURATION_MS - (Date.now() - st.synthStartedAt);
             steps.push(left > 0 ? `⚗ Синтез идёт, осталось ${formatMs(left)}` : '✔ Синтез завершён — отсканируйте станцию');

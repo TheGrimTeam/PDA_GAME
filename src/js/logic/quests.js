@@ -22,7 +22,8 @@ function generateQuestChoices() {
 }
 
 function createRandomQuest() {
-    let itemKeys = Object.keys(ITEMS_DB).filter(k => ITEMS_DB[k].cat !== 'token' && ITEMS_DB[k].cat !== 'artifact' && ITEMS_DB[k].cat !== 'eq');
+    // Только обычный лут: без жетонов, артефактов, спецснаряжения и сюжетных предметов
+    let itemKeys = Object.keys(ITEMS_DB).filter(k => !['token', 'artifact', 'eq', 'quest'].includes(ITEMS_DB[k].cat) && !ITEMS_DB[k].noScan);
     let reqs = {}; let totalVal = 0; let numItems = Math.floor(Math.random() * 2) + 1;
     for (let i = 0; i < numItems; i++) {
         let code = itemKeys[Math.floor(Math.random() * itemKeys.length)];

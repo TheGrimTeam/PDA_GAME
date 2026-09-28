@@ -43,7 +43,7 @@ const MAX_BACKPACK_SIZE = 30;
 const INFECTION_TIME_MS = 5 * 60 * 1000;   // 5 минут до превращения
 const ZOMBIE_TIME_MS = 10 * 60 * 1000;     // 10 минут в зомби
 const SAFE_BOX_PRICE = 1000;                // покупка защищённого подсумка вместо крафта
-const EQ_TRADE_HEAL_COST = 35;              // лечение у Доктора Кроу с Торговым чипом
+const EQ_TRADE_HEAL_DISCOUNT = 0.3;         // Торговый чип: лечение у Доктора на 30% дешевле (300 → 210)
 const HEAL_ITEM_TIMEOUT_MS = 60 * 1000;    // 1 минута на передачу лечебного предмета
 const BLOWOUT_INTERVAL_MS = 60 * 60 * 1000; // период выброса (раз в 60 минут)
 

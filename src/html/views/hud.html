@@ -1,16 +1,15 @@
         <div id="hud">
-            <!-- Строка состояния в стиле Pip-Boy: сегменты с разделителями -->
-            <div class="pb-stats">
-                <div class="pb-seg"><span class="pb-lbl">HP</span><span><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></span></div>
-                <div class="pb-seg"><span class="pb-lbl">ЕДА</span><span id="hunger-val">100</span></div>
-                <div class="pb-seg"><span class="pb-lbl">ВЕС</span><span><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></span></div>
-            </div>
-            <!-- Шкала радиации: заполнение «сжигает» максимум HP -->
-            <div class="pb-rads">
-                <span class="pb-lbl">РАД</span>
-                <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
-                <span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span>
-                <span class="pb-caps"><span class="pb-lbl">КРЫШКИ</span> <span id="score-val">0</span> <span class="cap cap-lg" title="крышки"></span></span>
+            <!-- Строка состояния: крупные блоки в рамках (стиль Pip-Boy) -->
+            <div class="pb-grid">
+                <div class="pb-box"><div class="pb-lbl">HP</div><div class="pb-val"><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></div></div>
+                <div class="pb-box"><div class="pb-lbl">ЕДА</div><div class="pb-val"><span id="hunger-val">100</span></div></div>
+                <div class="pb-box"><div class="pb-lbl">ВЕС</div><div class="pb-val"><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></div></div>
+                <!-- Радиация «сжигает» максимум HP -->
+                <div class="pb-box pb-rad-box">
+                    <div class="pb-lbl"><span>РАДИАЦИЯ</span><span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span></div>
+                    <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
+                </div>
+                <div class="pb-box pb-caps-box"><div class="pb-lbl"><span>КРЫШКИ</span><span class="cap" title="крышки"></span></div><div class="pb-val"><span id="score-val">0</span></div></div>
             </div>
             <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
             <div class="hud-row pb-quick">

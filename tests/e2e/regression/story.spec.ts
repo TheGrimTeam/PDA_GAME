@@ -95,10 +95,9 @@ test.describe('Regression: сюжет «Путь к эпицентру»', () =>
     expect(player.inventory.filter((id: string) => id === 'junk_6')).toHaveLength(5);
   });
 
-  test('ST-04: квест 3 — капсулы из 3 аномалий, награда детектор «Велес»', async ({ game }) => {
+  test('ST-04: квест 3 — 3 капсулы энергии по QR на полигонах, награда детектор «Велес»', async ({ game }) => {
     await game.patchPlayer({ story: { ...FRESH_STORY, stage: 3 } });
-    await game.page.evaluate(() => { Math.random = () => 0.1; }); // успех
-    for (const a of ['anom_1', 'anom_2', 'anom_3']) await scanDirect(game.page, a);
+    for (const c of ['energy_1', 'energy_2', 'energy_3']) await scanDirect(game.page, c);
 
     let player = await game.playerState();
     expect(player.inventory).toEqual(expect.arrayContaining(['energy_1', 'energy_2', 'energy_3']));
@@ -202,5 +201,63 @@ test.describe('Regression: сюжет «Путь к эпицентру»', () =>
     const player = await game.playerState();
     expect(player.inventory).toEqual([]);
     expect(player.hp).toBe(100); // anom_4 не обрабатывается как полевая аномалия
+  });
+
+  test('ST-11: капсулы засчитываются и в подсумке; повторный скан не дублирует', async ({ game }) => {
+    await game.patchPlayer({ story: { ...FRESH_STORY, stage: 3 }, safeBoxUnlocked: true, safeBox: ['energy_1', 'energy_2'] });
+    await scanDirect(game.page, 'energy_1'); // уже есть в подсумке
+    await scanDirect(game.page, 'energy_3');
+    const player = await game.playerState();
+    expect(player.inventory).toEqual(['energy_3']);
+    expect(await game.page.evaluate(() => (window as any).isStoryStageDone(3))).toBe(true);
+  });
+
+  test('ST-12: синтез забирает капсулы и из рюкзака, и из подсумка', async ({ game }) => {
+    await game.patchPlayer({
+      story: { ...FRESH_STORY, stage: 4, coordsKnown: true, synthStartedAt: Date.now() - 16 * 60 * 1000 },
+      inventory: ['energy_1'],
+      safeBoxUnlocked: true,
+      safeBox: ['energy_2', 'energy_3'],
+    });
+    await scanDirect(game.page, 'lab_synth');
+    const player = await game.playerState();
+    expect(player.inventory).toEqual(['anom_4']);
+    expect(player.safeBox).toEqual([]);
+  });
+
+  test('ST-13: аномалии больше не выдают капсулы', async ({ game }) => {
+    await game.patchPlayer({ story: { ...FRESH_STORY, stage: 3 } });
+    await game.page.evaluate(() => { Math.random = () => 0.1; });
+    await scanDirect(game.page, 'anom_1');
+    const player = await game.playerState();
+    expect(player.inventory.some((id: string) => id.startsWith('energy_'))).toBe(false);
+  });
+
+  test('ST-14: сюжетные предметы не попадают в обычные контракты', async ({ game }) => {
+    const bad = await game.page.evaluate(() => {
+      const db = eval('ITEMS_DB');
+      const found: string[] = [];
+      for (let i = 0; i < 500; i += 1) {
+        const q = (window as any).createRandomQuest();
+        for (const id of Object.keys(q.requirements)) if (db[id].cat === 'quest' || db[id].noScan) found.push(id);
+      }
+      return found;
+    });
+    expect(bad).toEqual([]);
+  });
+
+  test('ST-15: контракты старых версий с капсулами вычищаются при загрузке', async ({ game }) => {
+    await game.page.evaluate(() => {
+      const p = eval('player');
+      p.quests.choices = [{ id: 'old', name: 'Заказ', requirements: { energy_2: 1 }, target: 'npc_med', reward: 0 }];
+      p.quests.active = [{ id: 'old2', name: 'Заказ', requirements: { energy_1: 1 }, target: 'npc_med', reward: 0 }];
+      localStorage.setItem('wasteland_player', JSON.stringify(p));
+    });
+    await game.page.reload();
+    await game.page.waitForFunction(() => typeof (window as any).switchView === 'function');
+    const player = await game.playerState();
+    const ids = [...player.quests.choices, ...player.quests.active].flatMap((q: any) => Object.keys(q.requirements));
+    expect(ids.some((id: string) => id.startsWith('energy_'))).toBe(false);
+    expect(player.quests.choices.length).toBe(5);
   });
 });

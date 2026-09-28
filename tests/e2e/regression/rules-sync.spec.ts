@@ -43,10 +43,10 @@ test.describe('Regression: механики по правилам игры', () 
     await game.patchPlayer(BASE_STATE);
   }
 
-  test('RG-71: лечение у Кроу с Торговым чипом стоит 35 💎', async ({ game }) => {
+  test('RG-71: лечение у Кроу с Торговым чипом на 30% дешевле (300 → 210)', async ({ game }) => {
     await game.patchPlayer({ equipment: 'eq_trade', npcRep: {} });
     const cost = await game.page.evaluate(() => (window as any).getHealCost('npc_med'));
-    expect(cost).toBe(35);
+    expect(cost).toBe(210);
   });
 
   test('RG-72: Противогаз ГП-5 (eq_gas) снижает радиацию на 60%', async ({ game }) => {

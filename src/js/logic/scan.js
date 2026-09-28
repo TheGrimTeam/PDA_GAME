@@ -118,7 +118,7 @@ function handleScan(qrCode) {
 
     // Проверка: если игрок зомби, он не может поднимать вещи, лут, хлам и взламывать терминалы
     if (player.zombieTime && ((Date.now() - player.zombieTime) < ZOMBIE_TIME_MS)) {
-        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE) {
+        if (code.startsWith(QR_PREFIX_ROB) || code.startsWith(QR_PREFIX_HEAL) || code.startsWith(QR_PREFIX_SAFE) || code.startsWith(QR_PREFIX_USB) || code.startsWith(QR_PREFIX_TERM) || code.startsWith(QR_PREFIX_JUNK) || code.startsWith(QR_PREFIX_ITEM) || code.startsWith(QR_PREFIX_FOOD) || code.startsWith(QR_PREFIX_GEAR) || code.startsWith(QR_PREFIX_MED) || code.startsWith(QR_PREFIX_WPN) || code.startsWith("art_") || code.includes(QR_PREFIX_LOOT) || code === SYNTH_STATION_CODE || STORY_CAPSULES.includes(code)) {
             playSound('error');
             return resDiv.innerHTML = "<span class='danger'>🧟 ВЫ ЗОМБИ! Вы не можете поднимать вещи, снаряжение, оружие, еду, медикаменты или использовать человеческие терминалы. Охотьтесь на живых!</span>";
         }
@@ -142,7 +142,13 @@ function handleScan(qrCode) {
         return;
     }
 
-    // Сюжетные предметы (капсулы энергии, «Ядро Синтеза») нельзя подобрать по коду
+    // Капсулы энергии на полигонах (квест «Калибровка датчиков»)
+    if (STORY_CAPSULES.includes(code)) {
+        handleCapsuleScan(code, resDiv);
+        return;
+    }
+
+    // Остальные сюжетные предметы («Ядро Синтеза») нельзя подобрать по коду
     if (ITEMS_DB[code] && ITEMS_DB[code].noScan) {
         playSound('error');
         return resDiv.innerHTML = "<span style='color:yellow'>Этот предмет нельзя подобрать сканированием — его можно получить только по сюжету.</span>";
@@ -345,18 +351,14 @@ function handleScan(qrCode) {
 
         if (roll <= successChance) {
             let arts = ['art_1', 'art_2', 'art_3']; let winArt = arts[Math.floor(Math.random() * arts.length)]; let item = ITEMS_DB[winArt];
-            // Квест «Калибровка датчиков»: вместе с артефактом выдаётся капсула энергии
-            let capsule = storyCapsuleForAnomaly(code);
-            let needSize = item.size + (capsule ? ITEMS_DB[capsule].size : 0);
+            let needSize = item.size;
             let currentSize = player.inventory.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
             if (currentSize + needSize > player.maxSize) {
                 playSound('error'); resDiv.innerHTML = `<span class='danger'>Вы нашли ${item.name}, но в рюкзаке нет места (нужно ${needSize} кг)!</span>${retryHint}`;
             } else {
                 player.inventory.push(winArt); player.scannedCodes[code] = now;
-                if (capsule) player.inventory.push(capsule);
                 playSound('sell'); player.stats.itemsFound = (player.stats.itemsFound || 0) + 1;
-                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${capsule ? `<br><small style="color:var(--hero-color)">📜 Получена: ${ITEMS_DB[capsule].name}</small>` : ""}${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
-                if (capsule) announceStoryProgress();
+                resDiv.innerHTML = `<b style="color:var(--trade-color)">ВЫ ДОСТАЛИ АРТЕФАКТ!</b><br><small>${item.name} (Цена: ${item.val} ${CAP})</small>${usedBolt ? "<br><small style='color:var(--text-dim)'><i>Вы бросили болт и избежали урона.</i></small>" : ""}`;
             }
         } else {
             playSound('hazard'); let penaltyRoll = Math.random();
