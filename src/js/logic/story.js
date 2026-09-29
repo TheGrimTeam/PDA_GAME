@@ -22,9 +22,11 @@ function getStory() {
     return st;
 }
 
-// «Ядро Синтеза» действует, только пока лежит в рюкзаке (не в сейфе)
+// «Ядро Синтеза» действует, пока оно при игроке: в рюкзаке или в защищённом подсумке
+// (и бонусы, и проклятие). Чтобы избавиться от эффектов — продать или выбросить.
 function hasSynthCore() {
-    return Array.isArray(player.inventory) && player.inventory.includes('anom_4');
+    return (Array.isArray(player.inventory) && player.inventory.includes('anom_4')) ||
+        (Array.isArray(player.safeBox) && player.safeBox.includes('anom_4'));
 }
 
 // Предмет при себе: в рюкзаке или в защищённом подсумке
@@ -216,7 +218,7 @@ function handleSynthStationScan(resDiv) {
     player.hunger = getMaxHunger(); // Ядро насыщает
     saveState();
     playSound('quest');
-    resDiv.innerHTML = `<b style="color:var(--hero-color)">${CAP} ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ${CAP}).</small><br><small class="danger">Осторожно: умрёте с Ядром в рюкзаке — заражение неизбежно, лекарства не помогут. Прячьте его в сейф перед опасной вылазкой.</small>`;
+    resDiv.innerHTML = `<b style="color:var(--hero-color)">${CAP} ЯДРО СИНТЕЗА ПОЛУЧЕНО!</b><br><small>Энергия трёх аномалий сплавилась в один артефакт (${ITEMS_DB['anom_4'].val} ${CAP}).</small><br><small class="danger">Осторожно: умрёте с Ядром при себе (в рюкзаке или подсумке) — заражение неизбежно, лекарства не помогут.</small>`;
 }
 
 // Тик из heartbeat-цикла: срыв или завершение синтеза

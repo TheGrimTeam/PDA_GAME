@@ -163,7 +163,7 @@ test.describe('Regression: сюжет «Путь к эпицентру»', () =>
     expect(player.story.synthStartedAt).toBe(0);
   });
 
-  test('ST-08: Ядро Синтеза — +50 HP и сытости только в рюкзаке', async ({ game }) => {
+  test('ST-08: Ядро Синтеза — +50 HP и сытости в рюкзаке и в подсумке', async ({ game }) => {
     const base = await game.page.evaluate(() => [(window as any).getMaxHp(), (window as any).getMaxHunger()]);
     await game.patchPlayer({ inventory: ['anom_4'] });
     const withCore = await game.page.evaluate(() => [(window as any).getMaxHp(), (window as any).getMaxHunger()]);
@@ -172,7 +172,19 @@ test.describe('Regression: сюжет «Путь к эпицентру»', () =>
 
     await game.patchPlayer({ inventory: [], safeBox: ['anom_4'] });
     const inSafe = await game.page.evaluate(() => [(window as any).getMaxHp(), (window as any).getMaxHunger()]);
-    expect(inSafe).toEqual(base);
+    expect(inSafe).toEqual([base[0] + 50, base[1] + 50]);
+  });
+
+  test('ST-09b: смерть с Ядром в подсумке — тоже 100% заражение', async ({ game }) => {
+    await game.patchPlayer({ inventory: [], safeBoxUnlocked: true, safeBox: ['anom_4'] });
+    await game.page.evaluate(() => {
+      Math.random = () => 0.99;
+      const p = eval('player');
+      p.hp = 0;
+      (window as any).checkDeathState();
+    });
+    const player = await game.playerState();
+    expect(player.infectionTime).toBeGreaterThan(0);
   });
 
   test('ST-09: смерть с Ядром — 100% заражение, медикаменты не лечат', async ({ game }) => {
