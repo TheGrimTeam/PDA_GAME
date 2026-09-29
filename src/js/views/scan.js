@@ -10,7 +10,12 @@
 function updateScannerUI() {
     const btn = document.getElementById('start-scan-btn');
     const reader = document.getElementById('qr-reader');
-    if (btn) btn.innerText = scannerActive ? "ВЫКЛЮЧИТЬ СКАНЕР" : "ВКЛЮЧИТЬ СКАНЕР";
+    if (btn) {
+        btn.innerHTML = scannerActive
+            ? '<span class="scan-ico">■</span> ВЫКЛЮЧИТЬ СКАНЕР'
+            : '<span class="scan-ico">⌖</span> СКАНИРОВАТЬ QR<small>наведите камеру на код в Зоне</small>';
+        btn.classList.toggle('scan-on', scannerActive);
+    }
     if (reader) reader.style.display = scannerActive ? 'block' : 'none';
 }
 

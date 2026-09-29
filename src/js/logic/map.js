@@ -105,7 +105,38 @@ function initMapSystem() {
     }
 }
 
+// Сетка секторов А1–Д5 (кириллица — как в заданиях и радиосообщениях)
+const MAP_COLS = ['А', 'Б', 'В', 'Г', 'Д'];
+
+// Сектор, который сейчас нужен по сюжету (или null)
+function mapStoryTarget() {
+    if (typeof getStory !== 'function') return null;
+    let st = getStory();
+    if (st.stage === 4 && st.coordsKnown) return { sector: SYNTH_STATION_SECTOR, text: 'Лаборатория «Синтез» — отсканируйте QR-код станции на месте.' };
+    return null;
+}
+
+function renderMapGrid() {
+    let grid = document.getElementById('map-grid');
+    if (!grid) return;
+    let target = mapStoryTarget();
+    let html = '';
+    for (let r = 1; r <= 5; r++) {
+        MAP_COLS.forEach(c => {
+            let isTarget = target && target.sector === c + r;
+            html += `<div class="map-cell${isTarget ? ' map-cell-target' : ''}" id="map-cell-${c}${r}"><span>${c}${r}</span>${isTarget ? '<b>🎯</b>' : ''}</div>`;
+        });
+    }
+    grid.innerHTML = html;
+    let hint = document.getElementById('map-target-hint');
+    if (hint) {
+        hint.style.display = target ? 'block' : 'none';
+        if (target) hint.innerHTML = `🎯 ЦЕЛЬ: сектор <b>${target.sector}</b>. ${target.text}`;
+    }
+}
+
 function renderZoneMap() {
+    renderMapGrid();
     let layer = document.getElementById('map-markers-layer');
     if (!layer) return;
     layer.innerHTML = '';
@@ -168,7 +199,7 @@ function toggleMapEditor() {
 
     if (panel) panel.style.display = isMapEditorActive ? 'block' : 'none';
     if (btn) {
-        btn.innerText = isMapEditorActive ? '❌ ЗАКРЫТЬ РЕДАКТОР МЕТОК' : '⚙️ ВКЛЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)';
+        btn.innerText = isMapEditorActive ? '❌ ЗАКРЫТЬ РЕДАКТОР МЕТОК' : '✏️ МОИ МЕТКИ: ДОБАВИТЬ / ИЗМЕНИТЬ';
         btn.style.borderColor = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
         btn.style.color = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
     }

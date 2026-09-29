@@ -662,50 +662,61 @@ button {
 }
 button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
 
-/* ---------- Строка состояния: крупные блоки в рамках ---------- */
+/* ---------- Строка состояния: компактные блоки с полосками ---------- */
 #hud {
     background: transparent;
     border-bottom: 1px solid var(--pb-line);
-    padding: 8px 8px 6px;
+    padding: 6px 8px 6px;
     font-weight: normal;
 }
 .pb-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 5px;
+    margin-bottom: 5px;
 }
 .pb-box {
     border: 1px solid var(--pb-line);
     background: rgba(82, 255, 138, 0.05);
-    padding: 3px 7px 4px;
+    padding: 2px 6px 4px;
     min-width: 0;
 }
-.pb-rad-box { grid-column: span 2; border-color: var(--rad-color); color: var(--rad-color); background: rgba(232, 211, 79, 0.05); }
-.pb-caps-box { border-color: var(--quest-color); color: var(--quest-color); background: rgba(216, 227, 106, 0.05); }
-.pb-lbl { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; letter-spacing: 1px; opacity: 0.85; line-height: 1.1; }
-.pb-val { font-size: 1.75rem; line-height: 1.05; white-space: nowrap; }
-.pb-caps-box .pb-val { overflow: hidden; text-overflow: ellipsis; }
+.pb-rad-box { border-color: var(--rad-color); color: var(--rad-color); background: rgba(232, 211, 79, 0.05); }
+.pb-lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 0.8rem; letter-spacing: 1px; line-height: 1.1; white-space: nowrap; }
+.pb-num { font-size: 1.3rem; letter-spacing: 0; }
 .pb-dim { color: var(--pb-dim); font-size: 0.7em; }
-.pb-rad-box .pb-dim, .pb-caps-box .pb-dim { color: inherit; opacity: 0.6; }
-.pb-radnum { font-size: 1.5rem; opacity: 1; letter-spacing: 0; }
+.pb-rad-box .pb-dim { color: inherit; opacity: 0.6; }
 
-/* Шкала радиации с делениями, как RADS на Pip-Boy */
-.pb-radbar {
+/* Полоски HP / еды / радиации */
+.pb-bar, .pb-radbar {
     position: relative;
-    height: 12px;
-    margin-top: 4px;
-    border: 1px solid var(--rad-color);
-    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.45) calc(10% - 1px) 10%);
+    height: 7px;
+    margin-top: 2px;
+    border: 1px solid var(--pb-line);
+    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(82, 255, 138, 0.25) calc(10% - 1px) 10%);
 }
-.pb-radfill {
+.pb-bar div, .pb-radfill {
     position: absolute;
     top: 0; bottom: 0; left: 0;
     width: 0;
-    background: rgba(232, 211, 79, 0.55);
-    box-shadow: 2px 0 0 var(--rad-color);
+    background: rgba(82, 255, 138, 0.6);
     transition: width 0.4s ease;
 }
+.pb-radbar { border-color: var(--rad-color); background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.35) calc(10% - 1px) 10%); }
+.pb-radfill { background: rgba(232, 211, 79, 0.6); box-shadow: 1px 0 0 var(--rad-color); }
+
+/* Опасное значение: блок краснеет и мигает — сразу видно, что делать */
+.pb-box.pb-alert { border-color: var(--bandit-color); color: var(--bandit-color); background: rgba(255, 95, 79, 0.12); animation: pb-alert-blink 0.9s infinite alternate; }
+.pb-box.pb-alert .pb-bar { border-color: var(--bandit-color); }
+.pb-box.pb-alert .pb-bar div, .pb-box.pb-alert .pb-radfill { background: var(--bandit-color); }
+@keyframes pb-alert-blink { from { box-shadow: none; } to { box-shadow: 0 0 10px rgba(255, 95, 79, 0.6); } }
+
+/* Вторая строка: опыт, вес, крышки */
+.pb-line2 { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.pb-line2 .pb-xp { flex: 1; min-width: 0; margin: 0; }
+.pb-chip { white-space: nowrap; font-size: 1.05rem; }
+.pb-caps { color: var(--quest-color); display: inline-flex; align-items: center; gap: 3px; font-size: 1.2rem; }
+.pb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Быстрые действия */
 .pb-quick { gap: 5px; margin: 0; }
@@ -717,39 +728,57 @@ button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
     line-height: 1;
     white-space: nowrap;
 }
+.pb-qn { display: inline-block; min-width: 1.2em; margin-left: 2px; padding: 0 3px; background: rgba(82, 255, 138, 0.18); font-weight: normal; }
 .pb-quick .pb-rad-btn { border-color: var(--rad-color); color: var(--rad-color); }
+.pb-quick .pb-rad-btn .pb-qn { background: rgba(232, 211, 79, 0.2); }
+.pb-quick button.pb-empty { opacity: 0.4; }
+.pb-quick .pb-dead-btn { flex: 0 0 auto; margin-left: 6px; padding: 5px 8px; }
 
-/* ---------- Вкладки внизу: кнопки в рамках, активная — подсвечена ---------- */
+/* ---------- Нижнее меню: закреплено, иконка + подпись ---------- */
 #nav-buttons {
-    background: transparent;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    grid-template-columns: repeat(6, 1fr);
+    background: rgba(2, 10, 5, 0.9);
     border: none;
     border-top: 1px solid var(--pb-line);
     border-radius: 0;
     box-shadow: none;
-    padding: 8px 2px 2px;
-    gap: 6px;
+    margin: 0;
+    padding: 5px 4px 4px;
+    gap: 4px;
 }
 #nav-buttons button,
 #nav-buttons button:active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
     background: rgba(82, 255, 138, 0.04);
-    border: 1px solid rgba(82, 255, 138, 0.45);
+    border: 1px solid rgba(82, 255, 138, 0.35);
     border-radius: 0;
     color: var(--pb-dim);
-    font-size: 1rem;
+    font-size: 0.78rem;
     font-weight: normal;
-    padding: 9px 2px;
+    letter-spacing: 0;
+    padding: 4px 0 3px;
     text-shadow: 0 0 3px rgba(82, 255, 138, 0.4);
     transform: none;
-    box-shadow: inset 0 -2px 0 rgba(82, 255, 138, 0.15);
+    box-shadow: none;
+    min-width: 0;
+    overflow: hidden;
 }
+.nav-ico { font-size: 1.25rem; line-height: 1.1; filter: grayscale(0.6); opacity: 0.8; }
 #nav-buttons button:active { background: rgba(82, 255, 138, 0.18); }
 #nav-buttons button.active-nav {
     background: rgba(82, 255, 138, 0.14);
-    border: 2px solid var(--term-green);
+    border: 1px solid var(--term-green);
     color: var(--term-green);
     transform: none;
-    box-shadow: 0 0 10px rgba(82, 255, 138, 0.35), inset 0 0 8px rgba(82, 255, 138, 0.15);
+    box-shadow: 0 0 10px rgba(82, 255, 138, 0.35), inset 0 -3px 0 var(--term-green);
 }
+#nav-buttons button.active-nav .nav-ico { filter: none; opacity: 1; }
 
 /* Баннер событий — инверсная плашка */
 #event-banner { letter-spacing: 0.5px; }
@@ -773,7 +802,7 @@ input, textarea, select {
 .cap-lg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
 
 /* ---------- Уровень и опыт в шапке ---------- */
-.pb-xp { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
+.pb-xp { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
 .pb-xp-lvl b { font-size: 1.2rem; }
 .pb-xpbar { flex: 1; height: 8px; border: 1px solid var(--hero-color); position: relative; }
 .pb-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--hero-color); opacity: 0.75; transition: width 0.4s ease; }
@@ -797,6 +826,72 @@ input, textarea, select {
 .perk-btn { flex: 0 0 auto; padding: 5px 8px; font-size: 0.85rem; min-width: 82px; }
 .perk-btn-go { border-color: var(--hero-color); color: var(--hero-color); box-shadow: 0 0 8px rgba(240,230,140,0.35); }
 
+/* ---------- Главная кнопка сканера ---------- */
+.scan-main-btn {
+    display: block;
+    width: 100%;
+    padding: 18px 8px 12px;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+    border: 2px solid var(--term-green);
+    background: rgba(82, 255, 138, 0.1);
+    box-shadow: 0 0 14px rgba(82, 255, 138, 0.3), inset 0 0 18px rgba(82, 255, 138, 0.12);
+    margin-bottom: 12px;
+}
+.scan-main-btn small { display: block; font-size: 0.95rem; letter-spacing: 0.5px; opacity: 0.7; margin-top: 4px; }
+.scan-main-btn .scan-ico { font-size: 1.9rem; vertical-align: -0.1em; }
+.scan-main-btn.scan-on { border-color: var(--bandit-color); color: var(--bandit-color); background: rgba(255, 95, 79, 0.08); box-shadow: none; font-size: 1.3rem; padding: 12px 8px; }
+
+/* ---------- Рюкзак: группы и карточки ---------- */
+.inv-group-title { display: flex; align-items: center; gap: 8px; margin: 12px 0 6px; color: var(--pb-dim); letter-spacing: 1px; font-size: 1rem; }
+.inv-group-title::after { content: ""; flex: 1; border-top: 1px dashed rgba(82, 255, 138, 0.3); }
+.inv-group-title span { color: var(--term-green); }
+.inv-item { flex-direction: column; align-items: stretch; gap: 6px; }
+.inv-item .item-info { width: 100%; }
+.inv-meta { font-size: 0.95rem; color: var(--pb-dim); margin-top: 2px; }
+.inv-eff { color: #fff; }
+.inv-eff-rad { color: var(--rad-color); }
+.inv-desc { font-size: 0.9rem; color: var(--hero-color); margin-top: 3px; line-height: 1.2; }
+.inv-acts { display: flex; flex-wrap: wrap; gap: 5px; }
+.inv-acts button { flex: 1 1 auto; padding: 6px 6px; font-size: 0.95rem; min-height: 34px; }
+.inv-acts .inv-btn-use { border-color: #fff; color: #fff; flex-grow: 2; }
+.inv-acts .inv-btn-move { border-color: var(--term-green); color: var(--term-green); }
+.inv-acts .inv-btn-trade { border-color: var(--trade-color); color: var(--trade-color); }
+.inv-acts .inv-btn-drop { border-color: rgba(255, 95, 79, 0.6); color: rgba(255, 95, 79, 0.85); flex-grow: 0; }
+.inv-story { border-color: var(--hero-color) !important; }
+.inv-story::before { background: var(--hero-color) !important; }
+.inv-tag { font-size: 0.75rem; color: #000; background: var(--hero-color); padding: 0 4px; margin-left: 4px; vertical-align: 0.15em; text-shadow: none; }
+.inv-safe { border-color: var(--trade-color); }
+.inv-empty { color: var(--pb-dim); text-align: center; padding: 14px 6px; }
+
+/* ---------- Пустые состояния и подсказки ---------- */
+.empty-hint { color: var(--pb-dim); text-align: center; padding: 14px 8px; border: 1px dashed rgba(82, 255, 138, 0.3); font-size: 1rem; line-height: 1.3; }
+
+/* ---------- Карта ---------- */
+.map-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events: none; z-index: 2; background: rgba(0, 20, 0, 0.2); }
+.map-cell { position: relative; border-right: 1px solid rgba(82, 255, 138, 0.55); border-bottom: 1px solid rgba(82, 255, 138, 0.55); padding: 2px 4px; font-size: 0.85rem; color: var(--term-green); opacity: 0.85; }
+.map-cell:nth-child(5n) { border-right: none; }
+.map-cell:nth-last-child(-n+5) { border-bottom: none; }
+.map-cell-target { background: rgba(240, 230, 140, 0.18); outline: 2px solid var(--hero-color); outline-offset: -2px; color: var(--hero-color); opacity: 1; animation: pb-alert-blink 0.9s infinite alternate; }
+.map-cell-target b { position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%); font-size: 1.6rem; }
+.map-target-hint { border: 1px solid var(--hero-color); color: var(--hero-color); background: rgba(240, 230, 140, 0.07); padding: 6px 8px; margin-bottom: 8px; font-size: 1rem; line-height: 1.25; }
+
+/* ---------- Квесты: предыстория свёрнута ---------- */
+.quest-lore { margin-top: 8px; font-size: 0.9rem; color: var(--text-dim); }
+.quest-lore summary { cursor: pointer; color: var(--pb-dim); list-style: none; }
+.quest-lore summary::before { content: "▸ "; }
+.quest-lore[open] summary::before { content: "▾ "; }
+.quest-lore p { margin-top: 4px; line-height: 1.25; }
+
+/* ---------- Экран Базы ---------- */
+.base-callsign { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.base-callsign label { color: var(--trade-color); font-size: 0.95rem; letter-spacing: 1px; }
+.base-callsign input { flex: 1; min-width: 0; background: var(--term-dark); border: 1px solid var(--term-green); color: var(--term-green); padding: 7px 8px; font-family: 'VT323', monospace; font-size: 1.15rem; }
+.base-callsign button { padding: 7px 12px; }
+.base-status { display: flex; justify-content: space-between; gap: 8px; font-size: 1.15rem; padding: 8px 10px; margin-bottom: 14px; border: 1px dashed rgba(82, 255, 138, 0.35); }
+.base-start-btn { display: block; width: 100%; font-size: 1.7rem; letter-spacing: 2px; padding: 16px 8px; margin-bottom: 10px; border: 2px solid var(--term-green); color: var(--term-green); background: rgba(82, 255, 138, 0.12); box-shadow: 0 0 14px rgba(82, 255, 138, 0.3); }
+.quest-progress { font-size: 1rem; line-height: 1.25; }
+
     </style>
 </head>
 <body>
@@ -815,31 +910,39 @@ input, textarea, select {
 
         <!-- HUD — закреплённая шапка экрана, вне скроллируемого контента -->
             <div id="hud">
-            <!-- Строка состояния: крупные блоки в рамках (стиль Pip-Boy) -->
+            <!-- Жизненные показатели: число + полоска. Крупно и ярко — только когда опасно (класс pb-alert) -->
             <div class="pb-grid">
-                <div class="pb-box"><div class="pb-lbl">HP</div><div class="pb-val"><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></div></div>
-                <div class="pb-box"><div class="pb-lbl">ЕДА</div><div class="pb-val"><span id="hunger-val">100</span></div></div>
-                <div class="pb-box"><div class="pb-lbl">ВЕС</div><div class="pb-val"><span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></div></div>
+                <div class="pb-box" id="hud-hp-box">
+                    <div class="pb-lbl"><span>HP</span><span class="pb-num"><span id="hp-val">100</span><span id="hp-max-val" class="pb-dim">/100</span></span></div>
+                    <div class="pb-bar pb-bar-hp"><div id="hp-fill"></div></div>
+                </div>
+                <div class="pb-box" id="hud-food-box">
+                    <div class="pb-lbl"><span>ЕДА</span><span class="pb-num"><span id="hunger-val">100</span><span id="hunger-max-val" class="pb-dim">/100</span></span></div>
+                    <div class="pb-bar pb-bar-food"><div id="hunger-fill"></div></div>
+                </div>
                 <!-- Радиация «сжигает» максимум HP -->
-                <div class="pb-box pb-rad-box">
-                    <div class="pb-lbl"><span>РАДИАЦИЯ</span><span class="pb-radnum"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span></div>
+                <div class="pb-box pb-rad-box" id="hud-rad-box">
+                    <div class="pb-lbl"><span>РАД</span><span class="pb-num"><span id="rad-val">0</span><span id="rad-max-val" class="pb-dim">/40</span></span></div>
                     <div class="pb-radbar"><div id="rad-fill" class="pb-radfill"></div></div>
                 </div>
-                <div class="pb-box pb-caps-box"><div class="pb-lbl"><span>КРЫШКИ</span><span class="cap" title="крышки"></span></div><div class="pb-val"><span id="score-val">0</span></div></div>
             </div>
-            <!-- Уровень и опыт -->
-            <div class="pb-xp" onclick="switchView('profile')" title="Уровень и перки — в профиле">
-                <span class="pb-xp-lvl">УР <b id="xp-level">1</b></span>
-                <div class="pb-xpbar"><div id="xp-fill"></div></div>
-                <span id="xp-text" class="pb-xp-text">0/100 XP</span>
-                <span id="xp-points" class="pb-xp-points" style="display:none;">★ ПЕРК</span>
+            <!-- Вторая строка: уровень и опыт, вес, крышки -->
+            <div class="pb-line2">
+                <div class="pb-xp" onclick="switchView('profile')" title="Уровень и перки — в профиле">
+                    <span class="pb-xp-lvl">УР <b id="xp-level">1</b></span>
+                    <div class="pb-xpbar"><div id="xp-fill"></div></div>
+                    <span id="xp-text" class="pb-xp-text">0/100 XP</span>
+                    <span id="xp-points" class="pb-xp-points" style="display:none;">★ ПЕРК</span>
+                </div>
+                <span class="pb-chip" id="hud-weight" title="Вес рюкзака">⚖ <span id="inv-val">0</span><span class="pb-dim">/</span><span id="inv-max" class="pb-dim">15</span></span>
+                <span class="pb-chip pb-caps" title="КРЫШКИ"><span class="cap"></span><span id="score-val">0</span><span class="pb-sr">КРЫШКИ</span></span>
             </div>
-            <!-- КНОПКИ БЫСТРОГО ДОСТУПА -->
+            <!-- Быстрые действия: в скобках — сколько подходящих предметов в рюкзаке -->
             <div class="hud-row pb-quick">
-                <button onclick="quickUseItem('hp')">❤ ЛЕЧЕНИЕ</button>
-                <button onclick="quickUseItem('rad')" class="pb-rad-btn">☢ АНТИРАД</button>
-                <button onclick="quickUseItem('food')">🍖 ЕДА</button>
-                <button onclick="declareDeath()" class="btn-danger">💀 УБИТ</button>
+                <button id="quick-hp" title="Вылечиться: аптечка из рюкзака" onclick="quickUseItem('hp')">❤ HP <b id="quick-hp-n" class="pb-qn">0</b></button>
+                <button id="quick-rad" title="Снять радиацию: антирад из рюкзака" onclick="quickUseItem('rad')" class="pb-rad-btn">☢ РАД <b id="quick-rad-n" class="pb-qn">0</b></button>
+                <button id="quick-food" title="Поесть из рюкзака" onclick="quickUseItem('food')">🍖 ЕДА <b id="quick-food-n" class="pb-qn">0</b></button>
+                <button onclick="declareDeath()" class="btn-danger pb-dead-btn" title="Меня убили">💀 УБИТ</button>
             </div>
         </div>
 
@@ -851,27 +954,29 @@ input, textarea, select {
         <div id="screen-content">
                     <!-- 0. БАЗА (МЕНЮ / ПАУЗА) -->
         <div id="view-base" class="view">
-            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:15px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.3]</span></h2>
-            <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color); background:rgba(255,0,0,0.05);">
-                <h4 style="color:var(--rad-color); margin-bottom:8px; border-bottom:1px dashed var(--rad-color); padding-bottom:4px; text-align:center;">⚠️ СИСТЕМА УКРЫТИЯ (ВЫБРОС)</h4>
-                <div id="blowout-status-text" style="font-size:0.9rem; color:#ccc; text-align:center;">Статус: Спокойно (Авто-выброс раз в час)</div>
-            </div>
-            <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:20px;">Зона отдыха и калибровки. Время остановлено, ресурсы не тратятся.</p>
+            <h2 onclick="registerHackClick()" style="text-align:center; color:var(--quest-color); margin-bottom:4px; letter-spacing:2px; cursor:pointer; user-select:none;">ГРИМ-СЕТЬ: БАЗА <span style="font-size:0.8rem; color:var(--trade-color);">[Alfa 0.3]</span></h2>
+            <p style="text-align:center; font-size:0.95rem; color:var(--text-dim); margin-bottom:14px;">Вы в безопасности: время остановлено, еда и здоровье не тратятся.</p>
 
-            <div class="profile-card" style="margin-bottom:15px;">
-                <label style="display:block; margin-bottom:5px; color:var(--trade-color);">ПОЗЫВНОЙ ОПЕРАТОРА:</label>
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                    <input type="text" id="base-callsign-input" style="width:100%; background:var(--term-dark); border:1px solid var(--term-green); color:var(--term-green); padding:8px; font-family:'VT323',monospace; font-size:1.1rem;" placeholder="Введите позывной...">
-                    <button onclick="saveBaseCallsign()" style="width:100%;">СОХРАНИТЬ ПОЗЫВНОЙ</button>
-                </div>
+            <!-- Позывной: одна строка, меняется и позже в ПРОФИЛЕ -->
+            <div class="base-callsign">
+                <label for="base-callsign-input">ПОЗЫВНОЙ</label>
+                <input type="text" id="base-callsign-input" placeholder="Введите позывной..." onkeydown="if(event.key==='Enter'){event.preventDefault(); saveBaseCallsign();}">
+                <button onclick="saveBaseCallsign()" title="Сохранить позывной">OK</button>
             </div>
 
-            <div style="text-align:center; margin-bottom:25px; font-size:1.1rem; border:1px dashed var(--metal-border); padding:10px; background:rgba(0,0,0,0.3);">
-                <div style="margin-bottom:5px;">Крышки: <span id="base-score" style="color:var(--quest-color);">0</span> <span class="cap"></span></div>
-                <div>Статус / Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
+            <div class="base-status">
+                <div><span class="cap"></span> <span id="base-score" style="color:var(--quest-color);">0</span></div>
+                <div>Ранг: <span id="base-karma" style="color:var(--hero-color);">ВЫЖИВШИЙ</span></div>
             </div>
 
-            <button onclick="startGameFromBase()" class="btn-hero" style="width:100%; font-size:1.3rem; padding:12px; border-color:var(--term-green); color:var(--term-green); background:rgba(57,255,20,0.1); margin-bottom:10px;">ВОЙТИ В ЗОНУ (СТАРТ)</button>
+            <button onclick="startGameFromBase()" class="btn-hero base-start-btn">▶ ВОЙТИ В ЗОНУ</button>
+            <p style="text-align:center; font-size:0.9rem; color:var(--text-dim); margin:-4px 0 16px;">В Зоне тратятся еда и здоровье, растёт радиация.</p>
+
+            <div class="profile-card" style="margin-bottom:15px; border-color:var(--rad-color);">
+                <h4 style="color:var(--rad-color); margin-bottom:6px; text-align:center;">⚠️ ВЫБРОС</h4>
+                <div id="blowout-status-text" style="font-size:0.95rem; color:#ccc; text-align:center;">Статус: Спокойно (Авто-выброс раз в час)</div>
+                <div style="font-size:0.85rem; color:var(--text-dim); text-align:center; margin-top:4px;">По сирене успейте отсканировать QR Базы (бандиты — QR Лагеря), иначе накроет выбросом.</div>
+            </div>
         </div>
 
 
@@ -932,7 +1037,7 @@ input, textarea, select {
                 <div id="scan-infection-timer" style="font-size:1rem; color:#fff;">Осталось времени на лечение: 05:00</div>
             </div>
             <div id="qr-reader"></div>
-            <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
+            <button id="start-scan-btn" class="scan-main-btn"><span class="scan-ico">⌖</span> СКАНИРОВАТЬ QR<small>наведите камеру на код в Зоне</small></button>
 
             <div class="debug-input" id="admin-manual-scan-box" style="display:none; margin-top:10px;">
                 <input type="text" id="manual-code" placeholder="Код QR (junk_1, anom_1, npc_base)" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitManualCode();}">
@@ -994,47 +1099,13 @@ input, textarea, select {
 
         <!-- 3.5. КАРТА ЗОНЫ -->
         <div id="view-map" class="view">
-            <h3 style="color:var(--term-green); border-bottom: 1px dashed var(--term-green); padding-bottom: 5px; margin-bottom:10px; text-align:center;">🗺 ИНТЕРАКТИВНАЯ КАРТА ЗОНЫ</h3>
+            <h3>🗺 КАРТА ЗОНЫ</h3>
+            <div id="map-target-hint" class="map-target-hint" style="display:none;"></div>
 
             <!-- Экран карты -->
             <div id="map-container" style="touch-action: none; position:relative; width:100%; height:320px; background:#020b02; border:2px solid var(--term-green); border-radius:6px; overflow:hidden; box-shadow:inset 0 0 15px rgba(57,255,20,0.15);">
-                <!-- СЕТКА КООРДИНАТ 5x5 С ЯРКИМИ СПЛОШНЫМИ ПОЛОСАМИ (A1-E5) -->
-                <div style="position:absolute; top:0; left:0; width:100%; height:100%; display:grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events:none; z-index:2; background: rgba(0,20,0,0.2);">
-                    <!-- Ряд 1 -->
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A1</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B1</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C1</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D1</div>
-                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E1</div>
-
-                    <!-- Ряд 2 -->
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A2</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B2</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C2</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D2</div>
-                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E2</div>
-
-                    <!-- Ряд 3 -->
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A3</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B3</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C3</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D3</div>
-                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E3</div>
-
-                    <!-- Ряд 4 -->
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A4</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B4</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C4</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D4</div>
-                    <div style="border-bottom:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E4</div>
-
-                    <!-- Ряд 5 -->
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">A5</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">B5</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">C5</div>
-                    <div style="border-right:2px solid rgba(57,255,20,0.85); padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">D5</div>
-                    <div style="padding:3px; font-size:0.75rem; font-weight:bold; color:var(--term-green); text-shadow:0 0 3px var(--term-green); opacity:0.8;">E5</div>
-                </div>
+                <!-- СЕТКА КООРДИНАТ 5x5 (А1–Д5): строится в renderMapGrid(), цель сюжета подсвечивается -->
+                <div id="map-grid" class="map-grid"></div>
 
                 <!-- Слои маркеров рендерится через JS -->
                 <div id="map-markers-layer" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index:10;"></div>
@@ -1042,12 +1113,12 @@ input, textarea, select {
 
             <!-- Инфо-карточка локации -->
             <div id="map-info-card" class="profile-card" style="margin-top:10px; padding:10px; min-height:65px; border-color:var(--term-green);">
-                <div id="map-info-title" style="font-weight:bold; color:var(--term-green); font-size:1.05rem;">Выберите маркер на карте...</div>
-                <div id="map-info-desc" style="font-size:0.9rem; color:#aaa; margin-top:4px;">Нажмите на любую метку, чтобы просмотреть сведения о локации или переместить её в режиме редактора.</div>
+                <div id="map-info-title" style="font-weight:bold; color:var(--term-green); font-size:1.05rem;">Сектора: буква — столбец, цифра — ряд</div>
+                <div id="map-info-desc" style="font-size:0.9rem; color:#aaa; margin-top:4px;">Например, «Д2» — правый столбец, второй ряд сверху. Цель сюжетного задания подсвечивается 🎯. Свои метки (тайники, опасные места) можно поставить в редакторе ниже — они хранятся только на этом телефоне.</div>
             </div>
 
             <!-- Переключатель Режима Редактора -->
-            <button id="btn-toggle-map-editor" onclick="toggleMapEditor()" style="width:100%; margin-top:8px; border-color:var(--quest-color); color:var(--quest-color); font-size:0.95rem;">⚙️ ВКТЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)</button>
+            <button id="btn-toggle-map-editor" onclick="toggleMapEditor()" style="width:100%; margin-top:8px; border-color:var(--quest-color); color:var(--quest-color); font-size:0.95rem;">✏️ МОИ МЕТКИ: ДОБАВИТЬ / ИЗМЕНИТЬ</button>
 
             <!-- Панель управления редактором (скрыта по умолчанию) -->
             <div id="map-editor-panel" class="profile-card" style="display:none; margin-top:10px; border-color:var(--quest-color); background:rgba(255,183,0,0.03);">
@@ -1478,23 +1549,23 @@ input, textarea, select {
                 <button onclick="sellAllToBase()" style="border-color:#ffcc00; color:#ffcc00; width:100%;">ПРОДАТЬ ВЕСЬ РЮКЗАК</button>
             </div>
             <h4 id="title-trade-buy" style="border-bottom:1px dashed var(--trade-color);">В ПРОДАЖЕ</h4>
-            <div id="trade-buy-list" style="margin-bottom:15px;"></div>
+            <div id="trade-buy-list" style="margin-bottom:15px;"><div class="empty-hint">Торговец не выбран.<br>Отсканируйте QR-код торговца на базе или в Зоне — здесь появятся его товары и цены.</div></div>
             <h4 id="title-trade-sell" style="border-bottom:1px dashed var(--trade-color);">СКУПАЕТ У ВАС</h4>
             <div id="trade-sell-list"></div>
             <button onclick="switchView('scan')" style="width:100%; margin-top:20px;">ЗАКОНЧИТЬ ТОРГОВЛЮ</button>
         </div>
 
-                <div id="nav-buttons">
-        <button onclick="switchView('scan'); playSound('use');" class="active-nav" id="btn-nav-scan">СКАНЕР</button>
-        <button onclick="switchView('inventory'); playSound('use');" id="btn-nav-inventory">ИНВЕНТ</button>
-        <button onclick="switchView('quests'); playSound('use');" id="btn-nav-quests">КВЕСТЫ</button>
-        <button onclick="switchView('shelter'); playSound('use');" id="btn-nav-shelter">УБЕЖИЩЕ</button>
-        <button onclick="switchView('map'); playSound('use');" id="btn-nav-map">КАРТА</button>
-        <button onclick="switchView('profile'); playSound('use');" id="btn-nav-profile">ПРОФИЛЬ</button>
-
+        </div> <!-- ends screen-content -->
+            <!-- Нижнее меню: закреплено под экраном, не прокручивается вместе с содержимым -->
+    <div id="nav-buttons">
+        <button onclick="switchView('scan'); playSound('use');" class="active-nav" id="btn-nav-scan"><span class="nav-ico">📡</span>СКАНЕР</button>
+        <button onclick="switchView('inventory'); playSound('use');" id="btn-nav-inventory"><span class="nav-ico">🎒</span>РЮКЗАК</button>
+        <button onclick="switchView('quests'); playSound('use');" id="btn-nav-quests"><span class="nav-ico">📜</span>КВЕСТЫ</button>
+        <button onclick="switchView('shelter'); playSound('use');" id="btn-nav-shelter"><span class="nav-ico">🏚</span>УБЕЖИЩЕ</button>
+        <button onclick="switchView('map'); playSound('use');" id="btn-nav-map"><span class="nav-ico">🗺</span>КАРТА</button>
+        <button onclick="switchView('profile'); playSound('use');" id="btn-nav-profile"><span class="nav-ico">👤</span>ПРОФИЛЬ</button>
     </div>
 
-        </div> <!-- ends screen-content -->
     </div> <!-- ends screen -->
 </div> <!-- ends device-casing -->
 
@@ -1708,7 +1779,9 @@ const SHELTER_UPGRADES = {
 // QR-код, который организаторы размещают на Станции синтеза
 const SYNTH_STATION_CODE = 'lab_synth';
 // Что Доктор Кроу сообщает игроку о местоположении станции
-const SYNTH_STATION_COORDS = 'Заброшенная лаборатория «Синтез»: сектор Д-2, старая насосная станция у северного периметра. Ищите на месте QR-код станции.';
+// Сектор на карте ПДА (сетка А1–Д5), подсвечивается во вкладке КАРТА
+const SYNTH_STATION_SECTOR = 'Д2';
+const SYNTH_STATION_COORDS = 'Заброшенная лаборатория «Синтез»: сектор Д-2 (отмечен 🎯 во вкладке КАРТА), старая насосная станция у северного периметра. Ищите на месте QR-код станции.';
 // Сколько игрок должен провести на станции
 const SYNTH_DURATION_MS = 15 * 60 * 1000;
 
@@ -1920,7 +1993,7 @@ const RADIO_MSGS = [
     "Внимание всем! Цена на жетоны мародеров повышена на Базе.",
     "[Шум] ...говорят, Доктор Кроу скупает медицину дороже всех.",
     "📻 [ПОМЕХИ] Какой-то сталкер в баре бредил радиостанцией 'УВБ-76'. Рассказывал, что если быстро нажать 5 раз на надпись '📻 РАДИОЧАСТОТА FM-42' в сканере, поймаешь секретный эфир...",
-    "Всем постам! Стая диких собак в секторе B-4.",
+    "Всем постам! Стая диких собак в секторе Б-4.",
     "...я нашел тайник! Клянусь, там полно снаряжения.",
     "[Свист эфира] ...Михалыч опять просит хлам.",
     "Внимание. Зафиксирован всплеск радиации.",
@@ -2851,7 +2924,10 @@ function handleDeadScan(qrCode) {
 // ЛОГИКА ИНВЕНТАРЯ, КРАФТА И УЛУЧШЕНИЙ
 // ============================================================
 
-function dropItem(index, isSafe = false) { if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
+function dropItem(index, isSafe = false) {
+    let id = isSafe ? player.safeBox[index] : player.inventory[index];
+    if (isStoryItem(id) && !confirm(`Выкинуть «${ITEMS_DB[id].name}»? Это сюжетный предмет, его не получить заново обычным сканированием.`)) return;
+    if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
 
 function useMedkit(index, id, isSafe = false) {
     // Лечение медикаментом излечивает вирус инфицирования — но не при «Ядре Синтеза» в рюкзаке
@@ -2998,9 +3074,9 @@ function buySafeBox() {
     if (player.safeBoxUnlocked) return;
     if (player.score < SAFE_BOX_PRICE) {
         playSound('error');
-        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} ¢, у вас ${player.score} ¢.`);
+        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} крышек, у вас ${player.score}.`);
     }
-    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} ¢?`)) return;
+    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} крышек?`)) return;
     player.score -= SAFE_BOX_PRICE;
     player.safeBoxUnlocked = true;
     playSound('upgrade');
@@ -3009,48 +3085,80 @@ function buySafeBox() {
     showBanner("🔒 Защищенный подсумок куплен!", 'var(--trade-color)');
 }
 
+// Сюжетные предметы: не выпадают при обычном сканировании (капсулы, Ядро)
+function isStoryItem(id) {
+    let it = ITEMS_DB[id];
+    return !!(it && (it.cat === 'quest' || it.noScan));
+}
+
+// Порядок и подписи групп в рюкзаке
+const INV_GROUPS = [
+    { key: 'story', title: '★ СЮЖЕТ' },
+    { key: 'med', title: '✚ МЕДИЦИНА' },
+    { key: 'food', title: '🍖 ЕДА И ВОДА' },
+    { key: 'artifact', title: '◈ АРТЕФАКТЫ' },
+    { key: 'weapon', title: '⚔ ОРУЖИЕ' },
+    { key: 'gear', title: '⛭ СНАРЯЖЕНИЕ' },
+    { key: 'junk', title: '⚙ ХЛАМ' },
+    { key: 'token', title: '◉ ЖЕТОНЫ' },
+    { key: 'other', title: 'ПРОЧЕЕ' }
+];
+
+function invGroupKey(id) {
+    if (isStoryItem(id)) return 'story';
+    let cat = ITEMS_DB[id].cat;
+    return INV_GROUPS.some(g => g.key === cat) ? cat : 'other';
+}
+
+// Карточка предмета: название, короткая строка «цена · вес · эффект», описание, кнопки
+function invItemCard(id, i, isSafe) {
+    let it = ITEMS_DB[id];
+    let story = isStoryItem(id);
+    let acts = [];
+    let effects = [];
+    if (it.heal) effects.push(`<span class="inv-eff">+${it.heal} HP</span>`);
+    if (it.feed) effects.push(`<span class="inv-eff">+${it.feed} ЕДА</span>`);
+    if (it.radCure) effects.push(`<span class="inv-eff inv-eff-rad">−${it.radCure} РАД</span>`);
+
+    if (it.heal || (it.radCure && !it.feed)) acts.push(`<button class="inv-btn-use" onclick="useMedkit(${i}, '${id}', ${isSafe})">ПРИМЕНИТЬ</button>`);
+    if (it.feed) acts.push(`<button class="inv-btn-use" onclick="useFood(${i}, '${id}', ${isSafe})">СЪЕСТЬ</button>`);
+    if (isSafe) {
+        acts.push(`<button class="inv-btn-move" onclick="moveToInv(${i})">В РЮКЗАК</button>`);
+    } else {
+        if (player.safeBoxUnlocked) acts.push(`<button class="btn-safe" onclick="moveToSafe(${i})">В ПОДСУМОК</button>`);
+        if (it.cat !== 'quest') acts.push(`<button class="inv-btn-trade" onclick="initiateP2PTrade(${i})">ПРОДАТЬ ИГРОКУ</button>`);
+    }
+    acts.push(`<button class="inv-btn-drop" onclick="dropItem(${i}, ${isSafe})">ВЫКИНУТЬ</button>`);
+
+    let meta = [];
+    if (it.val > 0) meta.push(`${it.val} ${CAP}`);
+    meta.push(`${it.size} кг`);
+    let desc = it.desc && it.cat !== 'eq' ? `<div class="inv-desc">${it.desc}</div>` : '';
+    return `<div class="item inv-item${story ? ' inv-story' : ''}${isSafe ? ' inv-safe' : ''}">
+        <div class="item-info"><b>${it.name}</b>${story ? ' <span class="inv-tag">СЮЖЕТ</span>' : ''}
+            <div class="inv-meta">${meta.join(' · ')}${effects.length ? ' · ' + effects.join(' ') : ''}</div>${desc}</div>
+        <div class="inv-acts">${acts.join('')}</div></div>`;
+}
+
 function renderInventory() {
-    const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
-    player.inventory.forEach((id, i) => {
-        let it = ITEMS_DB[id], acts = (it.cat === 'quest' ? '' : `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> `) + `<button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
-
-        let statsDesc = [];
-        if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
-        if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', false)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
-        if (it.radCure) {
-            statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
-            if (!it.heal && !it.feed) {
-                acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
-            }
-        }
-        let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
-
-        if (player.safeBoxUnlocked) acts = `<button onclick="moveToSafe(${i})" class="btn-safe" style="margin-right:5px">В СЕЙФ</button> ` + acts;
-
-        let descText = it.desc && it.cat !== 'eq' ? `<br><small style="color:var(--hero-color)">${it.desc}</small>` : '';
-        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small>${descText}</div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
-    });
+    const list = document.getElementById('inventory-list');
+    if (player.inventory.length === 0) {
+        list.innerHTML = "<p class='inv-empty'>Рюкзак пуст. Сканируйте QR-коды в Зоне, чтобы находить лут.</p>";
+    } else {
+        let groups = {};
+        player.inventory.forEach((id, i) => {
+            if (!ITEMS_DB[id]) return;
+            let k = invGroupKey(id);
+            (groups[k] = groups[k] || []).push(invItemCard(id, i, false));
+        });
+        list.innerHTML = INV_GROUPS.filter(g => groups[g.key])
+            .map(g => `<div class="inv-group-title">${g.title} <span>${groups[g.key].length}</span></div>${groups[g.key].join('')}`).join('');
+    }
     if (player.safeBoxUnlocked) {
         document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';
         document.getElementById('safe-val').innerText = player.safeBox.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
         const safeList = document.getElementById('safebox-list'); safeList.innerHTML = player.safeBox.length === 0 ? "<p style='color:var(--text-dim)'>Пусто</p>" : "";
-        player.safeBox.forEach((id, i) => {
-            let it = ITEMS_DB[id], acts = `<button onclick="dropItem(${i}, true)">ВЫКИНУТЬ</button>`;
-
-            let statsDesc = [];
-            if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
-            if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', true)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
-            if (it.radCure) {
-                statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
-                if (!it.heal && !it.feed) {
-                    acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
-                }
-            }
-            let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
-
-            acts = `<button onclick="moveToInv(${i})" style="color:var(--term-green); border-color:var(--term-green); margin-right:5px">В РЮКЗАК</button> ` + acts;
-            safeList.innerHTML += `<div class="item" style="border-color:var(--trade-color)"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
-        });
+        safeList.innerHTML += player.safeBox.map((id, i) => ITEMS_DB[id] ? invItemCard(id, i, true) : '').join('');
     } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox);
         let priceEl = document.getElementById('safe-box-price'); if (priceEl) priceEl.innerText = SAFE_BOX_PRICE; }
     renderCraftBox('req-items', 'btn-upgrade', player.upgradeQuest, applyUpgrade);
@@ -3589,11 +3697,11 @@ function renderStoryBlock() {
 
     html += `<div class="quest-card" style="border-color:var(--hero-color); background:rgba(255,215,0,0.03); margin:8px 0 16px 0;">
         <h4 style="color:var(--hero-color); margin-bottom:5px;">Квест ${st.stage}: «${q.name}»</h4>
-        <p style="font-size:0.9rem; color:var(--text-dim); margin-bottom:6px;">${q.desc}</p>
-        <div style="font-size:0.95rem; margin-bottom:6px;"><b>Задание:</b> ${q.task}</div>
-        ${progress}
+        <div style="font-size:1rem; margin-bottom:6px;"><b>Задание:</b> ${q.task}</div>
+        <div class="quest-progress">${progress}</div>
         <div style="font-size:0.9rem; margin-top:8px;"><b>Награда:</b> <span style="color:var(--hero-color)">${q.reward}</span></div>
         ${btn}
+        <details class="quest-lore"><summary>История задания</summary><p>${q.desc}</p></details>
     </div>`;
     return html;
 }
@@ -3881,7 +3989,7 @@ function renderTradeView() {
         });
     } else {
         if (currentTradeStock.length === 0) {
-            buyList.innerHTML = "<p>Нет товаров на продажу</p>";
+            buyList.innerHTML = "<div class='empty-hint'>У торговца сейчас нет товаров. Загляните позже.</div>";
         } else {
             currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ${CAP}</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
@@ -3902,7 +4010,7 @@ function renderTradeView() {
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
-    if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
+    if (!hasItems) sellList.innerHTML += "<div class='empty-hint'>В рюкзаке нет того, что скупает этот торговец. Лут в подсумке сначала переложите в рюкзак.</div>";
 }
 
 function buyEquipment(eqId) {
@@ -4881,7 +4989,38 @@ function initMapSystem() {
     }
 }
 
+// Сетка секторов А1–Д5 (кириллица — как в заданиях и радиосообщениях)
+const MAP_COLS = ['А', 'Б', 'В', 'Г', 'Д'];
+
+// Сектор, который сейчас нужен по сюжету (или null)
+function mapStoryTarget() {
+    if (typeof getStory !== 'function') return null;
+    let st = getStory();
+    if (st.stage === 4 && st.coordsKnown) return { sector: SYNTH_STATION_SECTOR, text: 'Лаборатория «Синтез» — отсканируйте QR-код станции на месте.' };
+    return null;
+}
+
+function renderMapGrid() {
+    let grid = document.getElementById('map-grid');
+    if (!grid) return;
+    let target = mapStoryTarget();
+    let html = '';
+    for (let r = 1; r <= 5; r++) {
+        MAP_COLS.forEach(c => {
+            let isTarget = target && target.sector === c + r;
+            html += `<div class="map-cell${isTarget ? ' map-cell-target' : ''}" id="map-cell-${c}${r}"><span>${c}${r}</span>${isTarget ? '<b>🎯</b>' : ''}</div>`;
+        });
+    }
+    grid.innerHTML = html;
+    let hint = document.getElementById('map-target-hint');
+    if (hint) {
+        hint.style.display = target ? 'block' : 'none';
+        if (target) hint.innerHTML = `🎯 ЦЕЛЬ: сектор <b>${target.sector}</b>. ${target.text}`;
+    }
+}
+
 function renderZoneMap() {
+    renderMapGrid();
     let layer = document.getElementById('map-markers-layer');
     if (!layer) return;
     layer.innerHTML = '';
@@ -4944,7 +5083,7 @@ function toggleMapEditor() {
 
     if (panel) panel.style.display = isMapEditorActive ? 'block' : 'none';
     if (btn) {
-        btn.innerText = isMapEditorActive ? '❌ ЗАКРЫТЬ РЕДАКТОР МЕТОК' : '⚙️ ВКЛЮЧИТЬ РЕДАКТОР МЕТОК (DRAG & DROP)';
+        btn.innerText = isMapEditorActive ? '❌ ЗАКРЫТЬ РЕДАКТОР МЕТОК' : '✏️ МОИ МЕТКИ: ДОБАВИТЬ / ИЗМЕНИТЬ';
         btn.style.borderColor = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
         btn.style.color = isMapEditorActive ? 'var(--bandit-color)' : 'var(--quest-color)';
     }
@@ -6982,6 +7121,7 @@ function updateHUD() {
         if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
 
         if (document.getElementById('hp-val')) document.getElementById('hp-val').className = player.hp <= 20 ? 'danger' : '';
+        updateHudBars(baseMaxHp, maxHunger);
 
         if (k.name === 'ГЕРОЙ' && document.getElementById('rad-val')) {
             document.getElementById('rad-val').style.color = 'var(--hero-color)';
@@ -6991,6 +7131,30 @@ function updateHUD() {
     } catch (e) {
         console.error("updateHUD error:", e);
     }
+}
+
+// Полоски HP/еды, подсветка опасных значений и счётчики на кнопках быстрого доступа
+function updateHudBars(baseMaxHp, maxHunger) {
+    let setW = (id, v) => { let el = document.getElementById(id); if (el) el.style.width = Math.max(0, Math.min(100, v)) + '%'; };
+    setW('hp-fill', player.hp / Math.max(1, baseMaxHp) * 100);
+    setW('hunger-fill', player.hunger / Math.max(1, maxHunger) * 100);
+    let hm = document.getElementById('hunger-max-val');
+    if (hm) hm.innerText = '/' + maxHunger;
+
+    let alert = (id, on) => { let el = document.getElementById(id); if (el) el.classList.toggle('pb-alert', !!on); };
+    alert('hud-hp-box', player.hp > 0 && player.hp <= 25);
+    alert('hud-food-box', player.hunger <= 20);
+    alert('hud-rad-box', player.rads >= MAX_RADS * 0.75);
+
+    let inv = Array.isArray(player.inventory) ? player.inventory : [];
+    let count = f => inv.filter(id => ITEMS_DB[id] && f(ITEMS_DB[id])).length;
+    [['hp', it => it.heal > 0], ['rad', it => it.radCure > 0], ['food', it => it.feed > 0]].forEach(([k, f]) => {
+        let n = count(f);
+        let nEl = document.getElementById(`quick-${k}-n`);
+        if (nEl) nEl.innerText = n;
+        let btn = document.getElementById(`quick-${k}`);
+        if (btn) btn.classList.toggle('pb-empty', n === 0);
+    });
 }
 
 
@@ -7289,7 +7453,12 @@ function confirmRob(corpseType = 'survivor') {
 function updateScannerUI() {
     const btn = document.getElementById('start-scan-btn');
     const reader = document.getElementById('qr-reader');
-    if (btn) btn.innerText = scannerActive ? "ВЫКЛЮЧИТЬ СКАНЕР" : "ВКЛЮЧИТЬ СКАНЕР";
+    if (btn) {
+        btn.innerHTML = scannerActive
+            ? '<span class="scan-ico">■</span> ВЫКЛЮЧИТЬ СКАНЕР'
+            : '<span class="scan-ico">⌖</span> СКАНИРОВАТЬ QR<small>наведите камеру на код в Зоне</small>';
+        btn.classList.toggle('scan-on', scannerActive);
+    }
     if (reader) reader.style.display = scannerActive ? 'block' : 'none';
 }
 

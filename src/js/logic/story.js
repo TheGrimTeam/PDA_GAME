@@ -341,11 +341,11 @@ function renderStoryBlock() {
 
     html += `<div class="quest-card" style="border-color:var(--hero-color); background:rgba(255,215,0,0.03); margin:8px 0 16px 0;">
         <h4 style="color:var(--hero-color); margin-bottom:5px;">Квест ${st.stage}: «${q.name}»</h4>
-        <p style="font-size:0.9rem; color:var(--text-dim); margin-bottom:6px;">${q.desc}</p>
-        <div style="font-size:0.95rem; margin-bottom:6px;"><b>Задание:</b> ${q.task}</div>
-        ${progress}
+        <div style="font-size:1rem; margin-bottom:6px;"><b>Задание:</b> ${q.task}</div>
+        <div class="quest-progress">${progress}</div>
         <div style="font-size:0.9rem; margin-top:8px;"><b>Награда:</b> <span style="color:var(--hero-color)">${q.reward}</span></div>
         ${btn}
+        <details class="quest-lore"><summary>История задания</summary><p>${q.desc}</p></details>
     </div>`;
     return html;
 }

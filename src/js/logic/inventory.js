@@ -2,7 +2,10 @@
 // ЛОГИКА ИНВЕНТАРЯ, КРАФТА И УЛУЧШЕНИЙ
 // ============================================================
 
-function dropItem(index, isSafe = false) { if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
+function dropItem(index, isSafe = false) {
+    let id = isSafe ? player.safeBox[index] : player.inventory[index];
+    if (isStoryItem(id) && !confirm(`Выкинуть «${ITEMS_DB[id].name}»? Это сюжетный предмет, его не получить заново обычным сканированием.`)) return;
+    if (isSafe) player.safeBox.splice(index, 1); else player.inventory.splice(index, 1); saveState(); renderInventory(); }
 
 function useMedkit(index, id, isSafe = false) {
     // Лечение медикаментом излечивает вирус инфицирования — но не при «Ядре Синтеза» в рюкзаке
@@ -149,9 +152,9 @@ function buySafeBox() {
     if (player.safeBoxUnlocked) return;
     if (player.score < SAFE_BOX_PRICE) {
         playSound('error');
-        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} ¢, у вас ${player.score} ¢.`);
+        return alert(`Мало крышек! Подсумок стоит ${SAFE_BOX_PRICE} крышек, у вас ${player.score}.`);
     }
-    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} ¢?`)) return;
+    if (!confirm(`Купить защищённый подсумок за ${SAFE_BOX_PRICE} крышек?`)) return;
     player.score -= SAFE_BOX_PRICE;
     player.safeBoxUnlocked = true;
     playSound('upgrade');
@@ -160,48 +163,80 @@ function buySafeBox() {
     showBanner("🔒 Защищенный подсумок куплен!", 'var(--trade-color)');
 }
 
+// Сюжетные предметы: не выпадают при обычном сканировании (капсулы, Ядро)
+function isStoryItem(id) {
+    let it = ITEMS_DB[id];
+    return !!(it && (it.cat === 'quest' || it.noScan));
+}
+
+// Порядок и подписи групп в рюкзаке
+const INV_GROUPS = [
+    { key: 'story', title: '★ СЮЖЕТ' },
+    { key: 'med', title: '✚ МЕДИЦИНА' },
+    { key: 'food', title: '🍖 ЕДА И ВОДА' },
+    { key: 'artifact', title: '◈ АРТЕФАКТЫ' },
+    { key: 'weapon', title: '⚔ ОРУЖИЕ' },
+    { key: 'gear', title: '⛭ СНАРЯЖЕНИЕ' },
+    { key: 'junk', title: '⚙ ХЛАМ' },
+    { key: 'token', title: '◉ ЖЕТОНЫ' },
+    { key: 'other', title: 'ПРОЧЕЕ' }
+];
+
+function invGroupKey(id) {
+    if (isStoryItem(id)) return 'story';
+    let cat = ITEMS_DB[id].cat;
+    return INV_GROUPS.some(g => g.key === cat) ? cat : 'other';
+}
+
+// Карточка предмета: название, короткая строка «цена · вес · эффект», описание, кнопки
+function invItemCard(id, i, isSafe) {
+    let it = ITEMS_DB[id];
+    let story = isStoryItem(id);
+    let acts = [];
+    let effects = [];
+    if (it.heal) effects.push(`<span class="inv-eff">+${it.heal} HP</span>`);
+    if (it.feed) effects.push(`<span class="inv-eff">+${it.feed} ЕДА</span>`);
+    if (it.radCure) effects.push(`<span class="inv-eff inv-eff-rad">−${it.radCure} РАД</span>`);
+
+    if (it.heal || (it.radCure && !it.feed)) acts.push(`<button class="inv-btn-use" onclick="useMedkit(${i}, '${id}', ${isSafe})">ПРИМЕНИТЬ</button>`);
+    if (it.feed) acts.push(`<button class="inv-btn-use" onclick="useFood(${i}, '${id}', ${isSafe})">СЪЕСТЬ</button>`);
+    if (isSafe) {
+        acts.push(`<button class="inv-btn-move" onclick="moveToInv(${i})">В РЮКЗАК</button>`);
+    } else {
+        if (player.safeBoxUnlocked) acts.push(`<button class="btn-safe" onclick="moveToSafe(${i})">В ПОДСУМОК</button>`);
+        if (it.cat !== 'quest') acts.push(`<button class="inv-btn-trade" onclick="initiateP2PTrade(${i})">ПРОДАТЬ ИГРОКУ</button>`);
+    }
+    acts.push(`<button class="inv-btn-drop" onclick="dropItem(${i}, ${isSafe})">ВЫКИНУТЬ</button>`);
+
+    let meta = [];
+    if (it.val > 0) meta.push(`${it.val} ${CAP}`);
+    meta.push(`${it.size} кг`);
+    let desc = it.desc && it.cat !== 'eq' ? `<div class="inv-desc">${it.desc}</div>` : '';
+    return `<div class="item inv-item${story ? ' inv-story' : ''}${isSafe ? ' inv-safe' : ''}">
+        <div class="item-info"><b>${it.name}</b>${story ? ' <span class="inv-tag">СЮЖЕТ</span>' : ''}
+            <div class="inv-meta">${meta.join(' · ')}${effects.length ? ' · ' + effects.join(' ') : ''}</div>${desc}</div>
+        <div class="inv-acts">${acts.join('')}</div></div>`;
+}
+
 function renderInventory() {
-    const list = document.getElementById('inventory-list'); list.innerHTML = player.inventory.length === 0 ? "<p>Рюкзак пуст.</p>" : "";
-    player.inventory.forEach((id, i) => {
-        let it = ITEMS_DB[id], acts = (it.cat === 'quest' ? '' : `<button onclick="initiateP2PTrade(${i})" style="border-color:var(--trade-color); color:var(--trade-color);">ПРОДАТЬ ИГРОКУ</button> `) + `<button onclick="dropItem(${i}, false)">ВЫКИНУТЬ</button>`;
-
-        let statsDesc = [];
-        if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
-        if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', false)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
-        if (it.radCure) {
-            statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
-            if (!it.heal && !it.feed) {
-                acts = `<button onclick="useMedkit(${i}, '${id}', false)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
-            }
-        }
-        let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
-
-        if (player.safeBoxUnlocked) acts = `<button onclick="moveToSafe(${i})" class="btn-safe" style="margin-right:5px">В СЕЙФ</button> ` + acts;
-
-        let descText = it.desc && it.cat !== 'eq' ? `<br><small style="color:var(--hero-color)">${it.desc}</small>` : '';
-        list.innerHTML += `<div class="item"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small>${descText}</div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
-    });
+    const list = document.getElementById('inventory-list');
+    if (player.inventory.length === 0) {
+        list.innerHTML = "<p class='inv-empty'>Рюкзак пуст. Сканируйте QR-коды в Зоне, чтобы находить лут.</p>";
+    } else {
+        let groups = {};
+        player.inventory.forEach((id, i) => {
+            if (!ITEMS_DB[id]) return;
+            let k = invGroupKey(id);
+            (groups[k] = groups[k] || []).push(invItemCard(id, i, false));
+        });
+        list.innerHTML = INV_GROUPS.filter(g => groups[g.key])
+            .map(g => `<div class="inv-group-title">${g.title} <span>${groups[g.key].length}</span></div>${groups[g.key].join('')}`).join('');
+    }
     if (player.safeBoxUnlocked) {
         document.getElementById('safe-box-container').style.display = 'block'; document.getElementById('safebox-quest-box').style.display = 'none';
         document.getElementById('safe-val').innerText = player.safeBox.reduce((sum, id) => sum + ITEMS_DB[id].size, 0);
         const safeList = document.getElementById('safebox-list'); safeList.innerHTML = player.safeBox.length === 0 ? "<p style='color:var(--text-dim)'>Пусто</p>" : "";
-        player.safeBox.forEach((id, i) => {
-            let it = ITEMS_DB[id], acts = `<button onclick="dropItem(${i}, true)">ВЫКИНУТЬ</button>`;
-
-            let statsDesc = [];
-            if (it.heal) { acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (+${it.heal} HP)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.heal} HP</span>`); }
-            if (it.feed) { acts = `<button onclick="useFood(${i}, '${id}', true)" style="border-color:#fff;">СЪЕСТЬ (+${it.feed} ЕДА)</button> ` + acts; statsDesc.push(`<span style="color:#fff">+${it.feed} ЕДА</span>`); }
-            if (it.radCure) {
-                statsDesc.push(`<span style="color:var(--rad-color)">-${it.radCure} РАД</span>`);
-                if (!it.heal && !it.feed) {
-                    acts = `<button onclick="useMedkit(${i}, '${id}', true)" style="border-color:#fff;">ЮЗАТЬ (-${it.radCure} РАД)</button> ` + acts;
-                }
-            }
-            let statsText = statsDesc.length > 0 ? ` | ${statsDesc.join(' | ')}` : '';
-
-            acts = `<button onclick="moveToInv(${i})" style="color:var(--term-green); border-color:var(--term-green); margin-right:5px">В РЮКЗАК</button> ` + acts;
-            safeList.innerHTML += `<div class="item" style="border-color:var(--trade-color)"><div class="item-info"><b>${it.name}</b><br><small>Цена: ${it.val} | Вес: ${it.size}${statsText}</small></div><div style="display:flex; gap:5px; flex-wrap:wrap; justify-content:flex-end;">${acts}</div></div>`;
-        });
+        safeList.innerHTML += player.safeBox.map((id, i) => ITEMS_DB[id] ? invItemCard(id, i, true) : '').join('');
     } else { document.getElementById('safe-box-container').style.display = 'none'; document.getElementById('safebox-quest-box').style.display = 'block'; renderCraftBox('req-safe-items', 'btn-upgrade-safe', player.safeBoxQuest, applySafeBox);
         let priceEl = document.getElementById('safe-box-price'); if (priceEl) priceEl.innerText = SAFE_BOX_PRICE; }
     renderCraftBox('req-items', 'btn-upgrade', player.upgradeQuest, applyUpgrade);

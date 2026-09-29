@@ -1,5 +1,5 @@
 // Версия кэша: меняйте при каждом выпуске, чтобы установленные ПДА получили обновление
-const CACHE_NAME = 'wasteland-pda-v8-alfa-0.3';
+const CACHE_NAME = 'wasteland-pda-v9-alfa-0.3';
 const urlsToCache = [
   './',
   './index.html',

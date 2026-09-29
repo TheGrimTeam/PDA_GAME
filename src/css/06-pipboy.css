@@ -75,50 +75,61 @@ button {
 }
 button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
 
-/* ---------- Строка состояния: крупные блоки в рамках ---------- */
+/* ---------- Строка состояния: компактные блоки с полосками ---------- */
 #hud {
     background: transparent;
     border-bottom: 1px solid var(--pb-line);
-    padding: 8px 8px 6px;
+    padding: 6px 8px 6px;
     font-weight: normal;
 }
 .pb-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
-    margin-bottom: 6px;
+    gap: 5px;
+    margin-bottom: 5px;
 }
 .pb-box {
     border: 1px solid var(--pb-line);
     background: rgba(82, 255, 138, 0.05);
-    padding: 3px 7px 4px;
+    padding: 2px 6px 4px;
     min-width: 0;
 }
-.pb-rad-box { grid-column: span 2; border-color: var(--rad-color); color: var(--rad-color); background: rgba(232, 211, 79, 0.05); }
-.pb-caps-box { border-color: var(--quest-color); color: var(--quest-color); background: rgba(216, 227, 106, 0.05); }
-.pb-lbl { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.85rem; letter-spacing: 1px; opacity: 0.85; line-height: 1.1; }
-.pb-val { font-size: 1.75rem; line-height: 1.05; white-space: nowrap; }
-.pb-caps-box .pb-val { overflow: hidden; text-overflow: ellipsis; }
+.pb-rad-box { border-color: var(--rad-color); color: var(--rad-color); background: rgba(232, 211, 79, 0.05); }
+.pb-lbl { display: flex; justify-content: space-between; align-items: baseline; gap: 4px; font-size: 0.8rem; letter-spacing: 1px; line-height: 1.1; white-space: nowrap; }
+.pb-num { font-size: 1.3rem; letter-spacing: 0; }
 .pb-dim { color: var(--pb-dim); font-size: 0.7em; }
-.pb-rad-box .pb-dim, .pb-caps-box .pb-dim { color: inherit; opacity: 0.6; }
-.pb-radnum { font-size: 1.5rem; opacity: 1; letter-spacing: 0; }
+.pb-rad-box .pb-dim { color: inherit; opacity: 0.6; }
 
-/* Шкала радиации с делениями, как RADS на Pip-Boy */
-.pb-radbar {
+/* Полоски HP / еды / радиации */
+.pb-bar, .pb-radbar {
     position: relative;
-    height: 12px;
-    margin-top: 4px;
-    border: 1px solid var(--rad-color);
-    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.45) calc(10% - 1px) 10%);
+    height: 7px;
+    margin-top: 2px;
+    border: 1px solid var(--pb-line);
+    background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(82, 255, 138, 0.25) calc(10% - 1px) 10%);
 }
-.pb-radfill {
+.pb-bar div, .pb-radfill {
     position: absolute;
     top: 0; bottom: 0; left: 0;
     width: 0;
-    background: rgba(232, 211, 79, 0.55);
-    box-shadow: 2px 0 0 var(--rad-color);
+    background: rgba(82, 255, 138, 0.6);
     transition: width 0.4s ease;
 }
+.pb-radbar { border-color: var(--rad-color); background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(232, 211, 79, 0.35) calc(10% - 1px) 10%); }
+.pb-radfill { background: rgba(232, 211, 79, 0.6); box-shadow: 1px 0 0 var(--rad-color); }
+
+/* Опасное значение: блок краснеет и мигает — сразу видно, что делать */
+.pb-box.pb-alert { border-color: var(--bandit-color); color: var(--bandit-color); background: rgba(255, 95, 79, 0.12); animation: pb-alert-blink 0.9s infinite alternate; }
+.pb-box.pb-alert .pb-bar { border-color: var(--bandit-color); }
+.pb-box.pb-alert .pb-bar div, .pb-box.pb-alert .pb-radfill { background: var(--bandit-color); }
+@keyframes pb-alert-blink { from { box-shadow: none; } to { box-shadow: 0 0 10px rgba(255, 95, 79, 0.6); } }
+
+/* Вторая строка: опыт, вес, крышки */
+.pb-line2 { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; }
+.pb-line2 .pb-xp { flex: 1; min-width: 0; margin: 0; }
+.pb-chip { white-space: nowrap; font-size: 1.05rem; }
+.pb-caps { color: var(--quest-color); display: inline-flex; align-items: center; gap: 3px; font-size: 1.2rem; }
+.pb-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Быстрые действия */
 .pb-quick { gap: 5px; margin: 0; }
@@ -130,39 +141,57 @@ button:active { box-shadow: 0 0 10px rgba(82, 255, 138, 0.5); }
     line-height: 1;
     white-space: nowrap;
 }
+.pb-qn { display: inline-block; min-width: 1.2em; margin-left: 2px; padding: 0 3px; background: rgba(82, 255, 138, 0.18); font-weight: normal; }
 .pb-quick .pb-rad-btn { border-color: var(--rad-color); color: var(--rad-color); }
+.pb-quick .pb-rad-btn .pb-qn { background: rgba(232, 211, 79, 0.2); }
+.pb-quick button.pb-empty { opacity: 0.4; }
+.pb-quick .pb-dead-btn { flex: 0 0 auto; margin-left: 6px; padding: 5px 8px; }
 
-/* ---------- Вкладки внизу: кнопки в рамках, активная — подсвечена ---------- */
+/* ---------- Нижнее меню: закреплено, иконка + подпись ---------- */
 #nav-buttons {
-    background: transparent;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 20;
+    grid-template-columns: repeat(6, 1fr);
+    background: rgba(2, 10, 5, 0.9);
     border: none;
     border-top: 1px solid var(--pb-line);
     border-radius: 0;
     box-shadow: none;
-    padding: 8px 2px 2px;
-    gap: 6px;
+    margin: 0;
+    padding: 5px 4px 4px;
+    gap: 4px;
 }
 #nav-buttons button,
 #nav-buttons button:active {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
     background: rgba(82, 255, 138, 0.04);
-    border: 1px solid rgba(82, 255, 138, 0.45);
+    border: 1px solid rgba(82, 255, 138, 0.35);
     border-radius: 0;
     color: var(--pb-dim);
-    font-size: 1rem;
+    font-size: 0.78rem;
     font-weight: normal;
-    padding: 9px 2px;
+    letter-spacing: 0;
+    padding: 4px 0 3px;
     text-shadow: 0 0 3px rgba(82, 255, 138, 0.4);
     transform: none;
-    box-shadow: inset 0 -2px 0 rgba(82, 255, 138, 0.15);
+    box-shadow: none;
+    min-width: 0;
+    overflow: hidden;
 }
+.nav-ico { font-size: 1.25rem; line-height: 1.1; filter: grayscale(0.6); opacity: 0.8; }
 #nav-buttons button:active { background: rgba(82, 255, 138, 0.18); }
 #nav-buttons button.active-nav {
     background: rgba(82, 255, 138, 0.14);
-    border: 2px solid var(--term-green);
+    border: 1px solid var(--term-green);
     color: var(--term-green);
     transform: none;
-    box-shadow: 0 0 10px rgba(82, 255, 138, 0.35), inset 0 0 8px rgba(82, 255, 138, 0.15);
+    box-shadow: 0 0 10px rgba(82, 255, 138, 0.35), inset 0 -3px 0 var(--term-green);
 }
+#nav-buttons button.active-nav .nav-ico { filter: none; opacity: 1; }
 
 /* Баннер событий — инверсная плашка */
 #event-banner { letter-spacing: 0.5px; }
@@ -186,7 +215,7 @@ input, textarea, select {
 .cap-lg { width: 1.3em; height: 1.3em; vertical-align: -0.3em; }
 
 /* ---------- Уровень и опыт в шапке ---------- */
-.pb-xp { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
+.pb-xp { display: flex; align-items: center; gap: 6px; margin: 0 0 6px; cursor: pointer; color: var(--hero-color); font-size: 0.95rem; }
 .pb-xp-lvl b { font-size: 1.2rem; }
 .pb-xpbar { flex: 1; height: 8px; border: 1px solid var(--hero-color); position: relative; }
 .pb-xpbar div { position: absolute; top: 0; bottom: 0; left: 0; width: 0; background: var(--hero-color); opacity: 0.75; transition: width 0.4s ease; }
@@ -209,3 +238,69 @@ input, textarea, select {
 .perk-pips { color: var(--hero-color); letter-spacing: 1px; }
 .perk-btn { flex: 0 0 auto; padding: 5px 8px; font-size: 0.85rem; min-width: 82px; }
 .perk-btn-go { border-color: var(--hero-color); color: var(--hero-color); box-shadow: 0 0 8px rgba(240,230,140,0.35); }
+
+/* ---------- Главная кнопка сканера ---------- */
+.scan-main-btn {
+    display: block;
+    width: 100%;
+    padding: 18px 8px 12px;
+    font-size: 1.7rem;
+    letter-spacing: 2px;
+    border: 2px solid var(--term-green);
+    background: rgba(82, 255, 138, 0.1);
+    box-shadow: 0 0 14px rgba(82, 255, 138, 0.3), inset 0 0 18px rgba(82, 255, 138, 0.12);
+    margin-bottom: 12px;
+}
+.scan-main-btn small { display: block; font-size: 0.95rem; letter-spacing: 0.5px; opacity: 0.7; margin-top: 4px; }
+.scan-main-btn .scan-ico { font-size: 1.9rem; vertical-align: -0.1em; }
+.scan-main-btn.scan-on { border-color: var(--bandit-color); color: var(--bandit-color); background: rgba(255, 95, 79, 0.08); box-shadow: none; font-size: 1.3rem; padding: 12px 8px; }
+
+/* ---------- Рюкзак: группы и карточки ---------- */
+.inv-group-title { display: flex; align-items: center; gap: 8px; margin: 12px 0 6px; color: var(--pb-dim); letter-spacing: 1px; font-size: 1rem; }
+.inv-group-title::after { content: ""; flex: 1; border-top: 1px dashed rgba(82, 255, 138, 0.3); }
+.inv-group-title span { color: var(--term-green); }
+.inv-item { flex-direction: column; align-items: stretch; gap: 6px; }
+.inv-item .item-info { width: 100%; }
+.inv-meta { font-size: 0.95rem; color: var(--pb-dim); margin-top: 2px; }
+.inv-eff { color: #fff; }
+.inv-eff-rad { color: var(--rad-color); }
+.inv-desc { font-size: 0.9rem; color: var(--hero-color); margin-top: 3px; line-height: 1.2; }
+.inv-acts { display: flex; flex-wrap: wrap; gap: 5px; }
+.inv-acts button { flex: 1 1 auto; padding: 6px 6px; font-size: 0.95rem; min-height: 34px; }
+.inv-acts .inv-btn-use { border-color: #fff; color: #fff; flex-grow: 2; }
+.inv-acts .inv-btn-move { border-color: var(--term-green); color: var(--term-green); }
+.inv-acts .inv-btn-trade { border-color: var(--trade-color); color: var(--trade-color); }
+.inv-acts .inv-btn-drop { border-color: rgba(255, 95, 79, 0.6); color: rgba(255, 95, 79, 0.85); flex-grow: 0; }
+.inv-story { border-color: var(--hero-color) !important; }
+.inv-story::before { background: var(--hero-color) !important; }
+.inv-tag { font-size: 0.75rem; color: #000; background: var(--hero-color); padding: 0 4px; margin-left: 4px; vertical-align: 0.15em; text-shadow: none; }
+.inv-safe { border-color: var(--trade-color); }
+.inv-empty { color: var(--pb-dim); text-align: center; padding: 14px 6px; }
+
+/* ---------- Пустые состояния и подсказки ---------- */
+.empty-hint { color: var(--pb-dim); text-align: center; padding: 14px 8px; border: 1px dashed rgba(82, 255, 138, 0.3); font-size: 1rem; line-height: 1.3; }
+
+/* ---------- Карта ---------- */
+.map-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(5, 1fr); pointer-events: none; z-index: 2; background: rgba(0, 20, 0, 0.2); }
+.map-cell { position: relative; border-right: 1px solid rgba(82, 255, 138, 0.55); border-bottom: 1px solid rgba(82, 255, 138, 0.55); padding: 2px 4px; font-size: 0.85rem; color: var(--term-green); opacity: 0.85; }
+.map-cell:nth-child(5n) { border-right: none; }
+.map-cell:nth-last-child(-n+5) { border-bottom: none; }
+.map-cell-target { background: rgba(240, 230, 140, 0.18); outline: 2px solid var(--hero-color); outline-offset: -2px; color: var(--hero-color); opacity: 1; animation: pb-alert-blink 0.9s infinite alternate; }
+.map-cell-target b { position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%); font-size: 1.6rem; }
+.map-target-hint { border: 1px solid var(--hero-color); color: var(--hero-color); background: rgba(240, 230, 140, 0.07); padding: 6px 8px; margin-bottom: 8px; font-size: 1rem; line-height: 1.25; }
+
+/* ---------- Квесты: предыстория свёрнута ---------- */
+.quest-lore { margin-top: 8px; font-size: 0.9rem; color: var(--text-dim); }
+.quest-lore summary { cursor: pointer; color: var(--pb-dim); list-style: none; }
+.quest-lore summary::before { content: "▸ "; }
+.quest-lore[open] summary::before { content: "▾ "; }
+.quest-lore p { margin-top: 4px; line-height: 1.25; }
+
+/* ---------- Экран Базы ---------- */
+.base-callsign { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+.base-callsign label { color: var(--trade-color); font-size: 0.95rem; letter-spacing: 1px; }
+.base-callsign input { flex: 1; min-width: 0; background: var(--term-dark); border: 1px solid var(--term-green); color: var(--term-green); padding: 7px 8px; font-family: 'VT323', monospace; font-size: 1.15rem; }
+.base-callsign button { padding: 7px 12px; }
+.base-status { display: flex; justify-content: space-between; gap: 8px; font-size: 1.15rem; padding: 8px 10px; margin-bottom: 14px; border: 1px dashed rgba(82, 255, 138, 0.35); }
+.base-start-btn { display: block; width: 100%; font-size: 1.7rem; letter-spacing: 2px; padding: 16px 8px; margin-bottom: 10px; border: 2px solid var(--term-green); color: var(--term-green); background: rgba(82, 255, 138, 0.12); box-shadow: 0 0 14px rgba(82, 255, 138, 0.3); }
+.quest-progress { font-size: 1rem; line-height: 1.25; }

@@ -177,7 +177,7 @@ function renderTradeView() {
         });
     } else {
         if (currentTradeStock.length === 0) {
-            buyList.innerHTML = "<p>Нет товаров на продажу</p>";
+            buyList.innerHTML = "<div class='empty-hint'>У торговца сейчас нет товаров. Загляните позже.</div>";
         } else {
             currentTradeStock.forEach((data, i) => buyList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[data.id].name}</b><br><small>Вес: ${ITEMS_DB[data.id].size} | Цена: ${data.price} ${CAP}</small></div><button class="btn-trade" onclick="buyItem(${i})">КУПИТЬ</button></div>`);
         }
@@ -198,7 +198,7 @@ function renderTradeView() {
             sellList.innerHTML += `<div class="item"><div class="item-info"><b>${ITEMS_DB[id].name}</b><br><small>Вес: ${ITEMS_DB[id].size} | Даст: ${sp} ${CAP}</small></div><button class="btn-trade" style="color:var(--term-green); border-color:var(--term-green)" onclick="sellItem(${i}, ${sp})">ПРОДАТЬ</button></div>`;
         }
     });
-    if (!hasItems) sellList.innerHTML = "<p>В рюкзаке нет лута на продажу (достаньте из сейфа).</p>";
+    if (!hasItems) sellList.innerHTML += "<div class='empty-hint'>В рюкзаке нет того, что скупает этот торговец. Лут в подсумке сначала переложите в рюкзак.</div>";
 }
 
 function buyEquipment(eqId) {

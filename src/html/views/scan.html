@@ -10,7 +10,7 @@
                 <div id="scan-infection-timer" style="font-size:1rem; color:#fff;">Осталось времени на лечение: 05:00</div>
             </div>
             <div id="qr-reader"></div>
-            <button id="start-scan-btn" style="width:100%">ВКЛЮЧИТЬ СКАНЕР</button>
+            <button id="start-scan-btn" class="scan-main-btn"><span class="scan-ico">⌖</span> СКАНИРОВАТЬ QR<small>наведите камеру на код в Зоне</small></button>
 
             <div class="debug-input" id="admin-manual-scan-box" style="display:none; margin-top:10px;">
                 <input type="text" id="manual-code" placeholder="Код QR (junk_1, anom_1, npc_base)" autocomplete="off" autocapitalize="off" spellcheck="false" onkeydown="if(event.key==='Enter'){event.preventDefault(); submitManualCode();}">

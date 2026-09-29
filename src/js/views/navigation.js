@@ -87,6 +87,7 @@ function updateHUD() {
         if (document.getElementById('score-val') && player.score !== undefined) document.getElementById('score-val').innerText = player.score;
 
         if (document.getElementById('hp-val')) document.getElementById('hp-val').className = player.hp <= 20 ? 'danger' : '';
+        updateHudBars(baseMaxHp, maxHunger);
 
         if (k.name === 'ГЕРОЙ' && document.getElementById('rad-val')) {
             document.getElementById('rad-val').style.color = 'var(--hero-color)';
@@ -96,4 +97,28 @@ function updateHUD() {
     } catch (e) {
         console.error("updateHUD error:", e);
     }
+}
+
+// Полоски HP/еды, подсветка опасных значений и счётчики на кнопках быстрого доступа
+function updateHudBars(baseMaxHp, maxHunger) {
+    let setW = (id, v) => { let el = document.getElementById(id); if (el) el.style.width = Math.max(0, Math.min(100, v)) + '%'; };
+    setW('hp-fill', player.hp / Math.max(1, baseMaxHp) * 100);
+    setW('hunger-fill', player.hunger / Math.max(1, maxHunger) * 100);
+    let hm = document.getElementById('hunger-max-val');
+    if (hm) hm.innerText = '/' + maxHunger;
+
+    let alert = (id, on) => { let el = document.getElementById(id); if (el) el.classList.toggle('pb-alert', !!on); };
+    alert('hud-hp-box', player.hp > 0 && player.hp <= 25);
+    alert('hud-food-box', player.hunger <= 20);
+    alert('hud-rad-box', player.rads >= MAX_RADS * 0.75);
+
+    let inv = Array.isArray(player.inventory) ? player.inventory : [];
+    let count = f => inv.filter(id => ITEMS_DB[id] && f(ITEMS_DB[id])).length;
+    [['hp', it => it.heal > 0], ['rad', it => it.radCure > 0], ['food', it => it.feed > 0]].forEach(([k, f]) => {
+        let n = count(f);
+        let nEl = document.getElementById(`quick-${k}-n`);
+        if (nEl) nEl.innerText = n;
+        let btn = document.getElementById(`quick-${k}`);
+        if (btn) btn.classList.toggle('pb-empty', n === 0);
+    });
 }
